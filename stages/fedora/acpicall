@@ -13,19 +13,22 @@ if [ `dkms status |grep -c acpi_call` -gt 0 ]; then
 
     case "$answer" in
         y | Y )
-            dkms uninstall -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d, |cut -f1 -d:`   
-            dkms remove -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d, |cut -f1 -d:` --all
-        ;;
+          dkms uninstall -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d, |cut -f1 -d:`   
+          dkms remove -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d, |cut -f1 -d:` --all
+          ;;
         *)
-            return
-        ;;
+          return
+          ;;
     esac
 
 fi
 
 rm -rf /usr/src/acpi_call*
+
 cd /tmp
+
 git clone http://github.com/mkottman/acpi_call.git
+
 mv acpi_call /usr/src/acpi_call-$ACPICALLVERSION
 
 echo 'PACKAGE_NAME="acpi_call"

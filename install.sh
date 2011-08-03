@@ -42,7 +42,7 @@ echo
 echo $DISTRO"-based distribution found."
 echo
 
-source stages/checkrights.$DISTRO
+source stages/$DISTRO/checkrights
 
 #Determine Arch x86_64 or i686
 ARCH=`uname -m`
@@ -63,30 +63,30 @@ NVIDIABUSID="UNDEFINED"
 source stages/welcome 
 
 echo
-echo "Installing needed packages."
+echo "Installing needed packages..."
 echo 
 
-source stages/packageinstall.$DISTRO
+source stages/$DISTRO/packageinstall
 
 echo
-echo "Installing acpi_module"
+echo "Installing acpi_module..."
 echo
 
-source stages/acpicall.$DISTRO
+source stages/$DISTRO/acpicall
 
 echo
-echo "Backing up Configuration"
+echo "Backing up configuration..."
 echo
 
-source stages/backupconf.$DISTRO
+source stages/$DISTRO/backupconf
 
 echo
-echo "Installing Bumblebee Configuration and files"
+echo "Installing Bumblebee configuration and files"
 echo
 
-source stages/installbumblebee.$DISTRO.pre
+source stages/$DISTRO/installbumblebee.pre
 
-source stages/installbumblebee.$DISTRO
+source stages/$DISTRO/installbumblebee
 
 source stages/installbumblebee.post
 
@@ -98,11 +98,11 @@ source stages/autoconfiguration
 
 source stages/busiddetection
 
-source stages/autodetectmonitor.$DISTRO
+source stages/$DISTRO/autodetectmonitor
 
 source stages/manualselectmonitor
 
-source stages/powerconfiguration.$DISTRO
+source stages/$DISTRO/powerconfiguration
 
 echo
 echo "Setting output device to: $CONNECTEDMONITOR"
@@ -114,7 +114,7 @@ echo
 echo "Setting up Bumblebee Service"
 echo
 
-source stages/setupbumblebeeservice.$DISTRO
+source stages/$DISTRO/setupbumblebeeservice
 
 echo
 echo "Setting up Environment variables"
@@ -122,17 +122,17 @@ echo
 
 source stages/enviromentvariables
 
-source stages/setvariables.$DISTRO
+source stages/$DISTRO/setvariables
 
-if [ "$DISTRO" != UBUNTU ] && [ "$DISTRO" != OPENSUSE ] ; then
-  source stages/setupvglclient
+if [ "$DISTRO" != ubuntu ] && [ "$DISTRO" != opensuse ] ; then
+    source stages/setupvglclient
 fi
 
 echo
 echo "Setting up bumblebee user rights and/or stating services."
 echo
 
-source stages/userrights.$DISTRO
+source stages/$DISTRO/userrights
 
 echo
 echo

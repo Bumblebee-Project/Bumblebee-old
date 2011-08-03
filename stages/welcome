@@ -4,19 +4,17 @@ echo
 echo "This will enable you to utilize both your Intel and nVidia card"
 echo
 echo "Please note that this script will probably only work with Ubuntu, Debian,"
-echo "OpenSuSE and Fedora Based machines and has (by me) only been tested on"
-echo "Ubuntu Natty 11.04 and Fedora 14 but should work on others as well"
+echo "OpenSuSE and Fedora based machines"
 echo
 echo "Are you sure you want to proceed?? (y/n)"
 
 read answer
 
 case "$answer" in
-
-y | Y )
-;;
+    y | Y )
+      ;;
   
-*)
-exit 0
-;;
+    *)
+      exit 0
+      ;;
 esac

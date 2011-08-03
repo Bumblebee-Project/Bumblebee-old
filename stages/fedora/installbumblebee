@@ -1,4 +1,5 @@
 cp install-files/bumblebee.script.fedora /etc/init.d/bumblebee
+
 if [ "$ARCH" = "x86_64" ]; then
     echo
     echo "64-bit system detected"
@@ -12,6 +13,7 @@ elif [ "$ARCH" = "i686" ]; then
     echo
     yum -y --nogpgcheck install install-files/VirtualGL.i386.rpm
 fi
+
 if [ $? -ne 0 ]; then
     echo
     echo "Package manager failed to install VirtualGL..."
