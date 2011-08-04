@@ -83,6 +83,6 @@ if [ "$ARCH" = "x86_64" ]; then
     ln -s /usr/local/bin/optirun /usr/local/bin/optirun64
 fi
 
-if [ "`cat /etc/modules |grep "nvidia-current" |wc -l`" -eq "0" ]; then
+if ! grep -q nvidia-current /etc/modules; then
     echo "nvidia-current" >> /etc/modules
 fi
