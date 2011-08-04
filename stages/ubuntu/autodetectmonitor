@@ -1,8 +1,12 @@
-#
-#   Monitor detection
-#
+echo
+echo "Auto-detecting hardware"
+echo
 
 if [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; then
+
+    if [ -f /usr/local/bin/bumblebee-enablecard ]; then
+        /usr/local/bin/bumblebee-enablecard
+    fi
 
     ${MODPROBE} nvidia-current
 
@@ -12,4 +16,7 @@ if [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; then
 
     ${MODPROBE} -r nvidia-current
 
+    if [ -f /usr/local/bin/bumblebee-disablecard ]; then
+        /usr/local/bin/bumblebee-disablecard
+    fi
 fi

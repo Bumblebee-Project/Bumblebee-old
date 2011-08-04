@@ -28,29 +28,29 @@
 
 ROOT_UID=0
 
-if grep -iq Fedora /etc/issue; then
-    DISTRO=fedora
-elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
-    DISTRO=ubuntu
-elif grep -iq OpenSUSE /etc/issue; then
-    DISTRO=opensuse
-    if [ "$SUDO_USER" != "" ] ; then
-        HOME=`cat /etc/passwd | grep $SUDO_USER | cut -f6 -d':'`
-    fi
-elif grep -iq Debian /etc/issue; then
-    DISTRO=debian
+if [ `cat /etc/issue | grep -nir fedora | wc -l` -gt 0 ] ; then
+ DISTRO=FEDORA
+elif [ `cat /etc/issue | grep -nir ubuntu | wc -l` -gt 0 ] || \
+     [ `cat /etc/issue | grep -nir "Linux Mint" | wc -l` -gt 0 ] || \
+     [ `cat /etc/issue | grep -nir "Backtrack 5" | wc -l` -gt 0 ] ; then
+ DISTRO=UBUNTU
+elif [ `cat /etc/issue | grep -nir opensuse | wc -l` -gt 0 ] ; then
+ DISTRO=OPENSUSE
+ if [ "$SUDO_USER" != "" ] ; then
+  HOME=`cat /etc/passwd | grep $SUDO_USER | cut -f6 -d':'`
+ fi
 else
-    echo "Cannot handle this distribution."
+ echo "Cannot handle this distribution."
 fi
 
-if (( EUID != ROOT_UID )) ; then
+if [ "$UID" != "$ROOT_UID" ] ; then
     echo "You don't have sufficient privileges to run this script."
     echo
     echo "Please run the script with: sudo bumblebee-config"
     exit 1
 fi
   
-if [ "$HOME" = "/root" ] && [ "$DISTRO" != opensuse ] ; then
+if [ "$HOME" = "/root" ] && [ "$DISTRO" != OPENSUSE ] ; then
     echo "Do not run this script as the root user"
     echo
     echo "Please run the script with: sudo bumblebee-config"
@@ -67,19 +67,18 @@ MODPROBE=`which modprobe`
 echo
 echo "Bumblebee Configuration."
 echo
-echo "Do you want to reconfigure bumblebee ? (Y/N)" 
+echo "Do you want to reconfigure bumblebee. (Y/N)" 
 echo
 read answer
 
 case "$answer" in
 
-    y | Y )
-      ;;
+ y | Y )
+ ;;
  
-    *)
-      exit 0
-      ;;
-
+ *)
+  exit 0
+ ;;
 esac
 
 
@@ -96,78 +95,80 @@ sed -i "s/$CURRENTMONITOR/$CONNECTEDMONITOR/g" /etc/X11/xorg.conf.nvidia
 #
 #	Get the image transport method
 #
-if [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "opensuse" ] ; then
-    CURRENTIMAGETRANSPORT=`cat /etc/default/bumblebee | grep VGL_COMPRESS= | cut -f2 -d=`
-elif [ "$DISTRO" == "fedora" ] ; then
-    CURRENTIMAGETRANSPORT=`cat /etc/profile.d/virtualgl.sh | grep VGL_COMPRESS= | cut -f2 -d=`
+if [ "$DISTRO" == "UBUNTU" ] || [ "$DISTRO" == "OPENSUSE" ] ; then
+ CURRENTIMAGETRANSPORT=`cat /etc/default/bumblebee | grep VGL_COMPRESS= | cut -f2 -d=`
+elif [ "$DISTRO" == "FEDORA" ] ; then
+ CURRENTIMAGETRANSPORT=`cat /etc/profile.d/virtualgl.sh | grep VGL_COMPRESS= | cut -f2 -d=`
 fi
 IMAGETRANSPORT="UNDEFINED"
 
 while [ "$IMAGETRANSPORT" = "UNDEFINED" ] ; do
 
+  clear
+
+  echo
+  echo "The Image Transport is how the images are transferred from the"
+  echo "nVidia card to the Intel card, people has different experiences of"
+  echo "performance, but just select the default if you are in doubt."
+  echo 
+  echo "I recently found out that yuv and jpeg both has some lagging"
+  echo "this is only noticable in fast moving games, such as 1st person"
+  echo "shooters and for me, its only good enough with xv, even though" 
+  echo "xv sets down performance a little bit."
+  echo
+  echo "Image transport is currently set to: "$CURRENTIMAGETRANSPORT
+  echo
+  echo "1) YUV"
+  echo "2) JPEG"
+  echo "3) PROXY"
+  echo "4) XV (default)"
+  echo "5) RGB"  
+  echo "6) Keep current setting"
+
+  echo
+  read machine
+  echo
+
+  case "$machine" in
+
+    1)
+    IMAGETRANSPORT="yuv"
+    ;;
+      
+    2)
+    IMAGETRANSPORT="jpeg"
+    ;;
+      
+    3)
+    IMAGETRANSPORT="proxy"
+    ;;
+
+    4)
+    IMAGETRANSPORT="xv"
+    ;;
+      
+    5)
+    IMAGETRANSPORT="rgb"
+    ;;
+
+    6)
+    IMAGETRANSPORT=$CURRENTIMAGETRANSPORT
+    ;;
+
+    *)
+    echo
+    echo "Please choose a valid option, Press any key to try again."
+    read
     clear
-
-    echo
-    echo "The Image Transport is how the images are transferred from the"
-    echo "nVidia card to the Intel card, people has different experiences of"
-    echo "performance, but just select the default if you are in doubt."
-    echo 
-    echo "I recently found out that yuv and jpeg both has some lagging"
-    echo "this is only noticable in fast moving games, such as 1st person"
-    echo "shooters and for me, its only good enough with xv, even though" 
-    echo "xv sets down performance a little bit."
-    echo
-    echo "Image transport is currently set to: "$CURRENTIMAGETRANSPORT
-    echo
-    echo "1) YUV"
-    echo "2) JPEG"
-    echo "3) PROXY"
-    echo "4) XV (default)"
-    echo "5) RGB"  
-    echo "6) Keep current setting"
-
-    echo
-    read machine
-    echo
-
-    case "$machine" in
-
-        1)
-          IMAGETRANSPORT="yuv"
-          ;;
+	
+    ;;   
       
-        2)
-          IMAGETRANSPORT="jpeg"
-          ;;
-      
-        3)
-          IMAGETRANSPORT="proxy"
-          ;;
-
-        4)
-          IMAGETRANSPORT="xv"
-          ;;
-      
-        5)
-          IMAGETRANSPORT="rgb"
-          ;;
-
-        6)
-          IMAGETRANSPORT=$CURRENTIMAGETRANSPORT
-          ;;
-
-        *)
-          echo
-          echo "Please choose a valid option, Press any key to try again."
-          read
-          clear
-          ;;
-    esac 
+  esac 
 done 
 
-if [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "opensuse" ] ; then
+if [ "$DISTRO" == "UBUNTU" ] || [ "$DISTRO" == "OPENSUSE" ] ; then
   sed -i "s/VGL_COMPRESS=$CURRENTIMAGETRANSPORT/VGL_COMPRESS=$IMAGETRANSPORT/g" /etc/default/bumblebee
-elif [ "$DISTRO" == "fedora" ] ; then
+elif [ "$DISTRO" == "FEDORA" ] ; then
  sed -i "s/VGL_COMPRESS=$CURRENTIMAGETRANSPORT/VGL_COMPRESS=$IMAGETRANSPORT/g" /etc/profile.d/virtualgl.sh
 fi
 
@@ -175,59 +176,62 @@ fi
 #
 #	Stop service ?
 #
-if [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "opensuse" ] ; then
-    CURRENTSTOPSERVICE=`cat /etc/default/bumblebee | grep STOP_SERVICE_ON_EXIT= | cut -f2 -d=`
+if [ "$DISTRO" == "UBUNTU" ] || [ "$DISTRO" == "OPENSUSE" ] ; then
+  CURRENTSTOPSERVICE=`cat /etc/default/bumblebee | grep STOP_SERVICE_ON_EXIT= | cut -f2 -d=`
 
-    STOPSERVICE="UNDEFINED"
+  STOPSERVICE="UNDEFINED"
 
-    while [ "$STOPSERVICE" = "UNDEFINED" ] ; do
+  while [ "$STOPSERVICE" = "UNDEFINED" ] ; do
 
-        clear
+    clear
 
-        echo
-        echo "Bumblebee optimus X server will handle all the apllications started with the optirun command."
-        echo "The server can be terminate when nobody is using it. If powermanagement is working for your"
-        echo "system, this setting will save some energy."
-        echo
-        if [ "$CURRENTSTOPSERVICE" == "YES" ] ; then
-            echo "The current setting will stop the NVidia X server when nobody is using it."
-        else
-            echo "The current setting will leave the NVidia X server running."
-        fi
-        echo
-        echo "1) Stop the server on exit"
-        echo "2) Leave server running on exit"
-        echo "3) Keep current setting"
+    echo
+    echo "Bumblebee optimus X server will handle all the apllications started with the optirun command."
+    echo "The server can be terminate when nobody is using it. If powermanagement is working for your"
+    echo "system, this setting will save some energy."
+    echo
+    if [ "$CURRENTSTOPSERVICE" == "YES" ] ; then
+      echo "The current setting will stop the NVidia X server when nobody is using it."
+    else
+      echo "The current setting will leave the NVidia X server running."
+    fi
+    echo
+    echo "1) Stop the server on exit"
+    echo "2) Leave server running on exit"
+    echo "3) Keep current setting"
 
-        echo
-        read machine
-        echo
+    echo
+    read machine
+    echo
 
-        case "$machine" in
+    case "$machine" in
 
-            1)
-              STOPSERVICE="YES"
-              ;;
+      1)
+      STOPSERVICE="YES"
+      ;;
+	
+      2)
+      STOPSERVICE="NO"
+      ;;
+  
+      3)
+      STOPSERVICE=$CURRENTSTOPSERVICE
+      ;;
 
-            2)
-              STOPSERVICE="NO"
-              ;;
+      *)
+      echo
+      echo "Please choose a valid option, Press any key to try again."
+      read
+      clear
+	  
+      ;;   
+	
+    esac 
+  done 
 
-            3)
-              STOPSERVICE=$CURRENTSTOPSERVICE
-              ;;
-
-            *)
-              echo
-              echo "Please choose a valid option, Press any key to try again."
-              read
-              clear
-              ;;
-        esac 
-    done
-
+  if [ "$DISTRO" == "UBUNTU" ] || [ "$DISTRO" == "OPENSUSE" ] ; then
     sed -i "s/STOP_SERVICE_ON_EXIT=$CURRENTSTOPSERVICE/STOP_SERVICE_ON_EXIT=$STOPSERVICE/g" /etc/default/bumblebee
-
+  fi
 fi
 
 

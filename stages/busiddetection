@@ -1,33 +1,72 @@
 #
-#   Script detecting nVidia Bus ID
+# We always try to detect the busid of the nvidia card to overcome potential issues in the autoconfiguration
+# due to small difference in hardware for certain laptops (i.e. ASUS 1215N).
+#
+# Maybe this is all too much and we should stick to the local detection.
 #
 DETECTED="UNDEFINED"
-if [ `${LSPCI} | grep -c VGA` -eq 2 ]; then
+if [ `${LSPCI} |grep -c VGA` -eq 2 ]; then
     DETECTED=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-elif [ `${LSPCI} | grep -c 3D` -eq 1 ]; then
+elif [ `${LSPCI} |grep -c 3D` -eq 1 ]; then
     DETECTED=`${LSPCI} | grep 3D  | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
 fi
 
-if [ "$DETECTED" = "UNDEFINED" ]; then
+if [ "$NVIDIABUSID" = "UNDEFINED" ]; then
 
-    echo
-    echo "The BusID of the nVidia card can't be determined."
-    echo
-    echo "You must correct this manually in /etc/X11/xorg.conf.nvidia."
-    echo "Please report this problem.."
-    echo
-    echo "Press Any Key to continue."
-    echo
-    read
+    if [ "$DETECTED" = "UNDEFINED" ]; then
+
+        echo
+        echo "The BusID of the nVidia card can't be determined."
+        echo
+        echo "You must correct this manually in /etc/X11/xorg.conf.nvidia."
+        echo "Please report this problem.."
+        echo
+        echo "Press Any Key to continue."
+        echo
+        read
+
+    else
+
+        echo
+        echo "We will use the local configuration ${DETECTED}"
+        echo "for the BusID of the nVidia card."
+        echo
+        echo "Please submit your system if everything is working."
+        echo
+        echo "Press Any Key to continue."
+        echo
+        read
+        NVIDIABUSID=${DETECTED}
+
+    fi
 
 else
 
-    echo
-    echo "We will use the local configuration ${DETECTED}"
-    echo "for the BusID of the nVidia card."
-    echo
-    NVIDIABUSID=${DETECTED}
+    if [ "$DETECTED" = "UNDEFINED" ] || [ "$NVIDIABUSID" == "$DETECTED" ]; then
+
+        echo
+        echo "We will use the autoconfigured ${NVIDIABUSID}"
+        echo "for the BusID of the nVidia card."
+        echo
+
+    elif [ "$NVIDIABUSID" != "$DETECTED" ]; then
+
+        echo
+        echo "The autoconfiguration doesn't match your local configuration"
+        echo "for the BusID of the nVidia card."
+        echo
+        echo "We will use the local configuration ${DETECTED} instead of ${NVIDIABUSID}."
+        echo
+        echo "Press Any Key to continue."
+        echo
+        read
+        NVIDIABUSID=${DETECTED}
+
+    fi
 
 fi
 
 sed -i 's/REPLACEWITHBUSID/'$NVIDIABUSID'/g' /etc/X11/xorg.conf.nvidia
+if [ "$DISTRO" == "OPENSUSE" ] ; then
+	sed -i 's/REPLACEWITHBUSID/'$NVIDIABUSID'/g' /etc/X11/xorg.conf.nouveau
+fi

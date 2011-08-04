@@ -17,10 +17,10 @@ while [ "$IMAGETRANSPORT" = "UNDEFINED" ]; do
     echo "5) RGB"  
 
     echo
-    read transport
+    read machine
     echo
 
-    case "$transport" in
+    case "$machine" in
 
         1)
           IMAGETRANSPORT="yuv"

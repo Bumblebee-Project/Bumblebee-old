@@ -1,4 +1,14 @@
 VERSION=`cat /etc/issue | cut -f2 -d" "`
+if [ ! -f /usr/local/bin/bumblebee-disablecard-on-powerup ]; then
+    # Not installed
+    cp install-files/bumblebee-disablecard-on-powerup /usr/local/bin/
+    ln -s /usr/local/bin/bumblebee-disablecard-on-powerup /etc/pm/power.d/
+else
+    # Already Exists
+    echo
+    echo "nVidia card disable-on-powerup-script: /usr/local/bin/bumblebee-disablecard-on-powerup, already exists not overwriting"
+    echo
+fi
 
 if [ -f /etc/default/bumblebee ]; then
     # Already Exists
@@ -11,6 +21,10 @@ fi
 
 cp install-files/bumblebee.default /etc/default/bumblebee
 
+mkdir -p /usr/share/doc/bumblebee
+cp install-files/documentation /usr/share/doc/bumblebee
+cp install-files/ubuntu/* /usr/share/doc/bumblebee
+
 if [ "$ARCH" = "x86_64" ]; then
     echo
     echo "64-bit system detected"
@@ -22,14 +36,12 @@ elif [ "$ARCH" = "i686" ]; then
     echo
     dpkg -i install-files/VirtualGL_i386.deb
 fi
-
 if [ $? -ne 0 ]; then
     echo
     echo "Package manager failed to install VirtualGL..."
     echo
     exit 20
 fi
-
 cp install-files/bumblebee.script.ubuntu /etc/init.d/bumblebee
 
 # Before you start with messing with symlinks or removing files, make sure
@@ -83,6 +95,6 @@ if [ "$ARCH" = "x86_64" ]; then
     ln -s /usr/local/bin/optirun /usr/local/bin/optirun64
 fi
 
-if ! grep -q nvidia-current /etc/modules; then
+if [ "`cat /etc/modules |grep "nvidia-current" |wc -l`" -eq "0" ]; then
     echo "nvidia-current" >> /etc/modules
 fi

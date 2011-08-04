@@ -7,10 +7,10 @@ while [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; do
     echo "2) Manually Enter Output"
 
     echo
-    read output
+    read machine
     echo
 
-    case "$output" in
+    case "$machine" in
 
         0)
           CONNECTEDMONITOR="CRT-0"

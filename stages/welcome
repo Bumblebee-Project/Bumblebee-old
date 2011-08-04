@@ -6,7 +6,7 @@ echo
 echo "Please note that this script will probably only work with Ubuntu, Debian,"
 echo "OpenSuSE and Fedora based machines"
 echo
-echo "Are you sure you want to proceed ? (y/n)"
+echo "Are you sure you want to proceed?? (y/n)"
 
 read answer
 
