@@ -67,7 +67,7 @@ MODPROBE=`which modprobe`
 echo
 echo "Bumblebee Configuration."
 echo
-echo "Do you want to reconfigure bumblebee. (Y/N)" 
+echo "Do you want to reconfigure bumblebee ? (Y/N)" 
 echo
 read answer
 

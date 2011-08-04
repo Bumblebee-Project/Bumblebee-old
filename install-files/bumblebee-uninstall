@@ -80,7 +80,8 @@ if [ $DISTRO = FEDORA ] && [ "$ARCH" = "x86_64" ] ; then
     echo "please make sure that all your data is saved"
     echo
 fi
-echo "Are you sure you want to proceed?? (Y/N)"
+
+echo "Are you sure you want to proceed ? (Y/N)"
 echo
 
 read answer
