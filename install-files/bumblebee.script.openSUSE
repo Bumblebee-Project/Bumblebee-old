@@ -90,7 +90,8 @@ start()
 			/usr/bin/X -ac -config /etc/X11/xorg.conf.nvidia -sharevts -modulepath /usr/lib/xorg-nvidia/modules/updates,/usr/lib/xorg-nvidia/modules -nolisten tcp -noreset $VGL_DISPLAY vt9 > /dev/null 2>&1 &
 		fi
 	else
-		/usr/bin/X -ac -config /etc/X11/xorg.conf.nouveau -sharevts -nolisten tcp -noreset $VGL_DISPLAY vt9 > /dev/null 2>&1 &
+		echo "Nvidia drivers are not installed, Bumblebee cannot be started"
+		exit 1
 	fi
 	PID_X=$!
 	i=1

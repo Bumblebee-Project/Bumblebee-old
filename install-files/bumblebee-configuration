@@ -158,7 +158,6 @@ fi
 
 sed -i "s/\([ \t]*BusID[ \t]*\)\".*\"/\1\"$NVIDIABUSID\"/g" /etc/X11/xorg.conf.nvidia
 if [ "$DISTRO" == "OPENSUSE" ] ; then
-	sed -i "s/\([ \t]*BusID[ \t]*\)\".*\"/\1\"$NVIDIABUSID\"/g" /etc/X11/xorg.conf.nouveau
 fi
 NVIDIABUSIDCUT=`echo $NVIDIABUSID | cut -d: -f2,3`
 
