@@ -9,25 +9,21 @@
 # (information from /usr/share/misc/pci.ids and the manpage of lspci)
 NVIDIABUSID=$("$LSPCI" -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
-    if [ -z "$NVIDIABUSID" ]; then
-
-        echo
-        echo "The BusID of the nVidia card can't be determined."
-        echo
-        echo "You must correct this manually in /etc/X11/xorg.conf.nvidia."
-        echo "Please report this problem.."
-        echo
-        echo "Press Enter to continue."
-        echo
-        read
-
-    else
-
-        echo
-        echo "We will use the local configuration ${DETECTED}"
-        echo "for the BusID of the nVidia card."
-        echo
-
-    fi
+if [ -z "$NVIDIABUSID" ]; then
+    echo
+    echo "The BusID of the nVidia card can't be determined."
+    echo
+    echo "You must correct this manually in /etc/X11/xorg.conf.nvidia."
+    echo "Please report this problem.."
+    echo
+    echo "Press Enter to continue."
+    echo
+    read
+else
+    echo
+    echo "We will use the local configuration ${DETECTED}"
+    echo "for the BusID of the nVidia card."
+    echo
+fi
 
 sed -i "s/REPLACEWITHBUSID/$NVIDIABUSID/g" /etc/X11/xorg.conf.nvidia

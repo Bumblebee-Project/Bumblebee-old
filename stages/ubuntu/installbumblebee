@@ -22,12 +22,14 @@ elif [ "$ARCH" = "i686" ]; then
     echo
     dpkg -i install-files/VirtualGL_i386.deb
 fi
+
 if [ $? -ne 0 ]; then
     echo
     echo "Package manager failed to install VirtualGL..."
     echo
     exit 20
 fi
+
 cp install-files/bumblebee.script.ubuntu /etc/init.d/bumblebee
 
 # Before you start with messing with symlinks or removing files, make sure
