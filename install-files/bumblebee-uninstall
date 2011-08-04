@@ -104,11 +104,6 @@ if [ $DISTRO = UBUNTU  ] || [ $DISTRO = DEBIAN  ]; then
     #	Kill the nvidia X server
     /etc/init.d/bumblebee disable
 
-    #	Make sure the card is enabled
-    if [ -x /usr/local/bin/bumblebee-enablecard ]; then
-      /usr/local/bin/bumblebee-enablecard
-    fi
-
     echo "Removing nVidia driver package"
     echo
     apt-get -y --purge remove nvidia-current
@@ -116,7 +111,6 @@ if [ $DISTRO = UBUNTU  ] || [ $DISTRO = DEBIAN  ]; then
     echo
     dpkg -r VirtualGL
     update-rc.d -f bumblebee remove
-    rm /etc/pm/power.d/bumblebee-disablecard-on-powerup
 
 elif [ $DISTRO = OPENSUSE ]; then
 
@@ -126,24 +120,6 @@ elif [ $DISTRO = OPENSUSE ]; then
     echo "Removing VirtualGL package"
     echo
     zypper --no-refresh --non-interactive remove VirtualGL
-
-    #	Make sure the card is enabled
-    if [ -x /usr/local/bin/bumblebee-enablecard ]; then
-      /usr/local/bin/bumblebee-enablecard
-    fi
-
-#    FOUND=`rpm -qa|grep x11-video-nvidia`
-#    if [ "$FOUND" != "" ] || ( [ -d /usr/X11R6/lib-nvidia ] && [ ! -d /usr/X11R6/nvidia ] ) ; then
-#	if [ -f /usr/local/bin/bumblebee-check ] ; then
-	  #
-	  #	Cleanup 3D hack for the repository
-	  #
-	  #	Do not cleanup. It will kill the Intel 3D and put the Intel X server image upside down
-	  # if the nVidia driver is not removed.
-	  #
-#	  /usr/local/bin/bumblebee-check -restore
-#	fi
-#    fi
 
     if [ -f /usr/bin/nvidia-uninstall ] ; then
 
@@ -198,11 +174,6 @@ elif [ $DISTRO = FEDORA ]; then
         rm /etc/profile.d/virtualgl.sh
     fi
 
-    #	Make sure the card is enabled
-    if [ -x /usr/local/bin/bumblebee-enablecard ]; then
-      /usr/local/bin/bumblebee-enablecard
-    fi
-
     # New method for x86_64 but still the old one for i686
     if [ "$ARCH" = "x86_64" ]; then
         echo "Removing nVidia driver package"
@@ -252,7 +223,6 @@ rm -rf /usr/lib64/nvidia-current
 rm -rf /usr/lib/nvidia-current
 rm -rf /usr/lib/bumblebee
 rm -f /usr/local/bin/optirun*
-rm -f /usr/local/bin/bumblebee-disablecard-on-powerup
 rm -f /usr/bin/vglclient-service
 rm -f /etc/modprobe.d/nouveau-blacklist.conf
 rm -rf /usr/share/doc/bumblebee
@@ -268,11 +238,6 @@ fi
 
 if [ -d /usr/lib/bumblebee ]; then
     rm -rf /usr/lib/bumblebee
-fi
-
-if [ `dkms status |grep acpi_call | wc -l` -gt 0 ]; then
- dkms uninstall -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d,`  
- dkms remove -m acpi_call -v `dkms status |grep acpi_call |cut -f2 -d,` --all
 fi
 
 if [ -f /etc/alternatives/xorg_extra_modules-bumblebee ] ; then

@@ -215,10 +215,7 @@ while [ "$CONFIGMODE" != "MANUAL" ] && [ "$CONFIGMODE" != "DONE" ] ; do
 			CONNECTEDMONITOR=`cat /tmp/machineinfo |cut -f3 -d\| | sed -e 's/ //g'`
 			INTELBUSID=`cat /tmp/machineinfo |cut -f4 -d\| | sed -e 's/ //g'`
 			NVIDIABUSID=`cat /tmp/machineinfo |cut -f5 -d\| | sed -e 's/ //g'`
-			POWERON=`cat /tmp/machineinfo |cut -f6 -d\|`
-			POWEROFF=`cat /tmp/machineinfo |cut -f7 -d\|`
 			OS=`cat /tmp/machineinfo |cut -f10 -d\|`
-			POWERSTATUS=`cat /tmp/machineinfo |sed -n 1p|cut -f6 -d\| | sed -e 's/ //g'`
 			;;
 		*)
 			LIST_SIZE=$(($LINES - 10))
@@ -242,27 +239,17 @@ while [ "$CONFIGMODE" != "MANUAL" ] && [ "$CONFIGMODE" != "DONE" ] ; do
 				CONNECTEDMONITOR=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f3 -d\| | sed -e 's/ //g'`
 				INTELBUSID=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f4 -d\| | sed -e 's/ //g'`
 				NVIDIABUSID=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f5 -d\| | sed -e 's/ //g'`
-				POWERON=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f6 -d\|`
-				POWEROFF=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f7 -d\|`
 				OS=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f10 -d\|`
-				POWERSTATUS=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f6 -d\| | sed -e 's/ //g'`
 			fi
 			;;
 		esac
 	fi
 
 	if [ "$CONFIGMODE" = "AUTO"  ] ; then
-		if [ "$POWERSTATUS" = "UNAVAILABLE"  ] ; then
-			PWSTATUS="Unavailable"
-		else
-			PWSTATUS="Available"
-		fi
-
 		choice=$(whiptail --nocancel --menu " The following system profile has been found/selected:\n\n"\
 "	Machine: $MANUFACTURER $MODEL\n"\
 "	Connected Monitor: $CONNECTEDMONITOR\n"\
 "	nVidia Card BusID: $NVIDIABUSID\n"\
-"	Power Control Scripts: $PWSTATUS\n"\
 "	Tested on: $OS\n"\
 "	Submitted by: $USER\n\n"\
 "	Do you want to use this configuration?\n" $LINES $COLUMNS 5 1 "Use this Configuration" 2 "Return to System-specific Configuration" 3 "Return to Full System List" 4 "Start Manual Configuration" 5 "Cancel Configuration"  3>&1 1>&2 2>&3)
@@ -306,16 +293,12 @@ while [ "$CONFIGMODE" != "MANUAL" ] && [ "$CONFIGMODE" != "DONE" ] ; do
 			CONNECTEDMONITOR=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f3 -d\| | sed -e 's/ //g'`
 			INTELBUSID=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f4 -d\| | sed -e 's/ //g'`
 			NVIDIABUSID=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f5 -d\| | sed -e 's/ //g'`
-			POWERON=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f6 -d\|`
-			POWEROFF=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f7 -d\|`
 			OS=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f10 -d\|`
-			POWERSTATUS=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f6 -d\| | sed -e 's/ //g'`
 		fi
 	fi
 done
 
 if [ "$CONFIGMODE" == "MANUAL" ]; then
-	POWERON="UNAVAILABLE"
 	if [ `${LSPCI} |grep VGA |wc -l` -eq 2 ]; then
 		NVIDIABUSID=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
 	elif [ `${LSPCI} |grep 3D |wc -l` -eq 1 ]; then
@@ -345,14 +328,6 @@ NVIDIABUSIDCUT=`echo $NVIDIABUSID | cut -d: -f2,3`
 
 if [ "$CONFIGMODE" == "MANUAL" ]; then
 	CONNECTEDMONITOR="UNKNOWN"
-	if $LSPCI -v -s $NVIDIABUSIDCUT | grep -q ! ; then
-		if [ -x /usr/local/bin/bumblebee-enablecard ] ; then
-			/usr/local/bin/bumblebee-enablecard
-		fi
-		if [ -x /usr/bin/bumblebee-enablecard ] ; then
-			/usr/bin/bumblebee-enablecard
-		fi
-	fi
 	if [ "$DISTRO" == "UBUNTU" ] ; then
 		${MODPROBE} nvidia-current
 		if [ `$LSPCI -v -s $NVIDIABUSIDCUT |grep ! |wc -l` = 0 ] ; then
@@ -373,14 +348,6 @@ if [ "$CONFIGMODE" == "MANUAL" ]; then
 			fi
 		fi
 		${MODPROBE} -r nvidia 2>&1 >/dev/null
-	fi
-	if ! $LSPCI -v -s $NVIDIABUSIDCUT | grep -q ! ; then
-		if [ -x /usr/local/bin/bumblebee-disablecard ] ; then
-			/usr/local/bin/bumblebee-disablecard
-		fi
-		if [ -x /usr/bin/bumblebee-disablecard ] ; then
-			/usr/bin/bumblebee-disablecard
-		fi
 	fi
 	if [ "$CONNECTEDMONITOR" != "CRT-0" ] && [ "$CONNECTEDMONITOR" != "DFP-0" ];then
 		LIST_SIZE=$(($LINES - 10))
@@ -403,125 +370,6 @@ fi
 
 sed -i "s/\([ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\)".*"/\1\"$CONNECTEDMONITOR\"/g" /etc/X11/xorg.conf.nvidia
 
-#
-#	Always try to enable the card before switching scripts
-#
-if $LSPCI -v -s $NVIDIABUSIDCUT | grep -q !; then
-	if [ -f /usr/local/bin/bumblebee-enablecard ] ; then
-		/usr/local/bin/bumblebee-enablecard
-	fi
-	if [ -f /usr/bin/bumblebee-enablecard ] ; then
-		/usr/bin/bumblebee-enablecard
-	fi
-fi
-if [ "$DISTRO" == "UBUNTU" ] ; then
-	if [ ! "$POWERON" == "UNAVAILABLE" ] ; then
-		echo "$POWERON" | xxd -r -p > /usr/local/bin/bumblebee-enablecard
-		echo "$POWEROFF" | xxd -r -p > /usr/local/bin/bumblebee-disablecard
-	else
-		whiptail --msgbox \
-" No power-on/off configuration has been reported for your machine,\n"\
-"please manually enter configuration in:\n\n"\
-"/usr/local/bin/bumblebee-enablecard and /usr/local/bin/bumblebee-disablecard\n\n"\
-"Some examples are available in /usr/share/doc/bumblebee/.\n\n"\
-"Press any key to continue..." $LINES $COLUMNS
-		if [ ! -f /usr/local/bin/bumblebee-enablecard ] ; then
-			# Not installed
-			cp /usr/share/doc/bumblebee/bumblebee-enablecard.template /usr/local/bin/bumblebee-enablecard
-		else
-			# Already Exists
-			echo
-			echo "nVidia card enable-script: /usr/local/bin/bumblebee-enablecard exists moving old script to /usr/local/bin/bumblebee-enablecard.old."
-			echo
-			mv /usr/local/bin/bumblebee-enablecard /usr/local/bin/bumblebee-enablecard.old
-			cp /usr/share/doc/bumblebee/bumblebee-enablecard.template /usr/local/bin/bumblebee-enablecard
-		fi
-		chmod +x /usr/local/bin/bumblebee-enablecard
-		if [ ! -f /usr/local/bin/bumblebee-disablecard ]; then
-			# Not installed
-			cp /usr/share/doc/bumblebee/bumblebee-disablecard.template /usr/local/bin/bumblebee-disablecard
-		else
-			# Already Exists
-			echo
-			echo "nVidia card disable-script: /usr/local/bin/bumblebee-disablecard exists, moving old script to /usr/local/bin/bumblebee-disablecard.old."
-			echo
-			mv /usr/local/bin/bumblebee-disablecard /usr/local/bin/bumblebee-disablecard.old
-			cp /usr/share/doc/bumblebee/bumblebee-disablecard.template /usr/local/bin/bumblebee-disablecard
-		fi
-		chmod +x /usr/local/bin/bumblebee-disablecard
-	fi
-fi
-if ! $LSPCI -v -s $NVIDIABUSIDCUT | grep -q !; then
-	if [ -f /usr/local/bin/bumblebee-disablecard ]; then
-		/usr/local/bin/bumblebee-disablecard
-	fi
-	if [ -f /usr/bin/bumblebee-disablecard ]; then
-		/usr/bin/bumblebee-disablecard
-	fi
-fi
-                                                                                                                                
-if [ "$DISTRO" == "OPENSUSE" ] ; then
-	#
-	#	Setup new scripts
-	#
-	if [ -f /usr/local/bin/optirun ] ; then
-		SCRIPT_PATH=/usr/local/bin
-	elif [ -f /usr/bin/optirun ] ; then
-		SCRIPT_PATH=/usr/bin
-	else
-		SCRIPT_PATH=""
-	fi
-	if [ "$SCRIPT_PATH" != "" ] ; then
-		if [ ! "$POWERON" == "UNAVAILABLE" ] ; then
-			#
-			#	Power scripts found
-			#
-			echo $POWERON | xxd -r -p > $SCRIPT_PATH/bumblebee-enablecard
-			echo $POWEROFF | xxd -r -p > $SCRIPT_PATH/bumblebee-disablecard
-
-			sed -i 's?modprobe nvidia?if \[ -f /usr/bin/nvidia-xconfig \] ; then\n\tmodprobe nvidia\nelse\n\tmodprobe nouveau\nfi?g' $SCRIPT_PATH/bumblebee-enablecard
-			sed -i 's?modprobe -r nvidia?modprobe -r nouveau >/dev/null 2>\&1\nif lsmod | grep -q nouveau; then\n\techo \"Error: could not unload nouveau module, leaving card turned on\"\n\texit\nfi\nmodprobe -r nvidia >/dev/null 2>\&1?g' $SCRIPT_PATH/bumblebee-disablecard
-		else
-			#
-			#	No power script found
-			#
-			whiptail --msgbox \
-"No power-on/off configuration has been reported for your machine,\n"\
-"please manually enter configuration in:\n\n"\
-"$SCRIPT_PATH/bumblebee-enablecard and $SCRIPT_PATH/bumblebee-disablecard\n\n"\
-"Some examples are available in /usr/share/doc/packages/bumblebee/examples/.\n\n"\
-"Press any key to continue..." $LINES $COLUMNS
-			if [ ! -f $SCRIPT_PATH/bumblebee-enablecard ] ; then
-				# Not installed
-				cp /usr/share/doc/packages/bumblebee/examples/bumblebee-enablecard.template $SCRIPT_PATH/bumblebee-enablecard
-			else
-				# Already Exists
-				echo
-				echo "nVidia card enable-script: $SCRIPT_PATH/bumblebee-enablecard exists moving old script to $SCRIPT_PATH/bumblebee-enablecard.old."
-				echo
-				mv $SCRIPT_PATH/bumblebee-enablecard $SCRIPT_PATH/bumblebee-enablecard.old
-				cp /usr/share/doc/packages/bumblebee/examples/bumblebee-enablecard.template $SCRIPT_PATH/bumblebee-enablecard
-			fi
-			sed -i "s?INSERTPOWERON?echo \"Please run bumblebee-configuration to enable power management.\"?g" $SCRIPT_PATH/bumblebee-enablecard
-			sed -i 's?modprobe nvidia?if \[ -f /usr/bin/nvidia-xconfig \] ; then\n\tmodprobe nvidia\nelse\n\tmodprobe nouveau\nfi?g' $SCRIPT_PATH/bumblebee-enablecard
-
-			if [ ! -f $SCRIPT_PATH/bumblebee-disablecard ] ; then
-				# Not installed
-				cp /usr/share/doc/packages/bumblebee/examples/bumblebee-disablecard.template $SCRIPT_PATH/bumblebee-disablecard
-			else
-				# Already Exists
-				echo
-				echo "nVidia card disable-script: $SCRIPT_PATH/bumblebee-disablecard exists, moving old script to $SCRIPT_PATH/bumblebee-disablecard.old."
-				echo
-				mv $SCRIPT_PATH/bumblebee-disablecard $SCRIPT_PATH/bumblebee-disablecard.old
-				cp /usr/share/doc/packages/bumblebee/examples/bumblebee-disablecard.template $SCRIPT_PATH/bumblebee-disablecard
-			fi
-			sed -i "s?INSERTPOWEROFF?echo \"Please run bumblebee-configuration to enable power management.\"?g" $SCRIPT_PATH/bumblebee-disablecard
-			sed -i 's?modprobe -r nvidia?modprobe -r nouveau >/dev/null 2>\&1\nif lsmod | grep -q nouveau; then\n\techo \"Error: could not unload nouveau module, leaving card turned on\"\n\texit\nfi\nmodprobe -r nvidia >/dev/null 2>\&1?g' $SCRIPT_PATH/bumblebee-disablecard
-			chmod +x $SCRIPT_PATH/bumblebee*
-		fi
-	fi
-fi
 
 
 if [ "$DISTRO" == "UBUNTU" ] ; then

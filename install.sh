@@ -55,8 +55,6 @@ MODPROBE=`which modprobe`
 BUMBLEBEEPWD=$PWD
 CONNECTEDMONITOR="UNDEFINED"
 IMAGETRANSPORT="UNDEFINED"
-POWERON="UNDEFINED"
-POWEROFF="UNDEFINED"
 INTELBUSID="UNDEFINED"
 NVIDIABUSID="UNDEFINED"
 
@@ -67,12 +65,6 @@ echo "Installing needed packages..."
 echo 
 
 source stages/$DISTRO/packageinstall
-
-echo
-echo "Installing acpi_module..."
-echo
-
-source stages/$DISTRO/acpicall
 
 echo
 echo "Backing up configuration..."
@@ -101,8 +93,6 @@ source stages/busiddetection
 source stages/$DISTRO/autodetectmonitor
 
 source stages/manualselectmonitor
-
-source stages/$DISTRO/powerconfiguration
 
 echo
 echo "Setting output device to: $CONNECTEDMONITOR"
