@@ -27,7 +27,7 @@ PIDFILE=/tmp/.X1-lock
 SCRIPTNAME=/etc/init.d/$NAME
 
 # default display, may be overidden in /etc/default/$NAME
-VGL_DISPLAY=:1
+VGL_DISPLAY=:8
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
