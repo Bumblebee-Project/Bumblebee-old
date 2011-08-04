@@ -142,8 +142,6 @@ echo
 NVIDIABUSID=`grep BusID /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*BusID[ \t]*\"\(.*\)\"/\1/g"`
 CONNECTEDMONITOR=`grep ConnectedMonitor /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\"\(.*\)\"/\1/g"`
 
-CONFIGMODE=NONE
-
 if [ `${LSPCI} |grep VGA |wc -l` -eq 2 ]; then
     NVIDIABUSID=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
 elif [ `${LSPCI} |grep 3D |wc -l` -eq 1 ]; then
@@ -157,22 +155,16 @@ else
 fi
 
 sed -i "s/\([ \t]*BusID[ \t]*\)\".*\"/\1\"$NVIDIABUSID\"/g" /etc/X11/xorg.conf.nvidia
-if [ "$DISTRO" == "OPENSUSE" ] ; then
-fi
-NVIDIABUSIDCUT=`echo $NVIDIABUSID | cut -d: -f2,3`
 
-if [ "$CONFIGMODE" == "MANUAL" ]; then
 CONNECTEDMONITOR="UNKNOWN"
 
 if [ "$DISTRO" == "UBUNTU" ] ; then
 
     ${MODPROBE} nvidia-current
-		if [ `$LSPCI -v -s $NVIDIABUSIDCUT |grep ! |wc -l` = 0 ] ; then
     query_info=$(LD_LIBRARY_PATH=/usr/lib/nvidia-current /usr/lib/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
     if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
         CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f 2 | cut -d\) -f1)
     fi
-		fi
     ${MODPROBE} -r nvidia
 fi
 
@@ -204,7 +196,6 @@ choice=$(whiptail --nocancel --menu \
           CONNECTEDMONITOR=$(whiptail --inputbox " Enter the nVidia connected monitor:" $LINES $COLUMNS 3>&1 1>&2 2>&3)
           ;;
     esac
-fi
 fi
 
 sed -i "s/\([ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\)".*"/\1\"$CONNECTEDMONITOR\"/g" /etc/X11/xorg.conf.nvidia
