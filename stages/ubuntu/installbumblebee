@@ -11,8 +11,6 @@ fi
 
 cp install-files/bumblebee.default /etc/default/bumblebee
 
-mkdir -p /usr/share/doc/bumblebee
-cp install-files/documentation /usr/share/doc/bumblebee
 if [ "$ARCH" = "x86_64" ]; then
     echo
     echo "64-bit system detected"
