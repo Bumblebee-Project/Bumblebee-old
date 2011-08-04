@@ -150,8 +150,8 @@ echo "The bug report has been saved as "$HOME/bumblebee-bugreport-`date +2%3y%m%
 echo "Please create a bugreport on github and email me the bug report along with the"
 echo "issue number to mj@casalogic.dk"
 echo
-echo "https://github.com/MrMEEE/bumblebee/issues"
+echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
 echo 
-echo "This really makes bugfixing much easier for me and faster for you"
+echo "This really makes bugfixing much easier for us and faster for you"
 echo
-echo "Martin Juhl"
+echo "Martin Juhl / MrMEEE & The Bumblebee Project Team"
