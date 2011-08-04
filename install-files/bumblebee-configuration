@@ -76,7 +76,7 @@ else
 fi
 
 if [ -f /tmp/machineinfo ]; then
-	rm /tmp/machineinfo
+    rm /tmp/machineinfo
 fi
 
 if [ "$DISTRO" == "UBUNTU" ] ; then
@@ -132,56 +132,8 @@ if [ "$DISTRO" == "UBUNTU" ] ; then
 fi
 
 echo
-echo "Setting up and Downloading Configuration... Please wait"
+echo "Configuring... Please wait"
 echo
-echo -n "(0%...15%..."
-wget -O /tmp/machineinfo "http://martin-juhl.dk/bumblebee/?searchitem=$(dmidecode --string system-product-name)&search=1" >/dev/null 2>&1
-echo -n "33%..."
-s=1
-i=1
-unset profiles
-while read line
-do
-	profiles[i+1]=`echo $line | cut -f1 -d\|`" "`echo $line | cut -f2 -d\|`":"`echo $line | cut -f9 -d\|`
-	if [ ${#profiles[i+1]} -gt $(($COLUMNS - 20)) ] ; then
-		profiles[i+1]=${profiles[i+1]:0:$(($COLUMNS - 20))}
-	fi
-	profiles[i]=$s
-	((s++))
-	((i+=2))
-done < /tmp/machineinfo
-
-profiles[i+1]="Enter Manual Configuration"
-profiles[i]=997
-((i+=2))
-profiles[i+1]="Show all profiles."
-profiles[i]=998
-((i+=2))
-profiles[i+1]="Do not configure now."
-profiles[i]=999
-echo -n "50%..."
-wget -O /tmp/allmachineinfo "http://martin-juhl.dk/bumblebee/?searchitem=showall&search=1" >/dev/null 2>&1
-echo -n "75%..."
-
-s=1
-i=1
-unset allprofiles
-while read line
-do
-	allprofiles[i+1]=`echo $line | cut -f1 -d\|`" "`echo $line | cut -f2 -d\|`":"`echo $line | cut -f9 -d\|`
-	if [ ${#allprofiles[i+1]} -gt $(($COLUMNS - 20)) ] ; then
-		allprofiles[i+1]=${allprofiles[i+1]:0:$(($COLUMNS - 20))}
-	fi
-	allprofiles[i]=$s
-	((s++))
-	((i+=2))
-done < /tmp/allmachineinfo
-allprofiles[i+1]="Enter Manual Configuration"
-allprofiles[i]=997
-((i+=2))
-allprofiles[i+1]="Do not configure now."
-allprofiles[i]=999
-echo "100%)"
 
 
 #
@@ -191,133 +143,17 @@ NVIDIABUSID=`grep BusID /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*BusID[ \t]*\
 CONNECTEDMONITOR=`grep ConnectedMonitor /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\"\(.*\)\"/\1/g"`
 
 CONFIGMODE=NONE
-while [ "$CONFIGMODE" != "MANUAL" ] && [ "$CONFIGMODE" != "DONE" ] ; do
 
-	if [ "$CONFIGMODE" != "AUTO" ] ; then
-		case `cat /tmp/machineinfo | wc -l` in
-		0)
-			whiptail --yesno --yes-button "Manual" --no-button "Full list" \
-" Your machine is not registered in the database, starting manual configuration.\n\n"\
-"If you get bumblebee running, please run bumblebee-submitsystem.\n\n"\
-"Do you want to run manual configuration or see the complete list of system profiles?" $LINES $COLUMNS
-
-			if [ $? -eq 1 ] ; then
-				CONFIGMODE=FULLLIST
-			else
-				CONFIGMODE=MANUAL
-			fi
-			;;
-		1)
-			CONFIGMODE=AUTO
-			MANUFACTURER=`cat /tmp/machineinfo |cut -f1 -d\|`
-			MODEL=`cat /tmp/machineinfo |cut -f2 -d\|`
-			USER=`cat /tmp/machineinfo |cut -f9 -d\|`
-			CONNECTEDMONITOR=`cat /tmp/machineinfo |cut -f3 -d\| | sed -e 's/ //g'`
-			INTELBUSID=`cat /tmp/machineinfo |cut -f4 -d\| | sed -e 's/ //g'`
-			NVIDIABUSID=`cat /tmp/machineinfo |cut -f5 -d\| | sed -e 's/ //g'`
-			OS=`cat /tmp/machineinfo |cut -f10 -d\|`
-			;;
-		*)
-			LIST_SIZE=$(($LINES - 10))
-			choice=$(whiptail --nocancel --menu \
-" Please select a machine profile to install.\n\n"\
-"The profiles contains configuration for specific systems.\n\n"\
-"These profiles hasn't been individually testest and are submitted by users." $LINES $COLUMNS $LIST_SIZE "${profiles[@]}"  3>&1 1>&2 2>&3)
-
-			if [ $choice -eq 998 ] ; then
-				CONFIGMODE=FULLLIST
-			elif [ $choice -eq 999 ] ; then
-				whiptail --msgbox " Bumblebee has NOT been configured, and probably won't work." $LINES $COLUMNS
-				exit 0
-			elif [ $choice -eq 997 ] ; then
-				CONFIGMODE=MANUAL
-			else
-				CONFIGMODE=AUTO
-				MANUFACTURER=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f1 -d\|`
-				MODEL=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f2 -d\|`
-				USER=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f9 -d\|`
-				CONNECTEDMONITOR=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f3 -d\| | sed -e 's/ //g'`
-				INTELBUSID=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f4 -d\| | sed -e 's/ //g'`
-				NVIDIABUSID=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f5 -d\| | sed -e 's/ //g'`
-				OS=`cat /tmp/machineinfo |sed -n \`echo $choice\`p|cut -f10 -d\|`
-			fi
-			;;
-		esac
-	fi
-
-	if [ "$CONFIGMODE" = "AUTO"  ] ; then
-		choice=$(whiptail --nocancel --menu " The following system profile has been found/selected:\n\n"\
-"	Machine: $MANUFACTURER $MODEL\n"\
-"	Connected Monitor: $CONNECTEDMONITOR\n"\
-"	nVidia Card BusID: $NVIDIABUSID\n"\
-"	Tested on: $OS\n"\
-"	Submitted by: $USER\n\n"\
-"	Do you want to use this configuration?\n" $LINES $COLUMNS 5 1 "Use this Configuration" 2 "Return to System-specific Configuration" 3 "Return to Full System List" 4 "Start Manual Configuration" 5 "Cancel Configuration"  3>&1 1>&2 2>&3)
-
-		case $choice in
-		1)
-			CONFIGMODE=DONE
-			;;
-		2)
-			CONFIGMODE=NONE
-			;;
-		3)
-			CONFIGMODE=FULLLIST
-			;;
-		4)
-			CONFIGMODE=MANUAL
-			;;
-		5)
-			exit 1
-			;;
-		esac
-	fi
-
-	if [ "$CONFIGMODE" = "FULLLIST" ] ; then
-		LIST_SIZE=$(($LINES - 10))
-		choice=$(whiptail --nocancel --menu \
-" Please select a machine profile to install.\n\n"\
-"The profiles contains configuration for specific systems.\n\n"\
-"These profiles hasn't been individually tested and are submitted by users." $LINES $COLUMNS $LIST_SIZE "${allprofiles[@]}"  3>&1 1>&2 2>&3)
-
-		if [ $choice -eq 999 ] ; then
-			whiptail --msgbox " Bumblebee has NOT been configured, and probably won't work." $LINES $COLUMNS
-			exit 0
-		elif [ $choice -eq 997 ] ; then
-			CONFIGMODE=MANUAL
-		else
-			CONFIGMODE=AUTO
-			MANUFACTURER=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f1 -d\|`
-			MODEL=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f2 -d\|`
-			USER=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f9 -d\|`
-			CONNECTEDMONITOR=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f3 -d\| | sed -e 's/ //g'`
-			INTELBUSID=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f4 -d\| | sed -e 's/ //g'`
-			NVIDIABUSID=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f5 -d\| | sed -e 's/ //g'`
-			OS=`cat /tmp/allmachineinfo |sed -n \`echo $choice\`p|cut -f10 -d\|`
-		fi
-	fi
-done
-
-if [ "$CONFIGMODE" == "MANUAL" ]; then
-	if [ `${LSPCI} |grep VGA |wc -l` -eq 2 ]; then
-		NVIDIABUSID=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-	elif [ `${LSPCI} |grep 3D |wc -l` -eq 1 ]; then
-		NVIDIABUSID=`${LSPCI} | grep 3D  | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-	else
-		if [ "$DISTRO" == "OPENSUSE" ] ; then
-			whiptail --msgbox \
-" The BusID of the nVidia card can't be determined.\n"\
-"You must correct this manually in /etc/X11/xorg.conf.nvidia and /etc/X11/xorg.conf.nouveau\n"\
-"Please report this problem..\n\n"\
-"Press Any Key to continue." $LINES $COLUMNS
-		else
-			whiptail --msgbox \
+if [ `${LSPCI} |grep VGA |wc -l` -eq 2 ]; then
+    NVIDIABUSID=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
+elif [ `${LSPCI} |grep 3D |wc -l` -eq 1 ]; then
+    NVIDIABUSID=`${LSPCI} | grep 3D  | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
+else
+    whiptail --msgbox \
 " The BusID of the nVidia card can't be determined.\n"\
 "You must correct this manually in /etc/X11/xorg.conf.nvidia\n"\
 "Please report this problem..\n\n"\
 "Press Any Key to continue." $LINES $COLUMNS
-		fi
-	fi
 fi
 
 sed -i "s/\([ \t]*BusID[ \t]*\)\".*\"/\1\"$NVIDIABUSID\"/g" /etc/X11/xorg.conf.nvidia
@@ -436,6 +272,5 @@ fi
 #
 whiptail --msgbox \
 " Bumblebee is now configured.\n\n"\
-"If your system is working, please run the bumblebee-submitsystem script\n\n"\
 "If you have any problems, please run bumblebee-bugreport\n\n"\
 "Have fun...." $LINES $COLUMNS

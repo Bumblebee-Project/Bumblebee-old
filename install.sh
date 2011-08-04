@@ -86,8 +86,6 @@ echo
 echo "Auto-detecting hardware"
 echo
 
-source stages/autoconfiguration
-
 source stages/busiddetection
 
 source stages/$DISTRO/autodetectmonitor
