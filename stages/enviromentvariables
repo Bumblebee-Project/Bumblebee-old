@@ -17,10 +17,10 @@ while [ "$IMAGETRANSPORT" = "UNDEFINED" ]; do
     echo "5) RGB"  
 
     echo
-    read machine
+    read transport
     echo
 
-    case "$machine" in
+    case "$transport" in
 
         1)
           IMAGETRANSPORT="yuv"
@@ -44,7 +44,7 @@ while [ "$IMAGETRANSPORT" = "UNDEFINED" ]; do
 
         *)
           echo
-          echo "Please choose a valid option, Press any key to try again."
+          echo "Please choose a valid option, Press Enter to try again."
           read
           ;;   
     esac 

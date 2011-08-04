@@ -7,10 +7,10 @@ while [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; do
     echo "2) Manually Enter Output"
 
     echo
-    read machine
+    read output
     echo
 
-    case "$machine" in
+    case "$output" in
 
         0)
           CONNECTEDMONITOR="CRT-0"
@@ -22,15 +22,15 @@ while [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; do
 
         2)
           echo
-          echo "Enter output device for nVidia Card"
+          echo "Enter output device for the nVidia Card"
           echo
-          read manualinput
-          CONNECTEDMONITOR=`echo $manualinput`
+          read manualoutput
+          CONNECTEDMONITOR="$manualoutput"
           ;;
       
         *)
           echo
-          echo "Please choose a valid option, Press any key to try again"
+          echo "Please choose a valid option, Press Enter and try again"
           read
           ;;
       

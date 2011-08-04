@@ -38,4 +38,6 @@ echo "If you need to reconfigure bumblebee the script bumblebee-config as availa
 echo
 echo "Good luck... Martin Juhl / MrMEEE & The Bumblebee Project Team"
 echo
-echo "http://www.martin-juhl.dk, http://twitter.com/martinjuhl, https://github.com/MrMEEE/bumblebee, https://github.com/Bumblebee-Project/Bumblebee"
+echo "http://www.martin-juhl.dk, http://twitter.com/martinjuhl"
+echo "Original project page: https://github.com/MrMEEE/bumblebee"
+echo "New project page: https://github.com/Bumblebee-Project/Bumblebee"
