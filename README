@@ -1,5 +1,9 @@
 IMPORTANT:
 
+DO NOT USE THIS GIT FOR NOW !!!!
+
+Old Readme
+
 Ubuntu Users:
 
 Bumblebee has now been packaged into a PPA @ Launchpad:
@@ -123,17 +127,15 @@ Unstable repositories ( build with the latest cvs, svn and git packages ):
 http://download.opensuse.org/repositories/home:/Ximi1970:/bumblebee-unstable/openSUSE_11.3
 http://download.opensuse.org/repositories/home:/Ximi1970:/bumblebee-unstable/openSUSE_11.4
 
-
-
 The Installation should now be completely automatic...
 
 First of all: If you have any problem... please create a bug report package
-with the bumblebee-bugreport tool..
+with the bumblebee-bugreport tool.
 
-Then create an issue on github...
+Then create an issue on github.
 
-This project have had great succes and I need to have a way to easily manage
-support problems..
+This project have had great succes and we need to have a way to easily manage
+support problems.
 
 
 Now 3D is enabled on both the Intel and the nVidia at the same time..
