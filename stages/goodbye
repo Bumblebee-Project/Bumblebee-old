@@ -13,6 +13,7 @@ else
     echo "Please logout and back in to activate new groups and library setups."
     echo
 fi
+
 if [ "$ARCH" = "x86_64" ]; then
     echo "After that you should be able to start applications with"
     echo "\"optirun32 <application>\" or \"optirun64 <application>\""
@@ -22,7 +23,8 @@ if [ "$ARCH" = "x86_64" ]; then
 elif [ "$ARCH" = "i686" ]; then
     echo "After that you should be able to start applications with"
     echo "\"optirun <application>\"."
-fi  
+fi
+
 echo
 echo "If you have any problems in or after the installation, please try"
 echo "to run the bumblebee-uninstall script and then rerun this script..."

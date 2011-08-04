@@ -5,9 +5,9 @@
 # Maybe this is all too much and we should stick to the local detection.
 #
 DETECTED="UNDEFINED"
-if [ `${LSPCI} |grep -c VGA` -eq 2 ]; then
+if [ `${LSPCI} | grep -c VGA` -eq 2 ]; then
     DETECTED=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-elif [ `${LSPCI} |grep -c 3D` -eq 1 ]; then
+elif [ `${LSPCI} | grep -c 3D` -eq 1 ]; then
     DETECTED=`${LSPCI} | grep 3D  | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
 fi
 
