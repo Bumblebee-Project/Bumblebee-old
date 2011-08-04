@@ -27,10 +27,7 @@ PIDFILE=/tmp/.X1-lock
 SCRIPTNAME=/etc/init.d/$NAME
 
 # default display, may be overidden in /etc/default/$NAME
-VGL_DISPLAY=:1
-
-ENABLECARD=/usr/local/bin/bumblebee-enablecard
-DISABLECARD=/usr/local/bin/bumblebee-disablecard
+VGL_DISPLAY=:8
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
@@ -45,161 +42,158 @@ X_LOG=/var/log/Xorg.${BEE_DISPLAY}.log
 . /lib/lsb/init-functions
 
 # prevent rogue users from providing a false PID
-validate_xorg_pidfile()
-{
-	# clear previous validations
-	validated_pid=
-	if [ ! -L $PIDFILE -a ! -e $PIDFILE ]; then
-		# the pidfile does not exist
-		return 0
-	fi
-	if [ -L $PIDFILE -o ! -f $PIDFILE ] || ! [ "$(stat -c '%u' $PIDFILE)" = "0" ]; then
-		# the X lock pidfile is a symlink, not a regular file or not owned by root
-		return 1
-	fi
-	# read the first line from the pidfile, ignoring whitespace
-	read validated_pid < $PIDFILE
-	if [ -z "$validated_pid" ] || ! [ "$validated_pid" -gt 0 -o "$validated_pid" -le 0 ]; then
-		# empty pidfile or non-numeric pid (non-numeric values never fulfil
-		# n > 0 && n <= 0)
-		validated_pid=
-		return 2
-	fi
-	# at this point, $validated_pid can be used to retrieve the PID
-	return 0
+validate_xorg_pidfile() {
+    # clear previous validations
+    validated_pid=
+    if [ ! -L $PIDFILE -a ! -e $PIDFILE ]; then
+        # the pidfile does not exist
+        return 0
+    fi
+    if [ -L $PIDFILE -o ! -f $PIDFILE ] || ! [ "$(stat -c '%u' $PIDFILE)" = "0" ]; then
+        # the X lock pidfile is a symlink, not a regular file or not owned by root
+        return 1
+    fi
+    # read the first line from the pidfile, ignoring whitespace
+    read validated_pid < $PIDFILE
+    if [ -z "$validated_pid" ] || ! [ "$validated_pid" -gt 0 -o "$validated_pid" -le 0 ]; then
+        # empty pidfile or non-numeric pid (non-numeric values never fulfil
+        # n > 0 && n <= 0)
+        validated_pid=
+        return 2
+    fi
+    # at this point, $validated_pid can be used to retrieve the PID
+    return 0
 }
 
-do_start()
-{
-	# is a X server running?
-	if validate_xorg_pidfile; then
-		if [ -n "$validated_pid" ]; then
-			# a X server is running, check if it is a Bumblebee one
-			cmd="$(ps --format command --no-headers -ww --pid $validated_pid)"
-			case "$cmd" in
-			  '[Xorg]')
-				log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
-				log_daemon_msg "Reboot the machine if you want to use Bumblebee"
-				return 2
-				;;
-			  "$DAEMON $DAEMON_ARGS")
-				# Bumblebee was already started
-				return 1
-				;;
-			  *)
-				log_daemon_msg "Display $VGL_DISPLAY is already in use, consider changing \$VGL_DISPLAY in /etc/default/$NAME"
-				return 2
-				;;
-			esac
-		fi
-		# empty $validated_pid: there is no pidfile, assuming that the X server is not running
-	else
-		log_daemon_msg "Unsafe pidfile '$PIDFILE' - cannot check the availability of display $VGL_DISPLAY"
-		return 2
-	fi
+do_start() {
+    # is a X server running?
+    if validate_xorg_pidfile; then
+        if [ -n "$validated_pid" ]; then
+            # a X server is running, check if it is a Bumblebee one
+            cmd="$(ps --format command --no-headers -ww --pid $validated_pid)"
+            case "$cmd" in
+                '[Xorg]')
+                  log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+                  log_daemon_msg "Reboot the machine if you want to use Bumblebee"
+                  return 2
+                  ;;
+                "$DAEMON $DAEMON_ARGS")
+                  # Bumblebee was already started
+                  return 1
+                  ;;
+                *)
+                  log_daemon_msg "Display $VGL_DISPLAY is already in use, consider changing \$VGL_DISPLAY in /etc/default/$NAME"
+                  return 2
+                  ;;
+            esac
+        fi
+        # empty $validated_pid: there is no pidfile, assuming that the X server is not running
+    else
+        log_daemon_msg "Unsafe pidfile '$PIDFILE' - cannot check the availability of display $VGL_DISPLAY"
+        return 2
+    fi
 
-	$ENABLECARD
-	# XXX: should there be a check if the card has become ready?
+    $ENABLECARD
+    # XXX: should there be a check if the card has become ready?
 
-	# 1: the X server
-	start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
-		--exec $DAEMON --test -- $DAEMON_ARGS || return 1
+    # 1: the X server
+    start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
+        --exec $DAEMON --test -- $DAEMON_ARGS || return 1
 
-	start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
-		--exec $DAEMON -- $DAEMON_ARGS || return 2
+    start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
+        --exec $DAEMON -- $DAEMON_ARGS || return 2
 
-	# wait for at most three seconds before the server has started
-	retries=0
-	while [ ! -s $PIDFILE -a $retries -lt 3 ]; do
-		echo -n "."
-		retries=`expr $retries + 1`
-		sleep 1
-	done
+    # wait for at most three seconds before the server has started
+    retries=0
+    while [ ! -s $PIDFILE -a $retries -lt 3 ]; do
+        echo -n "."
+        retries=`expr $retries + 1`
+        sleep 1
+    done
 
-	# fail if the X server is not running
-	if ! pidofproc -p $PIDFILE >/dev/null; then
-		if grep -qF '(EE) Failed to load module "nvidia"' "$X_LOG" && ! lsmod | grep -q 'nvidia '; then
-			if lsmod | grep -q 'nouveau '; then
-				log_daemon_msg "The nvidia driver was not loaded and the nouveau module should be deactivated"
-				log_daemon_msg "Try: sudo rmmod nouveau && sudo modprobe nvidia-current"
-			else
-				log_daemon_msg "The nvidia driver was not loaded, try: sudo modprobe nvidia-current"
-			fi
-		fi
-		log_daemon_msg "The Bumblebee Xserver failed to start. Please check $X_LOG"
-		return 2
-	fi
+    # fail if the X server is not running
+    if ! pidofproc -p $PIDFILE >/dev/null; then
+        if grep -qF '(EE) Failed to load module "nvidia"' "$X_LOG" && ! lsmod | grep -q 'nvidia '; then
+            if lsmod | grep -q 'nouveau '; then
+                log_daemon_msg "The nvidia driver was not loaded and the nouveau module should be deactivated"
+                log_daemon_msg "Try: sudo rmmod nouveau && sudo modprobe nvidia-current"
+            else
+                log_daemon_msg "The nvidia driver was not loaded, try: sudo modprobe nvidia-current"
+            fi
+        fi
+        log_daemon_msg "The Bumblebee Xserver failed to start. Please check $X_LOG"
+        return 2
+    fi
 
-	return 0
+    return 0
 }
 
-do_stop()
-{
-	# --exec $DAEMON and --name X proved to be unreliable (but --name Xorg works)
-	if validate_xorg_pidfile; then
-		if [ -n "$validated_pid" ]; then
-			# --oknodo makes start-stop-daemon return success if no action has
-			# been performed
-			start-stop-daemon --stop --quiet --oknodo --retry=TERM/10/KILL/5 \
-				--pidfile $PIDFILE
-			RETVAL=$?
-		else
-			# bumblebee is not running
-			return 1
-		fi
-	else
-		RETVAL=2
-	fi
-	# RETVAL 2 = still running
-	[ $RETVAL = 2 ] && return 2
-	$DISABLECARD
-	return $RETVAL
+do_stop() {
+    # --exec $DAEMON and --name X proved to be unreliable (but --name Xorg works)
+    if validate_xorg_pidfile; then
+        if [ -n "$validated_pid" ]; then
+            # --oknodo makes start-stop-daemon return success if no action has
+            # been performed
+            start-stop-daemon --stop --quiet --oknodo --retry=TERM/10/KILL/5 \
+                --pidfile $PIDFILE
+            RETVAL=$?
+        else
+            # bumblebee is not running
+            return 1
+        fi
+    else
+        RETVAL=2
+    fi
+    # RETVAL 2 = still running
+    [ $RETVAL = 2 ] && return 2
+    $DISABLECARD
+    return $RETVAL
 }
 
 case "$1" in
-  enable|stop)
-	# weird logic: enable the bumblebee server when the system is shut down?
-	log_daemon_msg "Starting $DESC" "$NAME "
-	do_start
-	case $? in
-		0) log_end_msg 0 ;;
-		1) log_end_msg 0 ;; # already running
-		2) log_end_msg 1 ;;
-	esac
-	;;
-  disable|start)
-	# weird logic: disable the bumblebee server when the system is started?
-	log_daemon_msg "Stopping $DESC" "$NAME "
-	do_stop
-	case $? in
-		0) log_end_msg 0 ;;
-		1) log_end_msg 1 ;; # already stopped
-		2) log_end_msg 1 ;;
-	esac
-	;;
-  status)
-	status_of_proc -p $PIDFILE "$DAEMON" "$NAME"
-	;;
-  restart)
-	log_daemon_msg "Restarting $DESC" "$NAME"
-	do_stop
-	case "$?" in
-	  0|1)
-		do_start
-		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
-		esac
-		;;
-	  *)
-		# Failed to stop
-		log_end_msg 1
-		;;
-	esac
-	;;
-  *)
-	echo "Usage: $SCRIPTNAME {enable|disable|start|stop|status|restart}" >&2
-	exit 3
-	;;
+    enable|stop)
+      # weird logic: enable the bumblebee server when the system is shut down?
+      log_daemon_msg "Starting $DESC" "$NAME "
+      do_start
+      case $? in
+        0) log_end_msg 0 ;;
+        1) log_end_msg 0 ;; # already running
+        2) log_end_msg 1 ;;
+      esac
+      ;;
+    disable|start)
+      # weird logic: disable the bumblebee server when the system is started?
+      log_daemon_msg "Stopping $DESC" "$NAME "
+      do_stop
+      case $? in
+          0) log_end_msg 0 ;;
+          1) log_end_msg 1 ;; # already stopped
+          2) log_end_msg 1 ;;
+      esac
+      ;;
+    status)
+      status_of_proc -p $PIDFILE "$DAEMON" "$NAME"
+      ;;
+    restart)
+      log_daemon_msg "Restarting $DESC" "$NAME"
+      do_stop
+      case "$?" in
+          0|1)
+            do_start
+            case "$?" in
+                0) log_end_msg 0 ;;
+                1) log_end_msg 1 ;; # Old process is still running
+                *) log_end_msg 1 ;; # Failed to start
+            esac
+            ;;
+          *)
+            # Failed to stop
+            log_end_msg 1
+            ;;
+      esac
+      ;;
+    *)
+      echo "Usage: $SCRIPTNAME {enable|disable|start|stop|status|restart}" >&2
+      exit 3
+      ;;
 esac

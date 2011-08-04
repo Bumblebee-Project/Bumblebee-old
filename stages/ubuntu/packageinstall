@@ -2,7 +2,7 @@ VERSION=`cat /etc/issue | cut -f2 -d" "`
 
 apt-add-repository ppa:ubuntu-x-swat/x-updates
 apt-get update
-apt-get -y install nvidia-current
+apt-get -y install nvidia-current nvidia-settings
 
 if [ $? -ne 0 ]; then
     echo
