@@ -12,27 +12,27 @@ while [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; do
 
     case "$output" in
 
-        0)
-          CONNECTEDMONITOR="CRT-0"
-          ;;
+      0)
+        CONNECTEDMONITOR="CRT-0"
+        ;;
 
-        1)
-          CONNECTEDMONITOR="DFP-0"
-          ;;
+      1)
+        CONNECTEDMONITOR="DFP-0"
+        ;;
 
-        2)
-          echo
-          echo "Enter output device for the nVidia Card"
-          echo
-          read manualoutput
-          CONNECTEDMONITOR="$manualoutput"
-          ;;
+      2)
+        echo
+        echo "Enter output device for the nVidia Card"
+        echo
+        read manualoutput
+        CONNECTEDMONITOR="$manualoutput"
+        ;;
       
-        *)
-          echo
-          echo "Please choose a valid option, Press Enter and try again"
-          read
-          ;;
+      *)
+        echo
+        echo "Please choose a valid option, Press Enter and try again"
+        read
+        ;;
       
     esac
 

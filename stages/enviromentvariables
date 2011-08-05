@@ -22,30 +22,30 @@ while [ "$IMAGETRANSPORT" = "UNDEFINED" ]; do
 
     case "$transport" in
 
-        1)
-          IMAGETRANSPORT="yuv"
-          ;;
+      1)
+        IMAGETRANSPORT="yuv"
+        ;;
       
-        2)
-          IMAGETRANSPORT="jpeg"
-          ;;
+      2)
+        IMAGETRANSPORT="jpeg"
+        ;;
       
-        3)
-          IMAGETRANSPORT="proxy"
-          ;;
+      3)
+        IMAGETRANSPORT="proxy"
+        ;;
 
-        4)
-          IMAGETRANSPORT="xv"
-          ;;
+      4)
+        IMAGETRANSPORT="xv"
+        ;;
       
-        5)
-          IMAGETRANSPORT="rgb"
-          ;;
+      5)
+        IMAGETRANSPORT="rgb"
+        ;;
 
-        *)
-          echo
-          echo "Please choose a valid option, Press Enter to try again."
-          read
-          ;;   
+      *)
+        echo
+        echo "Please choose a valid option, Press Enter to try again."
+        read
+        ;;   
     esac 
 done 

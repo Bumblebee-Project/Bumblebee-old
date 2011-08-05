@@ -11,10 +11,10 @@ echo "Are you sure you want to proceed ? (y/n)"
 read answer
 
 case "$answer" in
-    y | Y )
-      ;;
+  y | Y )
+    ;;
   
-    *)
-      exit 0
-      ;;
+  *)
+    exit 0
+    ;;
 esac

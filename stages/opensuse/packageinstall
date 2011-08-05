@@ -16,22 +16,22 @@ if [ "$VERSION" != "11.3" ] && [ "$VERSION" != "11.4" ] ; then
         echo
 
         case "$opt" in
-            y)
-              echo "You have been warned !!! Press <enter> to continue."
-              echo
-              read
-              echo
-              break
-              ;;
-            n)
-              exit 1
-              ;;
-            *)
-              echo
-              echo "Please select a valid option, Press <enter> to try again."
-              read
-              clear
-              ;;
+          y)
+            echo "You have been warned !!! Press <enter> to continue."
+            echo
+            read
+            echo
+            break
+            ;;
+          n)
+            exit 1
+            ;;
+          *)
+            echo
+            echo "Please select a valid option, Press <enter> to try again."
+            read
+            clear
+            ;;
         esac
     done
 fi
@@ -68,54 +68,54 @@ uninstall_nvidia_package() {
         echo
 
         case "$opt" in
-            y)
-              echo "Uninstalling old nVidia package."
+          y)
+            echo "Uninstalling old nVidia package."
 
-              #
-              #    Cleanup 3D hack for the nVidia package part 1
-              #
-              if [ "$ARCH" == "i686" ] ; then
-                  rm -f /usr/lib/libGL.so.*
-                  mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
-                  pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
-                  ln -sf libnvidia-wfb.so.1 libwfb.so
-                  popd > /dev/null
-              else
-                  rm -f /usr/lib/libGL.so.*
-                  rm -f /usr/lib64/libGL.so.*
-                  mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
-                  pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
-                  ln -sf libnvidia-wfb.so.1 libwfb.so
-                  popd > /dev/null
-              fi
+            #
+            #    Cleanup 3D hack for the nVidia package part 1
+            #
+            if [ "$ARCH" == "i686" ] ; then
+                rm -f /usr/lib/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
+                pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            else
+                rm -f /usr/lib/libGL.so.*
+                rm -f /usr/lib64/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
+                pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            fi
 
-              #
-              #    Uninstall nVidia package
-              #
-              /usr/bin/nvidia-uninstall -s
+            #
+            #    Uninstall nVidia package
+            #
+            /usr/bin/nvidia-uninstall -s
 
-              #
-              #    Cleanup 3D hack part 2
-              #
-              rm -rf /usr/X11R6/lib-nvidia
-              rm -rf /usr/X11R6/lib64-nvidia
-              rm -rf /usr/lib/xorg-nvidia
-              rm -rf /usr/lib64/xorg-nvidia
+            #
+            #    Cleanup 3D hack part 2
+            #
+            rm -rf /usr/X11R6/lib-nvidia
+            rm -rf /usr/X11R6/lib64-nvidia
+            rm -rf /usr/lib/xorg-nvidia
+            rm -rf /usr/lib64/xorg-nvidia
 
-              rm -rf /usr/X11R6/nvidia
+            rm -rf /usr/X11R6/nvidia
 
-              break
-              ;;
-            n)
-              echo "Aborting installation."
-              exit 1
-              ;;
-            *)
-              echo
-              echo "Please select a valid option, Press <enter> to try again."
-              read
-              clear
-              ;;
+            break
+            ;;
+          n)
+            echo "Aborting installation."
+            exit 1
+            ;;
+          *)
+            echo
+            echo "Please select a valid option, Press <enter> to try again."
+            read
+            clear
+            ;;
         esac
     done
 }
@@ -143,24 +143,24 @@ while [ "$NVIDIA_TYPE" == "UNDEFINED" ] ; do
     echo
 
     case "$opt" in
-        1)
-          NVIDIA_TYPE="repo"
-          break
-          ;;
-        2)
-          NVIDIA_TYPE="package"
-          break
-          ;;
-        3)
-          NVIDIA_TYPE="none"
-          break
-          ;;
-        *)
-          echo
-          echo "Please select a valid option, Press <enter> to try again."
-          read
-          clear
-          ;;
+      1)
+        NVIDIA_TYPE="repo"
+        break
+        ;;
+      2)
+        NVIDIA_TYPE="package"
+        break
+        ;;
+      3)
+        NVIDIA_TYPE="none"
+        break
+        ;;
+      *)
+        echo
+        echo "Please select a valid option, Press <enter> to try again."
+        read
+        clear
+        ;;
     esac
 done
 
@@ -176,56 +176,56 @@ if [ -f $LOCKFILE ] || [ `ps -ef |grep X | grep nvidia | wc -l` -gt 0 ] ; then
         read opt
 
         case "$opt" in
-            y)
-              if [ -f $LOCKFILE ] ; then
-                  kill -9 `cat $LOCKFILE`
-                  rm -f $LOCKFILE
-              else
-                  #
-                  #    Find the pid
-                  #
-                  PID_X=`pidof X`
+          y)
+            if [ -f $LOCKFILE ] ; then
+                kill -9 `cat $LOCKFILE`
+                rm -f $LOCKFILE
+            else
+                #
+                #    Find the pid
+                #
+                PID_X=`pidof X`
 
-                  if [ "`ps p $PID_X | grep nvidia`" != "" ] ; then
-                      kill -9 $PID_X
-                  fi
-              fi
+                if [ "`ps p $PID_X | grep nvidia`" != "" ] ; then
+                    kill -9 $PID_X
+                fi
+            fi
 
-              #
-              #    Wait for the kill
-              #
-              i=1
-              while [ `ps -ef | grep X | grep nvidia | wc -l` -gt 0  ] ; do
-                  sleep 1
-                  echo -n "."
-                  i=$(( i + 1 ))   
-                  if [ $i -gt 10 ]; then
-                      echo
-                      echo "Cannot kill X server"
-                      break
-                  fi 
-              done
+            #
+            #    Wait for the kill
+            #
+            i=1
+            while [ `ps -ef | grep X | grep nvidia | wc -l` -gt 0  ] ; do
+                sleep 1
+                echo -n "."
+                i=$(( i + 1 ))   
+                if [ $i -gt 10 ]; then
+                    echo
+                    echo "Cannot kill X server"
+                    break
+                fi 
+            done
 
-              #
-              #    Is the system clean ?
-              #
-              if [ ! -f $LOCKFILE ] && [ `ps -ef | grep X | grep nvidia | wc -l` -eq 0  ] ; then
-                  #
-                  #    Yes, continue
-                  #
-                  break
-              fi
-              ;;
-            n)
-              echo "Cannot continue."
-              exit 1
-              ;;
-            *)
-              echo
-              echo "Please select a valid option, Press <enter> to try again."
-              read
-              clear
-              ;;
+            #
+            #    Is the system clean ?
+            #
+            if [ ! -f $LOCKFILE ] && [ `ps -ef | grep X | grep nvidia | wc -l` -eq 0  ] ; then
+                #
+                #    Yes, continue
+                #
+                break
+            fi
+            ;;
+          n)
+            echo "Cannot continue."
+            exit 1
+            ;;
+          *)
+            echo
+            echo "Please select a valid option, Press <enter> to try again."
+            read
+            clear
+            ;;
         esac
     done
 fi
@@ -257,27 +257,27 @@ if [ "$NVIDIA_TYPE" == "repo" ] ; then
         echo
 
         case "$opt" in
-            y)
-              mkdir -p cache
-              pushd cache
-              /usr/bin/wget -m ftp://download.nvidia.com/opensuse/${VERSION}
-              popd
+          y)
+            mkdir -p cache
+            pushd cache
+            /usr/bin/wget -m ftp://download.nvidia.com/opensuse/${VERSION}
+            popd
           
-              echo
-              echo "Mirror is now synced."
-              echo
+            echo
+            echo "Mirror is now synced."
+            echo
 
-              REPO_MIRROR="yes"
-              ;;
-            n)
-              REPO_MIRROR="no"
-              ;;
-            *)
-              echo
-              echo "Please select a valid option, Press <enter> to try again."
-              read
-              clear
-              ;;
+            REPO_MIRROR="yes"
+            ;;
+          n)
+            REPO_MIRROR="no"
+            ;;
+          *)
+            echo
+            echo "Please select a valid option, Press <enter> to try again."
+            read
+            clear
+            ;;
         esac
     done
 
@@ -353,26 +353,26 @@ if [ "$NVIDIA_TYPE" == "repo" ] ; then
         echo "4) Skip NVidia drivers install (you need to do this by yourself in this case)"
         read card
         case $card in
-            1)
-              zypper install nvidia-gfxG02-kmp-$KERNEL_TYPE
-              zypper install x11-video-nvidiaG02
-              ;;
-            2)
-              zypper install nvidia-gfxG01-kmp-$KERNEL_TYPE
-              zypper install x11-video-nvidiaG01
-              ;;
-            3)
-              zypper install nvidia-gfxG01-kmp-$KERNEL_TYPE
-              zypper install x11-video-nvidiaG01
-              ;;
-            4)
-              echo "Skipping driver installation. ( Warning: nVidia drivers have to be installed )"
-              ;;
-            *)
-              echo
-              echo "Please choose a valid option, Press any key to try again"
-              read
-              ;;
+          1)
+            zypper install nvidia-gfxG02-kmp-$KERNEL_TYPE
+            zypper install x11-video-nvidiaG02
+            ;;
+          2)
+            zypper install nvidia-gfxG01-kmp-$KERNEL_TYPE
+            zypper install x11-video-nvidiaG01
+            ;;
+          3)
+            zypper install nvidia-gfxG01-kmp-$KERNEL_TYPE
+            zypper install x11-video-nvidiaG01
+            ;;
+          4)
+            echo "Skipping driver installation. ( Warning: nVidia drivers have to be installed )"
+            ;;
+          *)
+            echo
+            echo "Please choose a valid option, Press any key to try again"
+            read
+            ;;
         esac
     fi
 
@@ -465,64 +465,64 @@ if [ "$NVIDIA_TYPE" == "package" ] ; then
             echo
 
             case "$opt" in
-                y)
-                  echo "Uninstalling nVidia rpms and repository."
+              y)
+                echo "Uninstalling nVidia rpms and repository."
   
-                  #
-                  #    Remove rpm
-                  #
-                  VIDEO=`rpm -qa | grep x11-video-nvidia`
-                  COMPUTE=`rpm -qa | grep nvidia-compute`
-                  GFX=`rpm -qa | grep nvidia-gfx`
+                #
+                #    Remove rpm
+                #
+                VIDEO=`rpm -qa | grep x11-video-nvidia`
+                COMPUTE=`rpm -qa | grep nvidia-compute`
+                GFX=`rpm -qa | grep nvidia-gfx`
 
-                  if [ "$VIDEO" != "" ] ; then
+                if [ "$VIDEO" != "" ] ; then
                       rpm -e $VIDEO >/dev/null 2>&1
-                  fi
-                  if [ "$COMPUTE" != "" ] ; then
-                      rpm -e $COMPUTE >/dev/null 2>&1
-                  fi
-                  if [ "$GFX" != "" ] ; then
-                      rpm -e $GFX >/dev/null 2>&1
-                  fi
+                fi
+                if [ "$COMPUTE" != "" ] ; then
+                    rpm -e $COMPUTE >/dev/null 2>&1
+                fi
+                if [ "$GFX" != "" ] ; then
+                    rpm -e $GFX >/dev/null 2>&1
+                fi
 
-                  #
-                  #    Restore the X server link
-                  #
-                  ln -sf /usr/bin/Xorg /var/lib/X11/X
+                #
+                #    Restore the X server link
+                #
+                ln -sf /usr/bin/Xorg /var/lib/X11/X
 
-                  #
-                  #    Remove repository
-                  #
-                  ONLINE_REPO=`zypper lr ftp://download.nvidia.com/opensuse/${VERSION} 2>/dev/null | grep Cache`
-                  OFFLINE_REPO=`zypper lr "nVidia Graphics Drivers (local mirror)" 2>/dev/null | grep Cache`
-                  if [ "$ONLINE_REPO" != "" ] ; then
-                      zypper rr ftp://download.nvidia.com/opensuse/${VERSION} >/dev/null 2>&1 
-                  fi
-                  if [ "$OFFLINE_REPO" != "" ] ; then
-                    zypper rr "nVidia Graphics Drivers (local mirror)" >/dev/null 2>&1 
-                  fi
+                #
+                #    Remove repository
+                #
+                ONLINE_REPO=`zypper lr ftp://download.nvidia.com/opensuse/${VERSION} 2>/dev/null | grep Cache`
+                OFFLINE_REPO=`zypper lr "nVidia Graphics Drivers (local mirror)" 2>/dev/null | grep Cache`
+                if [ "$ONLINE_REPO" != "" ] ; then
+                    zypper rr ftp://download.nvidia.com/opensuse/${VERSION} >/dev/null 2>&1 
+                fi
+                if [ "$OFFLINE_REPO" != "" ] ; then
+                  zypper rr "nVidia Graphics Drivers (local mirror)" >/dev/null 2>&1 
+                fi
 
-                  #
-                  #    Cleanup 3D hack
-                  #
-                  rm -rf /usr/X11R6/lib-nvidia
-                  rm -rf /usr/X11R6/lib64-nvidia
-                  rm -rf /usr/lib/xorg-nvidia
-                  rm -rf /usr/lib64/xorg-nvidia
+                #
+                #    Cleanup 3D hack
+                #
+                rm -rf /usr/X11R6/lib-nvidia
+                rm -rf /usr/X11R6/lib64-nvidia
+                rm -rf /usr/lib/xorg-nvidia
+                rm -rf /usr/lib64/xorg-nvidia
 
-                  break
-                  ;;
-                n)
-                  echo "Cannot install the nVidia package while the repository is installed."
-                  echo "Aborting installation."
-                  exit 1
-                  ;;
-                *)
-                  echo
-                  echo "Please select a valid option, Press <enter> to try again."
-                  read
-                  clear
-                  ;;
+                break
+                ;;
+              n)
+                echo "Cannot install the nVidia package while the repository is installed."
+                echo "Aborting installation."
+                exit 1
+                ;;
+              *)
+                echo
+                echo "Please select a valid option, Press <enter> to try again."
+                read
+                clear
+                ;;
             esac
         done
     fi
@@ -565,20 +565,20 @@ if [ "$NVIDIA_TYPE" == "package" ] ; then
             echo
 
             case "$use" in
-                y)
-                  PACKAGE="`pwd`/`ls NVIDIA-Linux-$ARCH_NVIDIA-*`"
-                  break
-                  ;;
-                n)
-                  echo "Aborting installation."
-                  exit 1
-                  ;;
-                *)
-                  echo
-                  echo "Please select a valid option, Press <enter> to try again."
-                  read
-                  clear
-                  ;;
+              y)
+                PACKAGE="`pwd`/`ls NVIDIA-Linux-$ARCH_NVIDIA-*`"
+                break
+                ;;
+              n)
+                echo "Aborting installation."
+                exit 1
+                ;;
+              *)
+                echo
+                echo "Please select a valid option, Press <enter> to try again."
+                read
+                clear
+                ;;
             esac
         done
     else
@@ -754,21 +754,21 @@ if [ "$INSTALLED" != "Yes" ] ; then
     echo "needed for the bumblebee-configuration script (y/n) ?"
     read answer
     case "$answer" in
-        y|Y)
-          if [ "$INSTALLED" != "Yes" ] ; then
-              zypper install newt
-              if [ $? -ne 0 ]; then
-                  echo
-                  echo "Package manager failed to install needed package..."
-                  echo
-                  exit 21
-              fi
-          fi
-          ;;
-        n|N)
-          echo "Packages will NOT be installed."
-          ;;
-        *)
-          ;;
+      y|Y)
+        if [ "$INSTALLED" != "Yes" ] ; then
+            zypper install newt
+            if [ $? -ne 0 ]; then
+                echo
+                echo "Package manager failed to install needed package..."
+                echo
+                exit 21
+            fi
+        fi
+        ;;
+      n|N)
+        echo "Packages will NOT be installed."
+        ;;
+      *)
+        ;;
     esac
 fi
