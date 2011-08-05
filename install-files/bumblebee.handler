@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Bumblebee daemon handler script
+
+. /etc/bumblebee/bumblebee.conf
+
+NAME=bumblebee
+LOCKFILE=/tmp/.bb-lock
+BDAEMON=/usr/bin/bumblebeed
+
+# Power-management disabled
+disable_card()
+{
+
+}
+
+enable_card()
+{
+
+}
+
+#TODO Check different exit status for appropriate feedback
+start() {
+    # Start the daemon only if there is not anothe instance running
+    if [ ! -e "$LOCKFILE" ]; then
+      $BDAEMON &>/dev/null &
+      BDPID=$!
+      echo "$BDPID" > "$LOCKFILE"
+   fi
+}
+
+#TODO Check different exit status for appropriate feedback
+stop() {
+    kill `cat $LOCKFILE 2>&1`
+    rm -f $LOCKFILE
+}
+
+restart() {
+  stop
+  sleep 1
+  start
+}
+
+case "$1" in
+  start|enable)
+    start
+    ;;
+  stop|disable)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  status)
+    ck_status $NAME
+  ;;
+  *)
+    echo "usage: $0 {start|stop|enable|disable|restart|status}"  
+esac

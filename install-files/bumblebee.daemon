@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# This daemon will start the X server and stop it as needed
+
+
+NAME=bumblebee
+CONF_FILE=/etc/bumblebee/bumblebee.conf
+MODULE_PATH=/usr/lib/nvidia-bumblebee/xorg,/usr/lib/xorg/modules
+XDAEMON=/usr/bin/X
+XDAEMON_ARGS="-config $CONF_FILE -sharevts -modulepath $MODULE_PATH -nolisten tcp -noreset"
+HANDLER=/usr/bin/$NAME
+# Refresh time in seconds. Could be overriden in configuration file
+REFRESH=1 
+# Time to wait for stoping the X server until last instance of bumblebee stoped
+AWAIT_DEATH=1
+
+# default display and PIDFILE, may be overidden in conf file
+VGL_DISPLAY=:8
+PIDFILE=/tmp/.X8-lock
+
+[ -r /etc/bumblebee/bumblebee.conf ] && . /etc/bumblebee/bumblebee.conf
+
+XDAEMON_ARGS="$XDAEMON_ARGS $VGL_DISPLAY"
+# assume that the display always looks like :1
+BEE_DISPLAY=${VGL_DISPLAY##*:}
+BEE_DISPLAY=${BEE_DISPLAY%%.*}
+PIDFILE=/tmp/.X${BEE_DISPLAY}-lock
+#X_LOG=/var/log/Xorg.${BEE_DISPLAY}.log
+
+# All power-management features are disabled but can be implemented easily
+while :
+do
+    # While 'bumblerun' is running
+    while pidof -x optirun
+    do
+        if [ ! -e $PIDFILE ]; then
+        #echo "try to start server..."
+            # Bad approach using the LD_LIBRARY_PATH
+            LD_LIBRARY_PATH=$MODULE_PATH:$LD_LIBRARY_PATH $XDAEMON $XDAEMON_ARGS &>/dev/null &
+        fi
+        sleep $REFRESH
+    done
+    
+    # Last instance of optirun terminated awaiting dead
+    sleep $AWAIT_DEATH
+    
+    # While 'bumblerun' is not running
+    while ! pidof -x optirun 
+    do
+        #echo "Sleeping..."
+        if [ -e $PIDFILE ]; then
+            #echo "try to stop server..."
+            kill -TERM `cat $PIDFILE 2>&1` &
+            wait
+            rm -f $PIDFILE
+        fi
+      sleep $REFRESH
+    done
+done
