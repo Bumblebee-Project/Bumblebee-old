@@ -1,6 +1,6 @@
 # Should be removed when changes from v.1.4.19+20 has been implemented on Fedora, OpenSuSE and Debian.
 
-if [ "$DISTRO" != UBUNTU ] && [ "$DISTRO" != OPENSUSE ] ; then
+if [ "$DISTRO" != ubuntu ] && [ "$DISTRO" != opensuse ] ; then
     echo "Now you need to make sure that the command \"vglclient -gl\" is run after"
     echo "your Desktop Environment is started"
     echo
@@ -34,7 +34,8 @@ echo
 echo "Or even better.. create an issue on github..."
 echo "This really makes bugfixing much easier for me and faster for you."
 echo
-echo "If you need to reconfigure bumblebee the script bumblebee-config as available."
+echo "If you need to reconfigure bumblebee the script bumblebee-config is available."
+echo "You may also try bumblebee-configuration."
 echo
 echo "Good luck... Martin Juhl / MrMEEE & The Bumblebee Project Team"
 echo
