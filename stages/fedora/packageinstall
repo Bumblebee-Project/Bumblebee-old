@@ -1,6 +1,4 @@
-yum -y install wget binutils gcc kernel-devel mesa-libGL mesa-libGLU
-
-if [ $? -ne 0 ]; then
+if ! yum -y install wget binutils gcc kernel-devel mesa-libGL mesa-libGLU; then
     echo
     echo "Package manager failed to install needed packages."
     echo
@@ -15,7 +13,7 @@ elif [ "$ARCH" = "i686" ]; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86/"
 fi
 
-LATEST=`wget -q -O - ${BASEDIR}/latest.txt | cut -f2 -d" " | tr -d '\n' | tr -d '\r'`
+LATEST=`wget -q -O - ${BASEDIR}/latest.txt | cut -f2 -d" " | tr -d '\n\r'`
 TMPDIR="$(mktemp -d)"
 
 # The driver filename, e.g. NVIDIA-Linux-x86-280.13.run
@@ -23,7 +21,7 @@ NV_DRIVER="${LATEST##*/}"
 
 wget -nv ${BASEDIR}/${LATEST} -O "${TMPDIR}/${NV_DRIVER}"
 
-NV_DRIVERS_VERSION=`echo ${LATEST} | cut -f1 -d"/"`
+NV_DRIVERS_VERSION="${LATEST%%/*}"
 
 echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 
