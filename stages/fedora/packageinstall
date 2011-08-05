@@ -1,11 +1,10 @@
+#!/bin/bash
 if ! yum -y install wget binutils gcc kernel-devel mesa-libGL mesa-libGLU; then
-    echo
-    echo "Package manager failed to install needed packages."
-    echo
-    exit 21
+    echo "The package manager failed to install dependencies for the nVidia driver"
+    exit 2
 fi
 
-echo "Getting latest NVidia drivers version"
+echo "Getting latest nVidia drivers version"
 
 if [ "$ARCH" = "x86_64" ]; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86_64/"
@@ -33,7 +32,6 @@ if [ "$ARCH" = "x86_64" ]; then
     rm -rf /usr/lib64/nvidia-current
     rm -rf /usr/lib/nvidia-current
 
-    ${MODPROBE} -r nouveau
     "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
                         -s\
                        --x-prefix=/usr/lib64/nvidia-current\
@@ -43,7 +41,6 @@ if [ "$ARCH" = "x86_64" ]; then
                        --utility-prefix=/usr/lib64/nvidia-current --utility-libdir=.\
                        --opengl-prefix=/usr/lib64/nvidia-current --opengl-libdir=.\
                        --compat32-prefix=/usr/lib/nvidia-current --compat32-libdir=.
-    ${MODPROBE} nvidia
 
     # Make sure we can run the nvidia X-server without all kind of library issues
     # See also http://us.download.nvidia.com/XFree86/Linux-x86_64/<version>/README/installedcomponents.html
@@ -55,7 +52,6 @@ elif [ "$ARCH" = "i686" ]; then
 
     rm -rf /usr/lib/nvidia-current
 
-    ${MODPROBE} -r nouveau
     "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
                         -s\
                        --x-prefix=/usr/lib/nvidia-current\
@@ -64,7 +60,6 @@ elif [ "$ARCH" = "i686" ]; then
                        --x-module-path=/usr/lib/nvidia-current/xorg/modules\
                        --utility-prefix=/usr/lib/nvidia-current --utility-libdir=.\
                        --opengl-prefix=/usr/lib/nvidia-current --opengl-libdir=.
-    ${MODPROBE} nvidia
 
     # Make sure we can run the nvidia X-server without all kind of library issues
     # See also http://us.download.nvidia.com/XFree86/Linux-x86/<version>/README/installedcomponents.html
