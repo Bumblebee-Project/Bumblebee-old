@@ -47,7 +47,7 @@ source stages/$DISTRO/checkrights
 #Determine Arch x86_64 or i686
 ARCH=`uname -m`
 
-#Get tools location 
+#Get tools location
 LSPCI=`which lspci`
 MODPROBE=`which modprobe`
 
@@ -58,11 +58,11 @@ IMAGETRANSPORT="UNDEFINED"
 INTELBUSID="UNDEFINED"
 NVIDIABUSID="UNDEFINED"
 
-source stages/welcome 
+source stages/welcome
 
 echo
 echo "Installing needed packages..."
-echo 
+echo
 
 source stages/$DISTRO/packageinstall
 
@@ -133,7 +133,7 @@ source stages/goodbye
 echo "Bumblebee Version: "$BUMBLEBEEVERSION > /etc/bumblebee
 
 echo
-echo "Press any key to finish installation..."
+echo "Press enter to finish installation..."
 read
 
 exit 0
