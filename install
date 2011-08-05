@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. stages/checkprivileges
+
+. stages/determinedistro
+echo "${DISTRO}-based distribution found"
+
+. stages/setvars
+
+. stages/welcome
+
