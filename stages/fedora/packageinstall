@@ -7,8 +7,6 @@ if [ $? -ne 0 ]; then
     exit 21
 fi
 
-rm -rf /tmp/NVIDIA*
-
 echo "Getting latest NVidia drivers version"
 
 if [ "$ARCH" = "x86_64" ]; then
@@ -18,28 +16,27 @@ elif [ "$ARCH" = "i686" ]; then
 fi
 
 LATEST=`wget -q -O - ${BASEDIR}/latest.txt | cut -f2 -d" " | tr -d '\n' | tr -d '\r'`
+TMPDIR="$(mktemp -d)"
 
-cd /tmp
+# The driver filename, e.g. NVIDIA-Linux-x86-280.13.run
+NV_DRIVER="${LATEST##*/}"
 
-wget -nv ${BASEDIR}/${LATEST}
+wget -nv ${BASEDIR}/${LATEST} -O "${TMPDIR}/${NV_DRIVER}"
 
 NV_DRIVERS_VERSION=`echo ${LATEST} | cut -f1 -d"/"`
-NV_DRIVER=`echo ${LATEST} | cut -f2 -d"/" | sed s/.run//`
 
 echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 
 # Extract the binary
-sh /tmp/${NV_DRIVER}.run -x
+sh "${TMPDIR}/${NV_DRIVER}" --target="${TMPDIR}/nvidia" -x
 
 if [ "$ARCH" = "x86_64" ]; then
 
     rm -rf /usr/lib64/nvidia-current
     rm -rf /usr/lib/nvidia-current
 
-    cd /tmp/${NV_DRIVER}
-
     ${MODPROBE} -r nouveau
-    ./nvidia-installer --no-x-check\
+    "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
                         -s\
                        --x-prefix=/usr/lib64/nvidia-current\
                        --x-library-path=/usr/lib64/nvidia-current\
@@ -60,10 +57,8 @@ elif [ "$ARCH" = "i686" ]; then
 
     rm -rf /usr/lib/nvidia-current
 
-    cd /tmp/${NV_DRIVER}
-
     ${MODPROBE} -r nouveau
-    ./nvidia-installer --no-x-check\
+    "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
                         -s\
                        --x-prefix=/usr/lib/nvidia-current\
                        --x-library-path=/usr/lib/nvidia-current\
@@ -81,7 +76,8 @@ elif [ "$ARCH" = "i686" ]; then
 
 fi
 
+# cleanup
+rm -rf "${TMPDIR}"
+
 # Make sure we still have 3D on our Intel card (also for developers)
 yum -y reinstall libvdpau mesa-libGL mesa-libGL-devel xorg-x11-server-Xorg
-
-cd "$BUMBLEBEEPWD"
