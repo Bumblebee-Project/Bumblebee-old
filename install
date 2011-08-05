@@ -12,3 +12,6 @@ echo "${DISTRO}-based distribution found"
 echo "== Installing dependencies =="
 . "stages/$distro/packageinstall"
 
+echo "== Installing Bumblebee =="
+. stages/copyfiles
+

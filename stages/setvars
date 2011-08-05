@@ -4,6 +4,10 @@
 ARCH=$(uname -m)
 UNATTENDED=false
 
+# Install locations
+BINDIR=/usr/local/bin
+CONFDIR=/etc/bumblebee
+
 for arg; do
     case "$arg" in
       --unattended)
