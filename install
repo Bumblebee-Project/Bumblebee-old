@@ -18,3 +18,5 @@ echo "== Installing dependencies =="
 echo "== Installing Bumblebee =="
 . stages/copyfiles
 
+echo "== Configuring =="
+. stages/configure

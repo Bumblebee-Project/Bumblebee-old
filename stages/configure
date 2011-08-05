@@ -1,0 +1,16 @@
+#!/bin/bash
+# check if nouveau is not blacklisted or commented
+if grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
+	# blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
+	# blacklist.conf or nvidia.conf (OpenSUSE)
+	echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
+fi
+
+re_busid='^( *BusID +")[^"]*'
+re_connectedmonitor='^( *Option +"ConnectedMonitor" +")[^"]*'
+
+for driver in nvidia; do
+    sed -E -i "$CONFDIR/xorg.conf.$driver" \
+        -e "s,${re_busid},\1${NVIDIABUSID}," \
+        -e "s,${re_connectedmonitor},\1${CONNECTEDMONITOR},"
+done
