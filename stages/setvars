@@ -19,10 +19,12 @@ for arg; do
         echo "  --unattended"
         echo "    Do not pause with informational messages, proceed with the installation"
         echo "    without confirming"
+        exit 0
         ;;
       *)
         echo "Unrecognized option '$arg'"
         echo "Try '$0 --help' for more information."
+        exit 1
         ;;
     esac
 done
