@@ -35,6 +35,6 @@ else
     echo "Your Distribution could not be determined or is not supported."
     echo "Please report a bug at:"
     echo
-    echo "https://github.com/MrMEEE/bumblebee/issues"
+    echo "https://github.com/Bumblebee-Project/bumblebee/issues"
     exit 1
 fi
