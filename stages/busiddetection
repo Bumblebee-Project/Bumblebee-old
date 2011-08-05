@@ -21,7 +21,7 @@ if [ -z "$NVIDIABUSID" ]; then
     read
 else
     echo
-    echo "We will use the local configuration ${DETECTED}"
+    echo "We will use the detected ${NVIDIABUSID}"
     echo "for the BusID of the nVidia card."
     echo
 fi
