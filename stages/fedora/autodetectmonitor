@@ -4,25 +4,21 @@ echo
 
 if [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; then
 
-    if [ -f /usr/local/bin/bumblebee-enablecard ]; then
-         /usr/local/bin/bumblebee-enablecard
-    fi
 
     ${MODPROBE} nvidia
 
     if [ ${ARCH} = "x86_64" ]; then
-        if [ `LD_LIBRARY_PATH=/usr/lib64/nvidia-current /usr/lib64/nvidia-current/bin/nvidia-xconfig --query-gpu-info |grep "Display Devices" | cut -f2 -d":"` -gt 0 ]; then
-            CONNECTEDMONITOR=`LD_LIBRARY_PATH=/usr/lib64/nvidia-current /usr/lib64/nvidia-current/bin/nvidia-xconfig --query-gpu-info |grep "Display Device 0" | cut -f2 -d\( | cut -f1 -d\)`
+        query_info=$(LD_LIBRARY_PATH=/usr/lib64/nvidia-current /usr/lib64/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
+        if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
+            CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
         fi
     elif [ ${ARCH} = "i686" ]; then
-        if [ `LD_LIBRARY_PATH=/usr/lib/nvidia-current /usr/lib/nvidia-current/bin/nvidia-xconfig --query-gpu-info |grep "Display Devices" | cut -f2 -d":"` -gt 0 ]; then
-            CONNECTEDMONITOR=`LD_LIBRARY_PATH=/usr/lib/nvidia-current /usr/lib/nvidia-current/bin/nvidia-xconfig --query-gpu-info |grep "Display Device 0" | cut -f2 -d\( | cut -f1 -d\)`
+        query_info=$(LD_LIBRARY_PATH=/usr/lib/nvidia-current /usr/lib/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
+        if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
+            CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
         fi
     fi
 
     ${MODPROBE} -r nvidia
 
-    if [ -f /usr/local/bin/bumblebee-disablecard ]; then
-         /usr/local/bin/bumblebee-disablecard
-    fi
 fi
