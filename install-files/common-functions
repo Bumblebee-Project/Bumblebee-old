@@ -42,25 +42,21 @@ unload_graphics_driver() {
     "${MODPROBE}" -r "$(get_graphics_driver)" || return 1
 }
 
-# Should detect distro by name in /etc/issue. Prints the result as 
+# Should detect distro by name in /etc/issue. Prints the result as
 # "distro-like". Returns 0 if supported distro 1 otherwise.
 detect_distro() {
     local distro
-    local isfi=/etc/issue
-    if grep -iq Fedora /etc/issue; then
-        distro=fedora
-    elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
-        distro=ubuntu
-    elif grep -iq OpenSUSE /etc/issue; then
-        distro=opensuse
-    elif grep -iq Debian /etc/issue; then
-        distro=debian
-    elif grep -iq "Arch Linux" /etc/issue; then
-        distro=archlinux
-    elif grep -iq "Gentoo" /etc/issue; then
-        distro=gentoo
-    else
-        exit 1
-    fi
-    echo "$distro"
+    for distro in fedora ubuntu opensuse debian 'arch linux' gentoo\
+        'linux mint' 'backtrack 5'; do
+        if grep -iq "$distro" /etc/issue; then
+            # remove whitespace
+            distro="${distro// }"
+            # these are just aliases for ubuntu
+            [[ $distro == linuxmint ]] && distro=ubuntu
+            [[ $distro == backtrack5 ]] && distro=ubuntu
+            echo "$distro"
+            return 0
+        fi
+    done
+	return 1
 }
