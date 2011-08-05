@@ -63,19 +63,13 @@ MODPROBE=`which modprobe`
 LINES=`stty size | cut -f1 -d' '`
 COLUMNS=`stty size | cut -f2 -d' '`
 
-# NVIDIABUSID without PCI:
-NVIDIABUSIDCUT=`grep BusID /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*BusID[ \t]*\"\(.*\)\"/\1/g" |cut -d: -f2,3`
-
 if [ -f "$DEFAULT_FILE" ] ; then
     whiptail --yesno \
-        "Bumblebee Configuration.\n\nDo you really want to reconfigure bumblebee?" $LINES $COLUMNS || exit 0
+" Bumblebee Configuration.\n\n"\
+"Do you really want to reconfigure bumblebee?" $LINES $COLUMNS || exit 0
 else
     # -f to prevent error messages should the file not exist
     rm -f "$DEFAULT_FILE"
-fi
-
-if [ -f /tmp/machineinfo ]; then
-    rm /tmp/machineinfo
 fi
 
 if [ "$DISTRO" == "UBUNTU" ] ; then
@@ -98,10 +92,9 @@ if [ "$DISTRO" == "UBUNTU" ] ; then
     # display where the previous situation breaks it.
     # TLDR: this allows the intel display to use GL, the bumblebee display will
     #       load the nvidia driver through vglrun in almost all cases
-
-    # this takes care of setting correct links which is used on
-    # /usr/lib/nvidia-current/gl.conf
-    # multiarch support
+    #       this takes care of setting correct links which is used on
+    #       /usr/lib/nvidia-current/gl.conf
+    #       multiarch support
     for arch in x86_64-linux-gnu i386-linux-gnu; do
         # check if the link exist to prevent error messages
         if update-alternatives --list ${arch}_gl_conf >/dev/null 2>&1; then
@@ -134,23 +127,14 @@ echo
 echo "Configuring... Please wait"
 echo
 
+NVIDIABUSID=$("$LSPCI" -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
-#
-#    Get current values
-#
-NVIDIABUSID=`grep BusID /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*BusID[ \t]*\"\(.*\)\"/\1/g"`
-CONNECTEDMONITOR=`grep ConnectedMonitor /etc/X11/xorg.conf.nvidia | sed -e "s/[ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\"\(.*\)\"/\1/g"`
-
-if [ `${LSPCI} |grep VGA |wc -l` -eq 2 ]; then
-    NVIDIABUSID=`${LSPCI} | grep VGA | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-elif [ `${LSPCI} |grep 3D |wc -l` -eq 1 ]; then
-    NVIDIABUSID=`${LSPCI} | grep 3D  | grep nVidia | awk '{ print "PCI:"$1 }' | sed s/\\\./:/g`
-else
+if [ -z "$NVIDIABUSID" ]; then
     whiptail --msgbox \
 " The BusID of the nVidia card can't be determined.\n"\
 "You must correct this manually in /etc/X11/xorg.conf.nvidia\n"\
 "Please report this problem..\n\n"\
-"Press Any Key to continue." $LINES $COLUMNS
+"Press enter to continue." $LINES $COLUMNS
 fi
 
 sed -i "s/\([ \t]*BusID[ \t]*\)\".*\"/\1\"$NVIDIABUSID\"/g" /etc/X11/xorg.conf.nvidia
@@ -162,7 +146,7 @@ if [ "$DISTRO" == "UBUNTU" ] ; then
     ${MODPROBE} nvidia-current
     query_info=$(LD_LIBRARY_PATH=/usr/lib/nvidia-current /usr/lib/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
     if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
-        CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f 2 | cut -d\) -f1)
+        CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
     fi
     ${MODPROBE} -r nvidia
 fi
@@ -185,15 +169,15 @@ choice=$(whiptail --nocancel --menu \
 " The device for the nVidia monitor could not be detected, please\n"\
 "manually choose the device, if your having problems, try another." $LINES $COLUMNS $LIST_SIZE 1 "CRT-0" 2 "DFP-0" 3 "Manually Enter" 3>&1 1>&2 2>&3)
     case "$choice" in
-        1)
-          CONNECTEDMONITOR="CRT-0"
-          ;;
-        2)
-          CONNECTEDMONITOR="DFP-0"
-          ;;
-        3)
-          CONNECTEDMONITOR=$(whiptail --inputbox " Enter the nVidia connected monitor:" $LINES $COLUMNS 3>&1 1>&2 2>&3)
-          ;;
+      1)
+        CONNECTEDMONITOR="CRT-0"
+        ;;
+      2)
+        CONNECTEDMONITOR="DFP-0"
+        ;;
+      3)
+        CONNECTEDMONITOR=$(whiptail --inputbox " Enter the nVidia connected monitor:" $LINES $COLUMNS 3>&1 1>&2 2>&3)
+        ;;
     esac
 fi
 
@@ -218,24 +202,24 @@ choice=$(whiptail --nocancel --menu --default-item 4 \
 "xv brings down performance a little." $LINES $COLUMNS $LIST_SIZE 1 "YUV" 2 "JPEG" 3 "PROXY" 4 "XV (Default)" 5 "RGB" 3>&1 1>&2 2>&3)
 
 case "$choice" in
-    1)
-      IMAGETRANSPORT="yuv"
-      ;;
-    2)
-      IMAGETRANSPORT="jpeg"
-      ;;
-    3)
-      IMAGETRANSPORT="proxy"
-      ;;
-    4)
-      IMAGETRANSPORT="xv"
-      ;;
-    5)
-      IMAGETRANSPORT="rgb"
-      ;;
-    *)
-      IMAGETRANSPORT="xv"
-      ;;
+  1)
+    IMAGETRANSPORT="yuv"
+    ;;
+  2)
+    IMAGETRANSPORT="jpeg"
+    ;;
+  3)
+    IMAGETRANSPORT="proxy"
+    ;;
+  4)
+    IMAGETRANSPORT="xv"
+    ;;
+  5)
+    IMAGETRANSPORT="rgb"
+    ;;
+  *)
+    IMAGETRANSPORT="xv"
+    ;;
 esac
 
 sed -i 's/VGL_COMPRESS.*/VGL_COMPRESS='$IMAGETRANSPORT'/' "$DEFAULT_FILE"
