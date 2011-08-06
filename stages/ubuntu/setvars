@@ -1,0 +1,10 @@
+#!/bin/bash
+APT_OPTS=
+# Do not prompt on apt-get install and purge/remove
+$UNATTENDED && APT_OPTS="$APT_OPTS -y"
+
+# whether Bumblebee was installed using dpkg (e.g. PPA)
+PKGINSTALLED=false
+if [[ $(dpkg-query -W -f '${Status}' bumblebee) =~ ^install ]]; then
+    PKGINSTALLED=true
+fi

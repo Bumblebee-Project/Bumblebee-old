@@ -31,30 +31,3 @@ if [ -z "$NVIDIABUSID" ]; then
     echo "Aborting installation"
     exit 1
 fi
-
-# Detect Monitor
-# Don't work for OpenSUSE
-# Ximi1970 to fix it ?
-
-if [ ${DISTRO} = "ubuntu" ]; then
-    NVIDIAMOD=-current
-elif [ ${DISTRO} = "fedora" ]; then
-    NVIDIAMOD=
-fi
-
-${MODPROBE} nvidia${NVIDIAMOD}
-
-# Why only checking that for Fedora ?
-if [ ${DISTRO} = "fedora" ] && [ ${ARCH} = "x86_64" ]; then
-    NVIDIAARCH=64
-else
-    NVIDIAARCH=
-fi
-
-query_info=$(LD_LIBRARY_PATH=/usr/lib${NVIDIAARCH}/nvidia-current /usr/lib${NVIDIAARCH}/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
-
-if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
-    CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
-fi
-
-${MODPROBE} -r nvidia

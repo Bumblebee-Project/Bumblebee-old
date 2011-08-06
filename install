@@ -5,9 +5,21 @@
 . stages/determinedistro
 echo "${DISTRO}-based distribution found"
 
+# definition of tools (like $LSPCI) as well as command options parsing and
+# options like installation path
 . stages/setvars
+# optional distro-specific variables, like paths
+[ -f "stages/$DISTRO/setvars" ] && . "stages/$DISTRO/setvars"
 
 . stages/welcome
+
+echo "== Removing previous version =="
+. stages/cleanmess
+[ -f "stages/$DISTRO/cleanmess" ] && . "stages/$DISTRO/cleanmess"
+# post-cleanmess, do not put this in stages/cleanmess as it will make the
+# installer think that the mess has already been cleaned up the next time.
+# This may be problematic if $DISTRO/cleanmess fails to finish
+$ANCIENTINSTALLATIONFOUND && rm -f /etc/bumblebee
 
 echo "== Detecting hardware =="
 . stages/detecthardware

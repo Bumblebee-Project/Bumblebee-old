@@ -12,7 +12,7 @@ Section "Device"
     Driver         "nvidia"
     VendorName     "NVIDIA Corporation"
     # The PCI Bus ID will be inserted by the installer
-    BusID          "REPLACEWITHBUSID"
+    BusID          ""
     # XXX: Previously, IgnoreEDID was set, but why?
     Option         "UseEDID" "false"
     # Read docs, use of UseDisplayDevice is recommended over ConnectedMonitor
