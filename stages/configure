@@ -7,10 +7,8 @@ if grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
 fi
 
 re_busid='^( *BusID +")[^"]*'
-re_connectedmonitor='^( *Option +"ConnectedMonitor" +")[^"]*'
 
 for driver in nvidia; do
     sed -E -i "$CONFDIR/xorg.conf.$driver" \
-        -e "s,${re_busid},\1${NVIDIABUSID}," \
-        -e "s,${re_connectedmonitor},\1${CONNECTEDMONITOR},"
+        -e "s,${re_busid},\1${NVIDIABUSID},"
 done

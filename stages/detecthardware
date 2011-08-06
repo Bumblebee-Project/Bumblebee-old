@@ -31,35 +31,3 @@ if [ -z "$NVIDIABUSID" ]; then
     echo "Aborting installation"
     exit 1
 fi
-
-# Detect Monitor
-# Don't work for OpenSUSE (please test)
-# Ximi1970 to fix it ?
-# XXX: try to not depend on the nvidia driver and nvidia-xconfig for monitor detection
-
-should_unload=false
-# load the module if needed
-lsmod | grep -q '^nvidia '; then
-    for driver in nouveau; do
-        if lsmod | grep -q "^$driver "; then
-            echo "Unloading conflicting driver: $driver"
-            "${MODPROBE}" -r $driver
-        fi
-    fi
-
-    "${MODPROBE}" $DRIVER
-    should_unload=true
-fi
-
-query_info=$(LD_LIBRARY_PATH="$NVIDIA_LIBDIR" "${NVIDIA_LIBDIR}/bin/nvidia-xconfig" --query-gpu-info)
-
-if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
-    CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
-fi
-
-${should_unload} && "${MODPROBE}" -r $DRIVER
-if [ -z "$CONNECTEDMONITOR" ]; then
-    echo "The connected monitor could not be detected."
-    echo "Installation aborted."
-    exit 1
-fi
