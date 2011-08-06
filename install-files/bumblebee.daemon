@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# This daemon will start the X server and stop it as needed
+
+NAME=bumblebee
+CONF_FILE=/etc/bumblebee/bumblebee.conf
+# Here is used /usr/lib/nvidia-bumblebee as alternative installation site for
+# the nvidia libraries this shouldn't be needed 
+MODULE_PATH=/usr/lib/nvidia-bumblebee/xorg,/usr/lib/xorg/modules
+XDAEMON=/usr/bin/X
+XDAEMON_ARGS="-ac -config $CONF_FILE -sharevts -modulepath $MODULE_PATH -nolisten tcp -noreset"
+# Handler path. should be a /etc/rc.d or /etc/init.d file to start/stop service
+#HANDLER=/usr/bin/$NAME
+# Refresh time in seconds. Could be overriden in configuration file
+REFRESH=1 
+# Time to wait for stoping the X server until last instance of bumblebee stoped
+AWAIT_DEATH=1
+
+# default display and PIDFILE, may be overidden in conf file (should be trusted)
+VGL_DISPLAY=:8
+PIDFILE=/tmp/.X8-lock
+
+[ -r /etc/bumblebee/bumblebee.conf ] && . /etc/bumblebee/bumblebee.conf
+
+XDAEMON_ARGS="$XDAEMON_ARGS $VGL_DISPLAY"
+# assume that the display always looks like :1
+BEE_DISPLAY=${VGL_DISPLAY##*:}
+BEE_DISPLAY=${BEE_DISPLAY%%.*}
+PIDFILE=/tmp/.X${BEE_DISPLAY}-lock
+#X_LOG=/var/log/Xorg.${BEE_DISPLAY}.log
+
+# All power-management features are disabled but can be implemented easily
+watch() {
+    while :
+    do
+        # While 'bumblerun' is running
+        while pidof -x bumblerun
+        do
+            if [ ! -e $PIDFILE ]; then
+            #echo "try to start server..."
+                # Bad approach using the LD_LIBRARY_PATH variable
+                LD_LIBRARY_PATH=$MODULE_PATH:$LD_LIBRARY_PATH $XDAEMON $XDAEMON_ARGS &>/dev/null &
+            fi
+            sleep $AWAIT_DEATH
+        done
+    
+        # Last instance of optirun terminated awaiting dead
+        sleep $AWAIT_DEATH
+    
+        # While 'bumblerun' is not running
+        while ! pidof -x bumblerun
+        do
+            #echo "Sleeping..."
+            if [ -e $PIDFILE ]; then
+                #echo "try to stop server..."
+                kill -TERM `cat $PIDFILE 2>&1`
+                rm -f $PIDFILE
+            fi
+        sleep $REFRESH
+        done
+    done
+}
+
+start() {
+    if [ -f $T_LOCKFILE ]; then
+        echo "A daemonized instance is running"
+        exit 0
+    else
+        echo $T_PID > $T_LOCKFILE
+    fi
+    $0 watch &
+    exit 0
+}
+
+stop() {
+    if [ ! -f $T_LOCKFILE ]; then
+        echo "No instance running"
+        exit 0
+    else
+        # Should catch a signal to terminate gracefully... now we are just 
+        # shooting him down.
+        kill -KILL `cat $T_LOCKFILE`
+    fi
+}
+
+T_PID=$$
+T_LOCKFILE=/tmp/.bb-lock
+T_LOG_FILE=/val/log/bumblebeed.log
+
+case "$1" in
+    start)
+      start
+    ;;
+    stop)
+      stop
+    ;;
+    restart)
+      $0 stop
+      sleep 1
+      $0 start
+    ;;
+    status)
+      # This is an Arch function
+      #ck_status $NAME
+    
+    ;;
+    pid)
+      if [ -f $T_LOCKFILE ]; then
+        cat $T_LOCKFILE
+      else
+        echo "Not running"
+      fi
+    ;;
+    *)
+      echo "usage: $0 {start|stop|restart|status}"  
+esac
