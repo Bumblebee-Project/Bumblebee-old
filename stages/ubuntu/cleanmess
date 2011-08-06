@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ $(dpkg-query -W -f '${Status}' bumblebee) =~ ^install ]]; then
+if $PKGINSTALLED; then
     echo "Old Bumblebee package installation detected, removing..."
     if ! apt-get purge ${APT_OPTS} bumblebee; then
         echo "The old Bumblebee package could not be removed."
