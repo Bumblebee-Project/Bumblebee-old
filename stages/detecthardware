@@ -33,28 +33,33 @@ if [ -z "$NVIDIABUSID" ]; then
 fi
 
 # Detect Monitor
-# Don't work for OpenSUSE
+# Don't work for OpenSUSE (please test)
 # Ximi1970 to fix it ?
+# XXX: try to not depend on the nvidia driver and nvidia-xconfig for monitor detection
 
-if [ ${DISTRO} = "ubuntu" ]; then
-    NVIDIAMOD=-current
-elif [ ${DISTRO} = "fedora" ]; then
-    NVIDIAMOD=
+should_unload=false
+# load the module if needed
+lsmod | grep -q '^nvidia '; then
+    for driver in nouveau; do
+        if lsmod | grep -q "^$driver "; then
+            echo "Unloading conflicting driver: $driver"
+            "${MODPROBE}" -r $driver
+        fi
+    fi
+
+    "${MODPROBE}" $DRIVER
+    should_unload=true
 fi
 
-${MODPROBE} nvidia${NVIDIAMOD}
-
-# Why only checking that for Fedora ?
-if [ ${DISTRO} = "fedora" ] && [ ${ARCH} = "x86_64" ]; then
-    NVIDIAARCH=64
-else
-    NVIDIAARCH=
-fi
-
-query_info=$(LD_LIBRARY_PATH=/usr/lib${NVIDIAARCH}/nvidia-current /usr/lib${NVIDIAARCH}/nvidia-current/bin/nvidia-xconfig --query-gpu-info)
+query_info=$(LD_LIBRARY_PATH="$NVIDIA_LIBDIR" "${NVIDIA_LIBDIR}/bin/nvidia-xconfig" --query-gpu-info)
 
 if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
     CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
 fi
 
-${MODPROBE} -r nvidia
+${should_unload} && "${MODPROBE}" -r $DRIVER
+if [ -z "$CONNECTEDMONITOR" ]; then
+    echo "The connected monitor could not be detected."
+    echo "Installation aborted."
+    exit 1
+fi
