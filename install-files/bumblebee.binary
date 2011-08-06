@@ -13,6 +13,7 @@ More info at: https://github.com/Bumblebee-Project/Bumblebee
 EOF
 }
 
+# Not used
 show_gpl_msg() {
 
 }
@@ -34,8 +35,9 @@ EOF
 start_daemon() {
     # Should check if it can be done (run as root)
     
-    # Run the daemon. Should establish it's location!
-    local DAEMON=/usr/bin/bumblebeed
+    # Run the daemon. Should establish it's location! < Using wich assuming
+    # PATH variable is correctly set
+    local DAEMON=`which bumblebeed`
     $DAEMON
 }
 

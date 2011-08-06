@@ -4,9 +4,9 @@
 
 . /etc/bumblebee/bumblebee.conf
 
-NAME=bumblebee
-LOCKFILE=/tmp/.bb-lock
-BDAEMON=/usr/bin/bumblebeed
+local NAME=bumblebee
+local LOCKFILE=/tmp/.bb-lock
+local BDAEMON=`which bumblebeed`
 
 # Power-management disabled
 disable_card()
@@ -24,7 +24,7 @@ start() {
     # Start the daemon only if there is not anothe instance running
     if [ ! -e "$LOCKFILE" ]; then
       $BDAEMON &>/dev/null &
-      BDPID=$!
+      local BDPID=$!
       echo "$BDPID" > "$LOCKFILE"
    fi
 }
@@ -52,7 +52,8 @@ case "$1" in
     restart
     ;;
   status)
-    ck_status $NAME
+    # This is an Arch function
+    #ck_status $NAME
   ;;
   *)
     echo "usage: $0 {start|stop|enable|disable|restart|status}"  

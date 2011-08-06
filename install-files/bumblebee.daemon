@@ -5,16 +5,19 @@
 
 NAME=bumblebee
 CONF_FILE=/etc/bumblebee/bumblebee.conf
+# Here is used /usr/lib/nvidia-bumblebee as alternative installation site for
+# the nvidia libraries this shouldn't be needed 
 MODULE_PATH=/usr/lib/nvidia-bumblebee/xorg,/usr/lib/xorg/modules
 XDAEMON=/usr/bin/X
-XDAEMON_ARGS="-config $CONF_FILE -sharevts -modulepath $MODULE_PATH -nolisten tcp -noreset"
-HANDLER=/usr/bin/$NAME
+XDAEMON_ARGS="-ac -config $CONF_FILE -sharevts -modulepath $MODULE_PATH -nolisten tcp -noreset"
+# Handler path. should be a /etc/rc.d or /etc/init.d file to start/stop service
+#HANDLER=/usr/bin/$NAME
 # Refresh time in seconds. Could be overriden in configuration file
 REFRESH=1 
 # Time to wait for stoping the X server until last instance of bumblebee stoped
 AWAIT_DEATH=1
 
-# default display and PIDFILE, may be overidden in conf file
+# default display and PIDFILE, may be overidden in conf file (should be trusted)
 VGL_DISPLAY=:8
 PIDFILE=/tmp/.X8-lock
 
@@ -31,7 +34,7 @@ PIDFILE=/tmp/.X${BEE_DISPLAY}-lock
 while :
 do
     # While 'bumblerun' is running
-    while pidof -x optirun
+    while pidof -x bumblerun
     do
         if [ ! -e $PIDFILE ]; then
         #echo "try to start server..."
@@ -45,13 +48,12 @@ do
     sleep $AWAIT_DEATH
     
     # While 'bumblerun' is not running
-    while ! pidof -x optirun 
+    while ! pidof -x bumblerun
     do
         #echo "Sleeping..."
         if [ -e $PIDFILE ]; then
             #echo "try to stop server..."
-            kill -TERM `cat $PIDFILE 2>&1` &
-            wait
+            kill -TERM `cat $PIDFILE 2>&1`
             rm -f $PIDFILE
         fi
       sleep $REFRESH
