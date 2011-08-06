@@ -4,9 +4,9 @@
 
 . /etc/bumblebee/bumblebee.conf
 
-local NAME=bumblebee
-local LOCKFILE=/tmp/.bb-lock
-local BDAEMON=`which bumblebeed`
+NAME=bumblebee
+LOCKFILE=/tmp/.bb-lock
+BDAEMON=`which bumblebeed`
 
 # Power-management disabled
 disable_card()

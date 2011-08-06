@@ -2,7 +2,6 @@
 
 # This daemon will start the X server and stop it as needed
 
-
 NAME=bumblebee
 CONF_FILE=/etc/bumblebee/bumblebee.conf
 # Here is used /usr/lib/nvidia-bumblebee as alternative installation site for
@@ -31,31 +30,87 @@ PIDFILE=/tmp/.X${BEE_DISPLAY}-lock
 #X_LOG=/var/log/Xorg.${BEE_DISPLAY}.log
 
 # All power-management features are disabled but can be implemented easily
-while :
-do
-    # While 'bumblerun' is running
-    while pidof -x bumblerun
+watch() {
+    while :
     do
-        if [ ! -e $PIDFILE ]; then
-        #echo "try to start server..."
-            # Bad approach using the LD_LIBRARY_PATH
-            LD_LIBRARY_PATH=$MODULE_PATH:$LD_LIBRARY_PATH $XDAEMON $XDAEMON_ARGS &>/dev/null &
-        fi
+        # While 'bumblerun' is running
+        while pidof -x bumblerun
+        do
+            if [ ! -e $PIDFILE ]; then
+            #echo "try to start server..."
+                # Bad approach using the LD_LIBRARY_PATH variable
+                LD_LIBRARY_PATH=$MODULE_PATH:$LD_LIBRARY_PATH $XDAEMON $XDAEMON_ARGS &>/dev/null &
+            fi
+            sleep $AWAIT_DEATH
+        done
+    
+        # Last instance of optirun terminated awaiting dead
+        sleep $AWAIT_DEATH
+    
+        # While 'bumblerun' is not running
+        while ! pidof -x bumblerun
+        do
+            #echo "Sleeping..."
+            if [ -e $PIDFILE ]; then
+                #echo "try to stop server..."
+                kill -TERM `cat $PIDFILE 2>&1`
+                rm -f $PIDFILE
+            fi
         sleep $REFRESH
+        done
     done
+}
+
+start() {
+    if [ -f $T_LOCKFILE ]; then
+        echo "A daemonized instance is running"
+        exit 0
+    else
+        echo $T_PID > $T_LOCKFILE
+    fi
+    $0 watch &
+    exit 0
+}
+
+stop() {
+    if [ ! -f $T_LOCKFILE ]; then
+        echo "No instance running"
+        exit 0
+    else
+        # Should catch a signal to terminate gracefully... now we are just 
+        # shooting him down.
+        kill -KILL `cat $T_LOCKFILE`
+    fi
+}
+
+T_PID=$$
+T_LOCKFILE=/tmp/.bb-lock
+T_LOG_FILE=/val/log/bumblebeed.log
+
+case "$1" in
+    start)
+      start
+    ;;
+    stop)
+      stop
+    ;;
+    restart)
+      $0 stop
+      sleep 1
+      $0 start
+    ;;
+    status)
+      # This is an Arch function
+      #ck_status $NAME
     
-    # Last instance of optirun terminated awaiting dead
-    sleep $AWAIT_DEATH
-    
-    # While 'bumblerun' is not running
-    while ! pidof -x bumblerun
-    do
-        #echo "Sleeping..."
-        if [ -e $PIDFILE ]; then
-            #echo "try to stop server..."
-            kill -TERM `cat $PIDFILE 2>&1`
-            rm -f $PIDFILE
-        fi
-      sleep $REFRESH
-    done
-done
+    ;;
+    pid)
+      if [ -f $T_LOCKFILE ]; then
+        cat $T_LOCKFILE
+      else
+        echo "Not running"
+      fi
+    ;;
+    *)
+      echo "usage: $0 {start|stop|restart|status}"  
+esac
