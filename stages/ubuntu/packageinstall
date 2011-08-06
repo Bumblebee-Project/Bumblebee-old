@@ -1,8 +1,7 @@
 #!/bin/bash
 apt-get update
 apt_options=''
-$UNATTENDED && apt_options="$apt_options -y"
-if ! apt-get $apt_options install nvidia-current; then
+if ! apt-get ${APT_OPTS} install nvidia-current; then
     echo "The package manager failed to install the nVidia graphics driver"
     exit 2
 fi

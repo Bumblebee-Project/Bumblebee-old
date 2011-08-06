@@ -1,0 +1,4 @@
+#!/bin/bash
+APT_OPTS=
+# Do not prompt on apt-get install and purge/remove
+$UNATTENDED && APT_OPTS="$APT_OPTS -y"
