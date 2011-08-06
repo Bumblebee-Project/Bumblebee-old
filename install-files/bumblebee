@@ -29,27 +29,20 @@ EOF
 }
 
 start_daemon() {
-    # Should check if it can be done (run as root)
-    
-    # Run the daemon. Should establish it's location! < Using wich assuming
-    # PATH variable is correctly set
-    local DAEMON="$(which bumblebeed)"
-    $DAEMON
+    :
 }
 
 case "$1" in
-    --version)
-        show_version_msg
+  --version)
+    show_version_msg
     ;;
-    --help)
-        show_help_msg
+  --help)
+    show_help_msg
     ;;
-    -d)
-    # Bad approach maybe?
-        if ! start_daemon; then
-            echo "Can't start it..."
-        fi
+  -d)
+    start_daemon
     ;;
-    *)
-        show_help_msg
+  *)
+    show_help_msg
+    ;;
 esac
