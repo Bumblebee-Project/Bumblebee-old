@@ -18,6 +18,10 @@ install_step "$DISTRO/setvars"
 install_step welcome
 
 echo "== Removing previous version =="
+# basic uninstallation
+install_step uninstall
+install_step "$DISTRO/uninstall"
+
 install_step cleanmess
 install_step "$DISTRO/cleanmess"
 # post-cleanmess, do not put this in stages/cleanmess as it will make the

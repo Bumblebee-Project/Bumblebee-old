@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# note: uninstallation has been a mess in the past, bumblebee-uninstall did not
+# even remove itself! We need to do a lot cleaning
+if [ -x /usr/local/bin/bumblebee-uninstall ]; then
+    echo "Running /usr/local/bin/bumblebee-uninstall..."
+    if $ANCIENTINSTALLATIONFOUND; then
+        # the old installer is incomplete and messy. Let's do some safe fixing
+        sed -i /usr/local/bin/bumblebee-uninstall \
+            -e 's,\[ "\$HOME" == "/root" \],false,' # don't require sudo \
+            -e 's/^ .*\$HOME.*/:/' # replace lines about messing in Homedirs \
+                                   # directories by the no-op operator \
+            -e 's,exit 0,exit 1,' # there is no clean exit if the user aborts \
+            -e '/sleep 5/d' # umad? Why slow down? Get rid of it.
+
+        # finally, reaching EOF is success
+        echo 'exit 0' >> /usr/local/bin/bumblebee-uninstall
+    fi
+
+    # pass upgrade option so it can safe time by keeping nvidia
+    if ! /usr/local/bin/bumblebee-uninstall upgrade; then
+        echo "Uninstallation failed, installation aborted."
+        exit 1
+    fi
+elif [ -x "$BINDIR/bumblebee-uninstall" ]; then
+    echo "Running $BINDIR/bumblebee-uninstall..."
+
+    if ! "$BINDIR/bumblebee-uninstall" upgrade; then
+        echo "Uninstallation failed, installation aborted."
+        exit 1
+    fi
+fi
