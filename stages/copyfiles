@@ -1,8 +1,8 @@
 #!/bin/bash
-install -d -m755 "$CONFDIR"
+install -d -m644 "$CONFDIR"
 install -m644 install-files/xorg.conf.nvidia "$CONFDIR"
 
-install -d -m755 "$BINDIR"
+install -d -m644 "$BINDIR"
 install -m755 install-files/bumblebee-bugreport "$BINDIR"
 
 # whenever possible, the below scripts should be integrated in a package manager
