@@ -2,11 +2,24 @@
 
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
+MODPROBE=$(which modprobe)
+LSPCI=$(which lspci)
+
 UNATTENDED=false
 
 # Install locations
 BINDIR=/usr/local/bin
 CONFDIR=/etc/bumblebee
+NVIDIA_LIBDIR=/usr/lib/nvidia-current
+
+# the graphics driver to be loaded
+DRIVER=
+for driver in nvidia-current nvidia; do
+    if "${MODPROBE}" --dry-run --quiet $driver; then
+        DRIVER=$driver
+        break
+    fi
+done
 
 for arg; do
     case "$arg" in

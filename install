@@ -5,7 +5,11 @@
 . stages/determinedistro
 echo "${DISTRO}-based distribution found"
 
+# definition of tools (like $LSPCI) as well as command options parsing and
+# options like installation path
 . stages/setvars
+# optional distro-specific variables, like paths
+[ -f "stages/$DISTRO/setvars" ] && . "stages/$DISTRO/setvars"
 
 . stages/welcome
 
