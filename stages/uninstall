@@ -13,6 +13,11 @@ if [ -x /usr/local/bin/bumblebee-uninstall ]; then
             -e 's,exit 0,exit 1,' # there is no clean exit if the user aborts \
             -e '/sleep 5/d' # umad? Why slow down? Get rid of it.
 
+        # allow for an unattended uninstallation
+        if $UNATTENDED; then
+            sed -i /usr/local/bin/bumblebee-uninstall 's/read answer/answer=Y/'
+        fi
+
         # finally, reaching EOF is success
         echo 'exit 0' >> /usr/local/bin/bumblebee-uninstall
     fi
