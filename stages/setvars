@@ -21,6 +21,12 @@ for driver in nvidia-current nvidia; do
     fi
 done
 
+ANCIENTINSTALLATIONFOUND=false
+# Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
+# and before abused /etc/bumblebee for storing the version. In current versions
+# (Bumblebee-Project/Bumblebee), this is a directory for configuration files
+[ -f /etc/bumblebee ] && ANCIENTINSTALLATIONFOUND=true
+
 for arg; do
     case "$arg" in
       --unattended)

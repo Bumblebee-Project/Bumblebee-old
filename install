@@ -13,6 +13,14 @@ echo "${DISTRO}-based distribution found"
 
 . stages/welcome
 
+echo "== Removing previous version =="
+. stages/cleanmess
+[ -f "stages/$DISTRO/cleanmess" ] && . "stages/$DISTRO/cleanmess"
+# post-cleanmess, do not put this in stages/cleanmess as it will make the
+# installer think that the mess has already been cleaned up the next time.
+# This may be problematic if $DISTRO/cleanmess fails to finish
+$ANCIENTINSTALLATIONFOUND && rm -f /etc/bumblebee
+
 echo "== Detecting hardware =="
 . stages/detecthardware
 
