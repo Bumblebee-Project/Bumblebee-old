@@ -6,10 +6,9 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 
 # Full paths to possible optirun binaries
 OPTIRUNS=()
-# Changed to which's. Assumming the PATH variable is correct. Only the 'optirun'
-# binary should be looked for. Better use of -32 argument. Maybe drop it 
-# completely and always load the 32-bit libraries.
 OPTIRUNS[0]=$(which optirun)
+# provided for backwards compatibility, optirun32 is deprecated in favor of
+# optirun32 -32, optirun64 is equal to optirun
 OPTIRUNS[1]=$(which optirun32)
 OPTIRUNS[2]=$(which optirun64)
 
@@ -26,6 +25,12 @@ X_DAEMON=$(which X)
 
 # allow the user to specify a custom xorg path, otherwise base on driver
 [ -z "$X_CONFFILE" ] && X_CONFFILE="${BUMBLEBEE_CONFDIR}/xorg.conf.${DRIVER}"
+
+# -config file   use a certain xorg.conffile so the nvidia drivers can be used
+# -sharevts      without this option, the current VTY running X becomes blank
+#                while the Bumblebee X server is running
+# -nolisten tcp  do not use start a TCP server listening for connections
+# -noreset       do not logout after the last program closes
 X_DAEMON_ARGS="-config $X_CONFFILE -sharevts -nolisten tcp -noreset"
 
 # Remove colon and everything before it: :1.0 -> 1.0
