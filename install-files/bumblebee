@@ -64,7 +64,43 @@ log_daemon_msg() {
 }
 
 start_x() {
-    :
+    # is a X server running?
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # already started
+        ;;
+      1) # not started
+        ;;
+      2)
+        rm -rf "$PIDFILE"
+        ;;
+      3) # driver crash
+        log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        log_daemon_msg "Reboot the machine if you want to use Bumblebee"
+        ;;
+      4) # another X is running
+        log_daemon_msg "Display $VGL_DISPLAY is already in use, consider changing \$VGL_DISPLAY in /etc/bumblebee/bumblebee.conf"
+        ;;
+    esac
+
+    LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH" \
+        "$X_DAEMON" "$X_DAEMON_ARGS" &
+
+    # wait for at most three seconds before the server has started
+    local retries=0
+    while [ ! -s "$PIDFILE" -a $retries -lt 3 ]; do
+        retries=`expr $retries + 1`
+        sleep 1
+    done
+
+    # fail if the X server is not running
+    if ! xserver_available; then
+        log_daemon_msg "The Bumblebee X Server failed to start. Please check $X_LOG"
+        return 2
+    fi
+
+    # Everything is OK, X has started
+    return 0
 }
 stop_x() {
     :
