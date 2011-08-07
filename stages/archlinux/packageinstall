@@ -1,0 +1,15 @@
+#!/bin/bash
+dependencies=('virtualgl-bin' 'dkms-nvidia' 'nvidia-utils-bumblebee')
+dep_met=true
+for i in "${dependencies[@]}"
+do
+    if ! $PACMAN -Qq $i&>/dev/null; then
+        echo "Missing dependency: $i"
+        dep_met=false
+    fi
+done
+if ! dep_met; then
+    echo "You must install dependencies manually. Those packacages are \\
+    available in the AUR: $dependencies"
+    exit 2
+if
