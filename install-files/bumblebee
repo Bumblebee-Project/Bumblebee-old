@@ -3,6 +3,18 @@
 # We would need some other way to retrieve version number
 BUMBLEBEEVER=1.7.10
 
+# Full paths to possible optirun binaries
+OPTIRUNS=()
+OPTIRUNS[0]=/usr/bin/optirun
+OPTIRUNS[1]=/usr/bin/optirun32
+OPTIRUNS[2]=/usr/bin/optirun64
+
+# Defaults
+BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
+
+# Load settings
+. /etc/bumblebee/bumblebee.conf
+
 show_version_msg() {
     cat <<EOF
 Bumblebee version $BUMBLEBEEVER
@@ -28,8 +40,47 @@ Usage:
 EOF
 }
 
-start_daemon() {
+start_x() {
     :
+}
+stop_x() {
+    :
+}
+
+start_daemon() {
+    if (( EUID != 0 )); then
+        echo "Must be run as root"
+        return 1
+    fi
+
+    # XXX: remove existing file?
+
+    if ! mkfifo --mode=640  "$BUMBLEBEE_FIFO"; then
+        echo "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
+        return 1
+    fi
+
+    local command
+    local pids
+    while :; do
+        # this is our "sleep" function, it waits for clients to give commands
+        command=$(< "$BUMBLEBEE_FIFO")
+        # space-separated list of optirun instances
+        pids=$(pidof -x "${OPTIRUNS[@]}")
+
+        if [[ ${command:0:5} == start ]]; then
+            # only start if there are actually clients running
+            if [ -n "$pids" ]; then
+                start_x
+            fi
+        else
+            # allow to quit X if there are no clients running or if the client
+            # does not have child programs running. xlsclients did not work :(
+            if [ -z "$pids" ] || ! ps --ppid "$pids" > /dev/null; then
+                stop_x
+            fi
+        fi
+    done
 }
 
 case "$1" in
