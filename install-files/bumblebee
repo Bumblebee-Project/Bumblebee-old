@@ -12,8 +12,21 @@ OPTIRUNS[2]=/usr/bin/optirun64
 # Defaults
 BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
 
+X_DAEMON=/usr/bin/X
+X_LD_LIBRARY_PATH=
+X_MODULE_PATH="/usr/lib/nvidia-current/xorg,/usr/lib/xorg/modules"
+X_ARGS="-config /etc/X11/xorg.conf.nvidia -sharevts -modulepath $X_MODULE_PATH -nolisten tcp -noreset"
+
 # Load settings
 . /etc/bumblebee/bumblebee.conf
+
+# Remove colon and everything before it: :1.0 -> 1.0
+display=${VGL_DISPLAY##*:}
+# Remove dot and everything after it: 1.0 -> 0
+display=${display%%.*}
+X_ARGS="$X_ARGS $display"
+PIDFILE="/tmp/.X${display}-lock"
+X_LOG="/var/log/Xorg.${display}.log"
 
 show_version_msg() {
     cat <<EOF
