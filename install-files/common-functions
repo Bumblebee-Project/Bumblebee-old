@@ -60,3 +60,61 @@ detect_distro() {
     done
 	return 1
 }
+
+# Check if the X server is available based on a pidfile, daemon and args.
+# If available, the PID of Bumblebee's X server is printed and the return value
+# is 0. Other values indicates that the Bumblebee X server is not available:
+# 1 - the X server has not been started
+# 2 - the pidfile exists, but is not valid and should be removed
+# 3 - Xorg was previously crashed by nvidia, reboot required
+# 4 - a X server has been detected, but it's not Bumblebee's one
+xserver_available() {
+    local pidfile x_daemon x_daemon_args pid cmd
+    pidfile="$1"
+    x_daemon="$2"
+    x_daemon_args="$3"
+    if [ ! -L "$pidfile" -a ! -e "$pidfile" ]; then
+        # the pidfile does not exist
+        return 1
+    fi
+    if [ -L "$pidfile" -o ! -f "$pidfile" ] ||
+        ! [ "$(stat -c '%u' "$pidfile")" = "0" ]; then
+        # the pidfile is a symlink, not a regular file or not owned by root
+        return 2
+    fi
+    # read the first line from the pidfile, ignoring whitespace
+    read pid < "$pidfile"
+    if [ -z "$pid" ] ||
+        ! [ "$pid" -gt 0 -o "$pid" -le 0 ] 2>/dev/null; then
+        # empty pidfile or non-numeric pid (non-numeric values never fulfil
+        # n > 0 && n <= 0)
+        return 2
+    fi
+    if kill -0 "$pid"; then
+        # process does not exist or not allowed to send signal
+        return 2
+    fi
+
+    cmd="$(ps --format command --no-headers -ww --pid $pid)"
+
+    if [[ $cmd == '[Xorg]' ]]; then
+        # crashed xorg and / or graphics driver
+        return 3
+    fi
+
+    # dirty: it justs checks the leading part, the display part is ignored
+    if [[ $cmd =~ ^"$x_daemon $x_daemon_args" ]]; then
+        echo "$pid"
+        return 0
+    fi
+
+    # it's another X instance
+    if [[ $cmd =~ ^"$x_daemon" ]]; then
+        # not a bumblebee X server
+        return 4
+    fi
+
+    # not a X server at all
+    return 2
+}
+
