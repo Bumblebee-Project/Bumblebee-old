@@ -7,6 +7,12 @@
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
+# Some common configuration and binary files
+BUMBLEBEE_CONFDIR=/etc/bumblebee
+
+# We would need some other way to retrieve version number
+BUMBLEBEE_VERSION=1.7.10
+
 # retrieve the graphics kernel module to be used for the X server
 # Return values:
 #   0: a driver is available, the module name is printed
@@ -116,5 +122,16 @@ xserver_available() {
 
     # not a X server at all
     return 2
+}
+
+# Log a message to our log file
+log_daemon_msg() {
+    # should log it to a file
+    echo "$1"
+}
+
+# Initialize a log file. If present save it to an old one.
+init_log() {
+    :
 }
 
