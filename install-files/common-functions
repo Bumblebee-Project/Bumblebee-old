@@ -4,6 +4,13 @@
 # and should define some functions and variables. Keep it clean, do not
 # unnecessarily leak variables (use locals)
 
+# Machine type, known values: i686 (32-bit) and x86_64 (64-bit)
+ARCH=$(uname -m)
+
+# is the OS 32-bit or 64-bit?
+IS_64=false
+[[ $ARCH == x86_64 ]] && IS_64=true
+
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
