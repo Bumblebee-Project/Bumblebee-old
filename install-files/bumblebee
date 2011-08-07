@@ -1,29 +1,29 @@
 #!/bin/bash
 
-# We would need some other way to retrieve version number
-BUMBLEBEE_VERSION=1.7.10
-BUMBLEBEE_CONFDIR=/etc/bumblebee
+# load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
+. "$BUMBLEBEE_LIBDIR/common-functions"
 
 # Full paths to possible optirun binaries
 OPTIRUNS=()
-OPTIRUNS[0]=/usr/bin/optirun
-OPTIRUNS[1]=/usr/bin/optirun32
-OPTIRUNS[2]=/usr/bin/optirun64
+# Changed to which's. Assumming the PATH variable is correct. Only the 'optirun'
+# binary should be looked for. Better use of -32 argument. Maybe drop it 
+# completely and always load the 32-bit libraries.
+OPTIRUNS[0]=$(which optirun)
+OPTIRUNS[1]=$(which optirun32)
+OPTIRUNS[2]=$(which optirun64)
 
 # Defaults
 BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
 
 X_LD_LIBRARY_PATH=
 X_MODULE_PATH="/usr/lib/nvidia-current/xorg,/usr/lib/xorg/modules"
-X_DAEMON=/usr/bin/X
-X_DAEMON_ARGS="-config /etc/X11/xorg.conf.nvidia -sharevts -modulepath $X_MODULE_PATH -nolisten tcp -noreset"
+X_DAEMON=/usr/bin/X # better switch to a 'which' statement?
+X_CONFIG=/etc/X11/xorg.conf.nvidia # staged for nouveau/nvidia options
+X_DAEMON_ARGS="-config $X_CONFIG -sharevts -modulepath $X_MODULE_PATH -nolisten tcp -noreset"
 
 # Load settings
 . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
-
-# load library
-. "$BUMBLEBEE_LIBDIR/common-functions"
 
 # Remove colon and everything before it: :1.0 -> 1.0
 display=${VGL_DISPLAY##*:}
@@ -33,6 +33,8 @@ X_DAEMON_ARGS="$X_DAEMON_ARGS $display"
 PIDFILE="/tmp/.X${display}-lock"
 X_LOG="/var/log/Xorg.${display}.log"
 
+
+# Show the versioning info and Project URL.
 show_version_msg() {
     cat <<EOF
 Bumblebee version ${BUMBLEBEE_VERSION}
@@ -44,6 +46,7 @@ More info at: https://github.com/Bumblebee-Project/Bumblebee
 EOF
 }
 
+# Show help message on usage and arguments.
 show_help_msg() {
     show_version_msg
 
@@ -58,11 +61,8 @@ Usage:
 EOF
 }
 
-log_daemon_msg() {
-    # should log it to a file
-    echo "$1"
-}
 
+# Start the X server on the nvidia card.
 start_x() {
     # is a X server running?
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
@@ -102,9 +102,12 @@ start_x() {
     # Everything is OK, X has started
     return 0
 }
+
+# Stop the running X server
 stop_x() {
     :
 }
+
 
 start_daemon() {
     if (( EUID != 0 )); then
