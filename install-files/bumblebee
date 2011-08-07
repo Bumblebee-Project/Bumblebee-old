@@ -15,15 +15,18 @@ OPTIRUNS[2]=$(which optirun64)
 
 # Defaults
 BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
+DRIVER=nvidia
+X_CONFFILE=
 
 X_LD_LIBRARY_PATH=
-X_MODULE_PATH="/usr/lib/nvidia-current/xorg,/usr/lib/xorg/modules"
-X_DAEMON=/usr/bin/X # better switch to a 'which' statement?
-X_CONFIG=/etc/X11/xorg.conf.nvidia # staged for nouveau/nvidia options
-X_DAEMON_ARGS="-config $X_CONFIG -sharevts -modulepath $X_MODULE_PATH -nolisten tcp -noreset"
+X_DAEMON=$(which X)
 
 # Load settings
 . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
+
+# allow the user to specify a custom xorg path, otherwise base on driver
+[ -z "$X_CONFFILE" ] && X_CONFFILE="${BUMBLEBEE_CONFDIR}/xorg.conf.${DRIVER}"
+X_DAEMON_ARGS="-config $X_CONFFILE -sharevts -nolisten tcp -noreset"
 
 # Remove colon and everything before it: :1.0 -> 1.0
 display=${VGL_DISPLAY##*:}
