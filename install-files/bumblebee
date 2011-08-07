@@ -40,6 +40,11 @@ Usage:
 EOF
 }
 
+log_daemon_msg() {
+    # should log it to a file
+    echo "$1"
+}
+
 start_x() {
     :
 }
@@ -56,7 +61,7 @@ start_daemon() {
     # XXX: remove existing file?
 
     if ! mkfifo --mode=640  "$BUMBLEBEE_FIFO"; then
-        echo "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
+        log_daemon_msg "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
         return 1
     fi
 
