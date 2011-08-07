@@ -40,6 +40,10 @@ display=${display%%.*}
 PIDFILE="/tmp/.X${display}-lock"
 X_LOG="/var/log/Xorg.${display}.log"
 
+# allow to set X_LD_LIBRARY_PATH if needed
+if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
+    . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
+fi
 
 # Show the versioning info and Project URL.
 show_version_msg() {
