@@ -130,10 +130,23 @@ show_msg() {
 
 # OPTIRUN
 optirun_launcher() {
-    if [ ! -f /var/run/bumblebee.pid ]; then
-        echo "Daemon is not running"
+    local bumblebee_script=$(which bumblebee)
+    $bumblebee_script --status
+    case $? in
+      0) # All running just start the application
+        ;;
+      1) # Start X server then the application
+        # THE FIFO IS NOT DEFINED!!!
+        echo start > "$BUMBLEBEE_FIFO"
+        ;;
+      2) # Daemon not present
         exit 1
-    fi
+        ;;
+      3) # Reboot required
+        exit 2
+        ;;
+    esac
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" "$@"
 }
 
 # This maybe needed in the daemon side
