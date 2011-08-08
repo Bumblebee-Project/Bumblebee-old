@@ -1,5 +1,6 @@
 #!/bin/bash
 install -d -m644 "$CONFDIR"
+install -m644 install-files/bumblebee.conf "$CONFDIR"
 install -m644 install-files/xorg.conf.nvidia "$CONFDIR"
 
 install -d -m755 "$LIBDIR"
