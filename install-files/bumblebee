@@ -104,6 +104,17 @@ stop_x() {
         local pid
         read pid < "$pidfile"
         kill -TERM "$pid" || return 1  # "soft" kill or exit whit error
+        # wait for at most three seconds to death
+        local retries=0
+        # wait until pid is no more
+        while [ kill -0 "$pid" -a $retries -lt 6 ]; do
+            ((retries++))
+            sleep .5
+        done
+        # check if still running, if it is KILL it
+        if kill -0 "$pid"; then
+            kill -KILL "$pid" || return 1
+        fi
         ;;
       1|2) # not started or invalid pidfile
         ;;
