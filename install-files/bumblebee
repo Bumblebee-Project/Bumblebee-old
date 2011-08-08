@@ -60,6 +60,7 @@ start_x() {
       1) # not started, see below
         ;;
       2) # ignore pidfile, start X
+        log_daemon_msg "Pidfile does already exist and will be removed."
         rm -rf "$PIDFILE"
         ;;
       3) # driver crash
@@ -73,6 +74,8 @@ start_x() {
         return 1
         ;;
     esac
+
+    log_daemon_msg "Starting X..."
 
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH" \
         "$X_DAEMON" "$X_DAEMON_ARGS $VGL_DISPLAY" &
@@ -91,6 +94,7 @@ start_x() {
         return 1
     fi
 
+    log_daemon_msg "X has started."
     # Everything is OK, X has started
     return 0
 }
@@ -105,6 +109,7 @@ stop_x() {
     pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
     case $? in
       0) # It's our server, should stop it
+        log_daemon_msg "X is running, initiating shutdown..."
         kill -TERM "$pid" 2>/dev/null
 
         # wait for at most five seconds to death
@@ -117,21 +122,27 @@ stop_x() {
 
         # check if still running, if it is KILL it
         if kill -0 "$pid" 2>/dev/null; then
+            log_daemon_msg "X did not shutdown in time, sending KILL signal"
             kill -KILL "$pid" 2>/dev/null
         fi
 
         # still running? ow, perhaps a driver crash :?
-        kill -0 "$pid" >/dev/null && return 1
+        if kill -0 "$pid" >/dev/null; then
+            log_daemon_msg "X could not be killed, perhaps the driver crashed?"
+            return 1
+        fi
         ;;
       1|2) # not started or invalid pidfile
         ;;
       3) # crashed, should do a cleanup?
+        log_daemon_msg "X could not be stopped because it the driver has crashed."
         return 1
         ;;
       4) # Not our server, not our responsibility, don't care.
         ;;
     esac
 
+    log_daemon_msg "X has been stopped."
     # Everything OK, We are gone!
     return 0
 }
