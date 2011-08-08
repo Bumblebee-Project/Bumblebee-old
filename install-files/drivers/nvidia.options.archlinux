@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ `uname -m` = 'x86_64' ]; then
+    X_LD_LIBRARY_PATH=/usr/lib/nvidia-bumblebee:/usr/lib32/nvidia-bumblebee
+else
+    X_LD_LIBRARY_PATH=/usr/lib/nvidia-bumblebee
+fi
