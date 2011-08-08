@@ -13,6 +13,8 @@ install -m644 install-files/bumblebee "$SBINDIR"
 install -d -m644 "$BINDIR"
 install -m755 install-files/bumblebee-bugreport "$BINDIR"
 
+install -d -m755 /etc/bash_completion.d
+
 # whenever possible, the below scripts should be integrated in a package manager
 install -m755 install-files/bumblebee-uninstall "$BINDIR"
 install -m755 install-files/bumblebee-configuration "$BINDIR"
