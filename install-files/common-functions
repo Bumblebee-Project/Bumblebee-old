@@ -4,17 +4,26 @@
 # and should define some functions and variables. Keep it clean, do not
 # unnecessarily leak variables (use locals)
 
-# Machine type, known values: i686 (32-bit) and x86_64 (64-bit)
+# Machine type, known values: i686 (32-bit), x86_64 (64-bit), amd64 (64-bit)
+# Carefull! This values are distro-specific sometimes!
 ARCH=$(uname -m)
 
 # is the OS 32-bit or 64-bit?
-IS_64=false
-[[ $ARCH == x86_64 ]] && IS_64=true
+is64arch() {
+    local arch64=(x86_64 amd64)
+    for i in arch64
+    do
+        [[ $ARCH == $i ]] && return 0
+    done
+    return 1
+}
+
+IS_64=is64arch
 
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
-# Some common configuration and binary files
+# Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
 # We would need some other way to retrieve version number
