@@ -10,7 +10,7 @@ ARCH=$(uname -m)
 
 # is the OS 32-bit or 64-bit? Save it to a variable since it's static.
 IS_64=false
-[[ $ARCH =~ x86_64 ]] && IS_64=true
+[[ $ARCH == x86_64 ]] && IS_64=true
 
 IS_64=is64arch
 
