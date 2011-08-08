@@ -97,7 +97,27 @@ start_x() {
 
 # Stop the running X server
 stop_x() {
-    :
+    # is a X server running?
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # It's our server, should stop it
+        local pid
+        read pid < "$pidfile"
+        kill -TERM "$pid" || return 1  # "soft" kill or exit whit error
+        ;;
+      1|2) # not started or invalid pidfile
+        ;;
+      3) # crashed, should do a cleanup?
+        ;;
+      4) # Not our server.
+        log_daemon_msg "Display $VGL_DISPLAY is already in use."
+        log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        return 1
+        ;;
+    esac
+    
+    # Everything OK, We are gone!
+    return 0
 }
 
 start_daemon() {
