@@ -14,14 +14,16 @@ CONFDIR=/etc/bumblebee
 LIBDIR=/usr/local/lib/bumblebee
 NVIDIA_LIBDIR=/usr/lib/nvidia-current
 
-# the graphics driver to be loaded
-DRIVER=
-for driver in nvidia-current nvidia; do
-    if "${MODPROBE}" --dry-run --quiet $driver; then
-        DRIVER=$driver
-        break
-    fi
-done
+# available drivers, add nouveau in the future
+AVAILABLE_DRIVERS=('nvidia')
+# the graphics driver to be loaded, defaults to nvidia
+DRIVER=nvidia
+#for driver in nvidia-current nvidia; do
+#    if "${MODPROBE}" --dry-run --quiet $driver; then
+#        DRIVER=$driver
+#        break
+#    fi
+#done
 
 ANCIENTINSTALLATIONFOUND=false
 # Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
@@ -34,18 +36,35 @@ for arg; do
       --unattended)
         UNATTENDED=true
         ;;
+      --driver=*)
+        arg_driver="${arg##--driver-}"
+        DRIVER=
+        for driver in "${AVAILABLE_DRIVERS[@]}"; do
+            if [[ $driver == "$arg_driver" ]]; then
+                DRIVER="$driver"
+                break
+            fi
+        done
+        if [ -z "$DRIVER" ]; then
+            echo "Unrecognized driver: $arg_driver"
+            exit 255
+        fi
       --help)
         echo "Usage: $0 [options]"
         echo
         echo "  --unattended"
         echo "    Do not pause with informational messages, proceed with the installation"
         echo "    without confirming"
+        echo
+        echo "  --driver=DRIVER"
+        echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
+        echo "    If not specified, nvidia is assumed"
         exit 0
         ;;
       *)
         echo "Unrecognized option '$arg'"
         echo "Try '$0 --help' for more information."
-        exit 1
+        exit 255
         ;;
     esac
 done
