@@ -1,34 +1,42 @@
 #!/bin/bash
+install_step() {
+    # Only run a step if it exists
+    [ -f "stages/$1" ] && . "stages/$1"
+}
 
-. stages/checkprivileges
+install_step checkprivileges
 
-. stages/determinedistro
+install_step determinedistro
 echo "${DISTRO}-based distribution found"
 
 # definition of tools (like $LSPCI) as well as command options parsing and
 # options like installation path
-. stages/setvars
+install_step setvars
 # optional distro-specific variables, like paths
-[ -f "stages/$DISTRO/setvars" ] && . "stages/$DISTRO/setvars"
+install_step "$DISTRO/setvars"
 
-. stages/welcome
+install_step welcome
 
 echo "== Removing previous version =="
-. stages/cleanmess
-[ -f "stages/$DISTRO/cleanmess" ] && . "stages/$DISTRO/cleanmess"
+# basic uninstallation
+install_step uninstall
+install_step "$DISTRO/uninstall"
+
+install_step cleanmess
+install_step "$DISTRO/cleanmess"
 # post-cleanmess, do not put this in stages/cleanmess as it will make the
 # installer think that the mess has already been cleaned up the next time.
 # This may be problematic if $DISTRO/cleanmess fails to finish
 $ANCIENTINSTALLATIONFOUND && rm -f /etc/bumblebee
 
 echo "== Detecting hardware =="
-. stages/detecthardware
+install_step detecthardware
 
 echo "== Installing dependencies =="
-. "stages/$distro/packageinstall"
+install_step "$DISTRO/packageinstall"
 
 echo "== Installing Bumblebee =="
-. stages/copyfiles
+install_step copyfiles
 
 echo "== Configuring =="
-. stages/configure
+install_step configure
