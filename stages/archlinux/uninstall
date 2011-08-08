@@ -1,5 +1,4 @@
 #!/bin/bash
-PACMAN=$(which pacman)
 for i in bumblebee bumblebee-nouveau bumblebee-nouveau-git bumblebee-git
 do
     if $PACMAN -Qq $i&>/dev/null ; then
