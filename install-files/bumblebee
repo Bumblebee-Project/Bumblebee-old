@@ -96,37 +96,42 @@ start_x() {
 }
 
 # Stop the running X server
+# Return values:
+# 0 - the X server has gone (either it wasn't started or it was stopped)
+# 1 - the X server refused to leave, perhaps a driver crash
 stop_x() {
+    local pid
     # is a X server running?
-    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
     case $? in
       0) # It's our server, should stop it
-        local pid
-        read pid < "$pidfile"
-        kill -TERM "$pid" || return 1  # "soft" kill or exit whit error
-        # wait for at most three seconds to death
+        kill -TERM "$pid" 2>/dev/null
+
+        # wait for at most five seconds to death
         local retries=0
         # wait until pid is no more
-        while [ kill -0 "$pid" -a $retries -lt 6 ]; do
+        while kill -0 "$pid" 2>/dev/null && [ $retries -lt 10 ]; do
             ((retries++))
             sleep .5
         done
+
         # check if still running, if it is KILL it
-        if kill -0 "$pid"; then
-            kill -KILL "$pid" || return 1
+        if kill -0 "$pid" 2>/dev/null; then
+            kill -KILL "$pid" 2>/dev/null
         fi
+
+        # still running? ow, perhaps a driver crash :?
+        kill -0 "$pid" >/dev/null && return 1
         ;;
       1|2) # not started or invalid pidfile
         ;;
       3) # crashed, should do a cleanup?
-        ;;
-      4) # Not our server.
-        log_daemon_msg "Display $VGL_DISPLAY is already in use."
-        log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 1
         ;;
+      4) # Not our server, not our responsibility, don't care.
+        ;;
     esac
-    
+
     # Everything OK, We are gone!
     return 0
 }
