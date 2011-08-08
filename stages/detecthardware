@@ -28,6 +28,6 @@ case $(wc -l <<<"$NVIDIABUSID") in
 esac
 
 if [ -z "$NVIDIABUSID" ]; then
-    echo "Aborting installation"
-    exit 1
+    echo "Installation aborted."
+    exit 8
 fi
