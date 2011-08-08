@@ -62,7 +62,7 @@ while :; do
 	  -32)
 	    #This part can be deprecated as we are already loading the 32bit 
 	    # libreries in X_LD_LIBRARY_PATH
-		VGL_DRIVER=$X_LD_LIBRARY_PATH
+		#VGL_DRIVER=$X_LD_LIBRARY_PATH
 		echo "The 32-bit nVidia driver will be used"
 		;; #launch vglrun with 32 bits nvidia driver
 	  -c)
@@ -130,7 +130,10 @@ show_msg() {
 
 # OPTIRUN
 optirun_launcher() {
-	
+    if [ ! -f /var/run/bumblebee.pid ]; then
+        echo "Daemon is not running"
+        exit 1
+    fi
 }
 
 # This maybe needed in the daemon side
