@@ -1,0 +1,3 @@
+#!/bin/bash
+install -m644 install-files/drivers/nvidia.options.opensuse "$LIBDIR/drivers"
+install -m755 install-files/bumblebee.script.opensuse /etc/init.d/bumblebee

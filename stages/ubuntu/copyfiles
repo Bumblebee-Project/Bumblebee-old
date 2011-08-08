@@ -1,0 +1,3 @@
+#!/bin/bash
+
+install -m755 install-files/bumblebee.script.ubuntu /etc/init.d/bumblebee
