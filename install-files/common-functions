@@ -4,19 +4,13 @@
 # and should define some functions and variables. Keep it clean, do not
 # unnecessarily leak variables (use locals)
 
-# Machine type, known values: i686 (32-bit), x86_64 (64-bit), amd64 (64-bit)
-# Carefull! This values are distro-specific sometimes!
+# Machine type, known values: i386, i686 (32-bit), x86_64 (64-bit)
+# This value depends on the kernel
 ARCH=$(uname -m)
 
-# is the OS 32-bit or 64-bit?
-is64arch() {
-    local arch64=(x86_64 amd64)
-    for i in arch64
-    do
-        [[ $ARCH == $i ]] && return 0
-    done
-    return 1
-}
+# is the OS 32-bit or 64-bit? Save it to a variable since it's static.
+IS_64=false
+[[ $ARCH =~ x86_64 ]] && IS_64=true
 
 IS_64=is64arch
 
