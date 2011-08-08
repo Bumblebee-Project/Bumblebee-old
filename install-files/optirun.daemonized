@@ -1,0 +1,168 @@
+#!/bin/bash
+
+### BEGIN LICENSE
+#
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <davy.renaud@laposte.net> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return Davy Renaud (glyptostroboides)
+# ----------------------------------------------------------------------------
+#
+
+#    This file is part of bumblebee-ui.
+#
+#    bumblebee-ui is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    bumblebee-ui is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with bumblebee-ui.  If not, see <http://www.gnu.org/licenses/>.
+#
+### END LICENSE
+
+
+### COMMENT
+#This is a optirun script which takes arguments: compression, architecture, display (just for testing purpose).
+#If the force argument is omitted, the script will not launch the app with bumblebee if the computer is on battery
+#Usage :
+#    ecoptirun -f -32 -c <compression_value> -d <display value>
+# -f : Force optirun : force the app to be run with bumblebee if on battery
+# -32 : 32Bits library : use the 32bits Nvidia driver (ecoptirun -32 is equivalent to optirun32)
+# -c <compression_value> : Compression : -c must be followed by jpeg, proxy, rgb, yuv or xv argument (See the VGL doc)
+# -d <display_value> : -d must be followed by :0, :1 or :2 argument (See the VGL doc)
+### END COMMENT
+
+# load common library
+BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
+. "$BUMBLEBEE_LIBDIR/common-functions"
+. "$BUMBLEBEE_CONFDIR/bumblebee.conf"
+
+#DEFAULT VALUE
+VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
+
+show_help_msg() {
+    :
+}
+
+#READ ARGUMENTS
+#echo "$*"
+while :; do
+	case "$1" in
+	  -f)
+		ECO_MODE='0'
+		echo "The application will be run with Bumblebee even if it's not connected to a power supply (e.g. running on battery)"
+		;; #force optirun if on battery
+	  -32)
+	    #This part can be deprecated as we are already loading the 32bit 
+	    # libreries in X_LD_LIBRARY_PATH
+		#VGL_DRIVER=$X_LD_LIBRARY_PATH
+		echo "The 32-bit nVidia driver will be used"
+		;; #launch vglrun with 32 bits nvidia driver
+	  -c)
+		shift
+		case "$1" in
+		  jpeg|proxy|rgb|yuv|xv)
+			VGL_COMPRESS=$1
+			echo "Bumblebee will transfer frames using : $VGL_COMPRESS"
+			;;
+		*)
+			echo "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
+			exit 3
+			;;
+		esac
+		;;
+	  -d)
+		shift
+		if ! [[ $1 =~ ^:[0-9]+$ ]]; then
+			VGL_DISPLAY=$1
+			echo "Bumblebee will use the $VGL_DISPLAY display for rendering"
+		else
+			echo "The display parameter -d must be followed by a colon and digits like :8"
+			exit 2
+		fi
+		;;
+	  --)
+		# commonly found in parameters, usage: optirun -- -not -recognised -as -param
+		break
+		;;
+	  -*)
+		echo "Unknown parameter: $1"
+		exit 3
+		;;
+	  *)
+		# begin of a command, assuming no optirun parameters after this one
+		break
+		;;
+	esac
+	# move to the next option in the command
+	shift
+done
+
+# Maybe output ECOPTIRUN messages after parameter validation
+#echo "Arguments for the application:" "$@"
+#echo "Eco mode:" $ECO_MODE #make sure it's set even if it's not used
+#echo "32 bits mode:" $lib32_mode
+#echo "Compression mode:" $VGL_COMPRESS
+#echo "Display:" $VGL_DISPLAY 
+
+
+# Maybe remove this, use -32 arg instead
+# if executed from a symlink named optirun32, use the 32b path if exist
+if [ "${0##*/}" = "optirun32" -a -d /usr/lib32/nvidia-current ]; then
+	# VGL_DRIVER="/usr/lib32/nvidia-current:$VGL_DRIVER"
+	echo "Deprecated optirun call"
+fi
+
+msg_shown=false
+show_msg() {
+	if ! $msg_shown; then
+		echo "Another bumblebee powered application is running, keeping bumblebee alive."
+		msg_shown=true
+	fi
+}
+
+# OPTIRUN
+optirun_launcher() {
+    local bumblebee_script=$(which bumblebee)
+    $bumblebee_script --status
+    case $? in
+      0) # All running just start the application
+        ;;
+      1) # Start X server then the application
+        # THE FIFO IS NOT DEFINED!!!
+        echo start > "$BUMBLEBEE_FIFO"
+        ;;
+      2) # Daemon not present
+        exit 1
+        ;;
+      3) # Reboot required
+        exit 2
+        ;;
+    esac
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" "$@"
+}
+
+# This maybe needed in the daemon side
+# CHECK IF ON BATTERY OR NOT
+
+POWER_STATE=0
+for state in /sys/class/power_supply/*/online; do
+	POWER_STATE=$(cat "$state")
+	break
+done
+
+if [ "$POWER_STATE" -eq "1" ] || [ "$ECO_MODE" -eq "0" ]; then
+	optirun_launcher $@
+elif [ "$POWER_STATE" -eq "0" ]; then
+	"$@"
+else
+	"$@"
+fi
+

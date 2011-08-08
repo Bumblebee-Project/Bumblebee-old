@@ -1,0 +1,6 @@
+#!/bin/bash
+if $IS_64; then
+    X_LD_LIBRARY_PATH=/usr/X11R6/lib64-nvidia:/usr/X11R6/lib-nvidia
+else
+    X_LD_LIBRARY_PATH=/usr/X11R6/lib-nvidia
+fi
