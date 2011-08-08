@@ -45,33 +45,6 @@ if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
     . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
 fi
 
-# Show the versioning info and Project URL.
-show_version_msg() {
-    cat <<EOF
-Bumblebee version ${BUMBLEBEE_VERSION}
-
-Licenced under GNU GPL v3, "Beer-ware License" and "Red Bull License"
-as published by Martin Juhl.
-
-More info at: https://github.com/Bumblebee-Project/Bumblebee
-EOF
-}
-
-# Show help message on usage and arguments.
-show_help_msg() {
-    show_version_msg
-
-    cat <<EOF
-Usage:
-    bumblebee [OPTIONS]
-    OPTIONS
-        -d          start bumblebee service as daemon. To start it
-                    backgrounded use the handler with 'start' argument.
-        --help      show this help message
-        --version   show version number
-EOF
-}
-
 
 # Start Bumblebee's X server running on the nvidia card
 # Return values:
@@ -161,6 +134,33 @@ start_daemon() {
             fi
         fi
     done
+}
+
+# Show the versioning info and Project URL.
+show_version_msg() {
+    cat <<EOF
+Bumblebee version ${BUMBLEBEE_VERSION}
+
+Licenced under GNU GPL v3, "Beer-ware License" and "Red Bull License"
+as published by Martin Juhl.
+
+More info at: https://github.com/Bumblebee-Project/Bumblebee
+EOF
+}
+
+# Show help message on usage and arguments.
+show_help_msg() {
+    show_version_msg
+
+    cat <<EOF
+Usage:
+    bumblebee [OPTIONS]
+    OPTIONS
+        -d          start bumblebee service as daemon. To start it
+                    backgrounded use the handler with 'start' argument.
+        --help      show this help message
+        --version   show version number
+EOF
 }
 
 case "$1" in
