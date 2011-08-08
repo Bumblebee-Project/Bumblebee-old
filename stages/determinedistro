@@ -1,3 +1,4 @@
+#!/bin/bash
 # This should be done with the function in common-functions
 
 if grep -iq Fedora /etc/issue; then
@@ -6,16 +7,8 @@ elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
     DISTRO=ubuntu
 elif grep -iq OpenSUSE /etc/issue; then
     DISTRO=opensuse
-elif grep -iq Debian /etc/issue; then
-    DISTRO=debian
-    echo "You are running Debian Linux, please see the debumblebee project for support:"
-    echo 
-    echo "https://github.com/z0rc/debumblebee"
-    echo
-    read
-    exit 1
 elif grep -iq "Arch Linux" /etc/issue; then
-    DISTRO=arch
+    DISTRO=archlinux
     #echo "You are running Arch Linux, please see the buildscript here for support:"
     #echo
     #echo "http://aur.archlinux.org/packages.php?ID=49469"
@@ -24,6 +17,14 @@ elif grep -iq "Arch Linux" /etc/issue; then
     #echo 
     #read
     #exit 1
+elif grep -iq Debian /etc/issue; then
+    DISTRO=debian
+    echo "You are running Debian Linux, please see the debumblebee project for support:"
+    echo 
+    echo "https://github.com/z0rc/debumblebee"
+    echo
+    read
+    exit 1
 elif grep -iq "Gentoo" /etc/issue; then
     DISTRO=gentoo
     echo "You are running Gentoo Linux, please see the ebuild here for support:"
