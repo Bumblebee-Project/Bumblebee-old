@@ -13,7 +13,9 @@ OPTIRUNS[1]=$(which optirun32)
 OPTIRUNS[2]=$(which optirun64)
 
 # Defaults
+BUMBLEBEE_PIDFILE=/var/run/bumblebee.pid
 BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
+BUMBLEBEE_GROUP=bumblebee
 DRIVER=nvidia
 X_CONFFILE=
 
@@ -147,18 +149,56 @@ stop_x() {
     return 0
 }
 
+stop_daemon() {
+    stop_x
+    rm -f "$BUMBLEBEE_PIDFILE"
+    rm -f "$BUMBLEBEE_FIFO"
+}
+
 start_daemon() {
     if (( EUID != 0 )); then
         echo "Must be run as root"
         return 1
     fi
 
-    # XXX: remove existing file?
+    # race condition prevention; try to create a new pidfile
+    if ! (set -o noclobber;echo $$ > "$BUMBLEBEE_PIDFILE"); then
+        # file did already exist, make sure that another daemon isn't running
 
-    if ! mkfifo --mode=640  "$BUMBLEBEE_FIFO"; then
+        # open $BUMBLEBEE_PIDFILE for reading
+        exec 8< "$BUMBLEBEE_PIDFILE"
+
+        # prevent other processes from writing
+        if ! flock -x -w 2 8; then
+            echo "Could not acquire a lock, another daemon is likely running"
+            return 1
+        fi
+
+        # does the pidfile contain a program that is running?
+        # XXX: use he binary path to check if bumblebee is running
+        if kill -0 "$(<&8)" 2>/dev/null; then
+            echo "A Bumblebee daemon is already running"
+            return 1
+        fi
+
+        # invalid pid, just write our pid to it
+        echo $$ > "$BUMBLEBEE_PIDFILE"
+        # and close the fd
+        exec 8>&-
+    fi
+
+    # cleanup on exit
+    trap stop_daemon EXIT
+
+    # ok, bye old fifo if any
+    rm -f "$BUMBLEBEE_FIFO"
+
+    # the group may write only
+    if ! mkfifo --mode=620  "$BUMBLEBEE_FIFO"; then
         log_daemon_msg "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
         return 1
     fi
+    chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
 
     local command
     local pids
