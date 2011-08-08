@@ -37,6 +37,7 @@ install_step "$DISTRO/packageinstall"
 
 echo "== Installing Bumblebee =="
 install_step copyfiles
+install_step "$DISTRO/copyfiles"
 
 echo "== Configuring =="
 install_step configure

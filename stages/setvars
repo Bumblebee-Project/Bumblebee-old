@@ -9,7 +9,9 @@ UNATTENDED=false
 
 # Install locations
 BINDIR=/usr/local/bin
+SBINDIR=/usr/local/sbin
 CONFDIR=/etc/bumblebee
+LIBDIR=/usr/local/lib/bumblebee
 NVIDIA_LIBDIR=/usr/lib/nvidia-current
 
 # the graphics driver to be loaded
