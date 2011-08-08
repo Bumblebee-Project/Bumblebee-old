@@ -134,14 +134,3 @@ xserver_available() {
     return 2
 }
 
-# Log a message to our log file
-log_daemon_msg() {
-    # should log it to a file
-    echo "$1"
-}
-
-# Initialize a log file. If present save it to an old one.
-init_log() {
-    :
-}
-

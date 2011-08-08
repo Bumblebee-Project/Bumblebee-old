@@ -47,6 +47,16 @@ if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
     . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
 fi
 
+# Log a message to our log file
+log_daemon_msg() {
+    # should log it to a file
+    echo "$1"
+}
+
+# Initialize a log file. If present save it to an old one.
+init_log() {
+    :
+}
 
 # Start Bumblebee's X server running on the nvidia card
 # Return values:
@@ -175,7 +185,7 @@ start_daemon() {
         fi
 
         # does the pidfile contain a program that is running?
-        # XXX: use he binary path to check if bumblebee is running
+        # XXX: use the binary path to check if bumblebee is running
         if kill -0 "$(<&8)" 2>/dev/null; then
             echo "A Bumblebee daemon is already running"
             return 1
@@ -223,6 +233,46 @@ start_daemon() {
     done
 }
 
+# Should print a message and exit status:
+# 0 - running and X is running.
+# 1 - daemon started X not available and can start normally
+# 2 - daemon not present or can't find pidfile
+# 3 - daemon started but can't start X server. Reboot required.
+# Should be run as a normal user so it must be granted to read some files
+status_daemon() {
+    # Check for pid file available
+    if [ ! -f "$BUMBLEBEE_PIDFILE" ]; then
+        log_daemon_msg "No pidfile couldn't be found. Bumblebee daemon is not running"
+        return 2
+    fi
+    # Pidfile available but no bumblebee running, we screwed somewhere
+    if [ ! pidof -x -o $$ bumblebee ]; then
+        log_daemon_msg "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
+        return 2
+    fi
+    
+    # Check for X server and return a usefull value
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # already started
+        return 0
+        ;;
+      1|2) # not started, but can be started
+        return 1
+        ;;
+      3) # driver crash
+        log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        log_daemon_msg "Reboot the machine if you want to use Bumblebee"
+        return 3
+        ;;
+      4) # another X is running, not ours
+        log_daemon_msg "Display $VGL_DISPLAY is already in use."
+        log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        return 3
+        ;;
+    esac
+}
+
 # Show the versioning info and Project URL.
 show_version_msg() {
     cat <<EOF
@@ -259,6 +309,9 @@ case "$1" in
     ;;
   -d)
     start_daemon
+    ;;
+  --status)
+    status_daemon
     ;;
   *)
     show_help_msg
