@@ -1,38 +1,50 @@
 #!/bin/bash
+### BEGIN INIT INFO
+# Provides:          bumblebee
+# Required-Start:    nvidia-kernel
+# Required-Stop:     nvidia-kernel
+# Should-Start:      kdm gdm
+# Should-Stop:       kdm gdm
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Bumblebee initscript
+# Description:       Bumblebee initscript for Optimus Graphics support
+### END INIT INFO
 
-# Bumblebee daemon handler script
+# Bumblebee daemon handler script. Distro-independent script to start/stop 
+# daemon. Should be runnable in any distro but won't give any feedback.
+# Use it as a template for making distro-specific initscripts.
 
 . /etc/bumblebee/bumblebee.conf
 
 NAME=bumblebee
-LOCKFILE=/tmp/.bb-lock
-BDAEMON=`which bumblebeed`
-
-# Power-management disabled
-disable_card()
-{
-
-}
-
-enable_card()
-{
-
-}
+BIN=$(which $NAME)
 
 #TODO Check different exit status for appropriate feedback
 start() {
-    # Start the daemon only if there is not anothe instance running
-    if [ ! -e "$LOCKFILE" ]; then
-      $BDAEMON &>/dev/null &
-      local BDPID=$!
-      echo "$BDPID" > "$LOCKFILE"
-   fi
+    # Start the daemon only if there is not another instance running
+    $BIN --status
+    case $? in
+      0|1|3) # Started or reboot needed, print fail message
+        ;;
+      2) # Can be started
+        $BIN -d &>/dev/null
+        # Print a per-distro success message
+        ;;
+    esac
 }
 
 #TODO Check different exit status for appropriate feedback
 stop() {
-    kill `cat $LOCKFILE 2>&1`
-    rm -f $LOCKFILE
+    # Stop the daemon only if there is an instance running
+    $BIN --status
+    case $? in
+      0|1|3) # Started or reboot needed. We can kill it anyway
+        killall -TERM "$NAME"
+        ;;
+      2) # Not started. 
+        ;;
+    esac
 }
 
 restart() {
@@ -42,10 +54,10 @@ restart() {
 }
 
 case "$1" in
-  start|enable)
+  start)
     start
     ;;
-  stop|disable)
+  stop)
     stop
     ;;
   restart)
@@ -56,5 +68,5 @@ case "$1" in
     #ck_status $NAME
   ;;
   *)
-    echo "usage: $0 {start|stop|enable|disable|restart|status}"  
+    echo "usage: $0 {start|stop|restart}"  
 esac
