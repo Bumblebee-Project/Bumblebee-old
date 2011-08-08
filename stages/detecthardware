@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Detect PCI Bus ID of the nVidia card
+# -d 10de: shows devices from nvidia only
+# 03 is the Display controller class
+# 0300 is a VGA compatible controller
+# 0302 is a 3D controller
+# (information from /usr/share/misc/pci.ids and the manpage of lspci)
+NVIDIABUSID=$("$LSPCI" -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
+
+case $(wc -l <<<"$NVIDIABUSID") in
+  0)
+    echo "The BusID of the nVidia card can't be determined."
+    ;;
+  1)
+    echo "Detected Bus ID: $NVIDIABUSID"
+    ;;
+  *)
+    # You'll never know.
+    echo "Multiple graphics cards are not supported by Bumblebee yet. The"
+    echo "following PCI Bus IDs have been detected:"
+    echo "$NVIDIABUSID"
+    echo "If this information is wrong, please report it to:"
+    echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+    # empty the ID so we can detect this as error
+    NVIDIABUSID=
+    ;;
+esac
+
+if [ -z "$NVIDIABUSID" ]; then
+    echo "Aborting installation"
+    exit 1
+fi

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
+ARCH=$(uname -m)
+MODPROBE=$(which modprobe)
+LSPCI=$(which lspci)
+
+UNATTENDED=false
+
+# Install locations
+BINDIR=/usr/local/bin
+SBINDIR=/usr/local/sbin
+CONFDIR=/etc/bumblebee
+LIBDIR=/usr/local/lib/bumblebee
+NVIDIA_LIBDIR=/usr/lib/nvidia-current
+
+# the graphics driver to be loaded
+DRIVER=
+for driver in nvidia-current nvidia; do
+    if "${MODPROBE}" --dry-run --quiet $driver; then
+        DRIVER=$driver
+        break
+    fi
+done
+
+ANCIENTINSTALLATIONFOUND=false
+# Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
+# and before abused /etc/bumblebee for storing the version. In current versions
+# (Bumblebee-Project/Bumblebee), this is a directory for configuration files
+[ -f /etc/bumblebee ] && ANCIENTINSTALLATIONFOUND=true
+
+for arg; do
+    case "$arg" in
+      --unattended)
+        UNATTENDED=true
+        ;;
+      --help)
+        echo "Usage: $0 [options]"
+        echo
+        echo "  --unattended"
+        echo "    Do not pause with informational messages, proceed with the installation"
+        echo "    without confirming"
+        exit 0
+        ;;
+      *)
+        echo "Unrecognized option '$arg'"
+        echo "Try '$0 --help' for more information."
+        exit 1
+        ;;
+    esac
+done

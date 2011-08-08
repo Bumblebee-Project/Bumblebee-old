@@ -1,12 +1,7 @@
+#!/bin/bash
 apt-get update
-apt-get -y install nvidia-current
-
-if [ $? -ne 0 ]; then
-    echo
-    echo "Package manager failed to install needed packages."
-    echo
-    exit 1
+apt_options=''
+if ! apt-get ${APT_OPTS} install nvidia-current; then
+    echo "The package manager failed to install the nVidia graphics driver"
+    exit 2
 fi
-
-${MODPROBE} -r nouveau
-${MODPROBE} nvidia-current

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+install -m755 install-files/bumblebee.script.ubuntu /etc/init.d/bumblebee
+install -m644 install-files/optirun.bash_completion "/etc/bash_completion.d/optirun"

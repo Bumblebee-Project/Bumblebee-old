@@ -1,0 +1,12 @@
+#!/bin/bash
+if (( EUID != 0 )); then
+    echo "You do not have sufficient privileges to install Bumblebee"
+    echo
+    if which sudo; then
+        echo "Please run: sudo ./install"
+    else
+        echo "Please run this script as root"
+    fi
+    echo
+    exit 1
+fi
