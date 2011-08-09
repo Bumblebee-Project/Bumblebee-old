@@ -143,20 +143,21 @@ optirun_launcher() {
     vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 }
 
-# This maybe needed in the daemon side
-# CHECK IF ON BATTERY OR NOT
+RUN=optirun_launcher
 
-POWER_STATE=0
-for state in /sys/class/power_supply/*/online; do
-    POWER_STATE=$(cat "$state")
-    break
-done
+# Only check if we're off-line when ecomode is enabled as querying the value
+# may introduce a second of delay
+if [[ $ECO_MODE == 1 ]]; then
+    POWER_STATE=0
+    for state in /sys/class/power_supply/*/online; do
+        POWER_STATE=$(cat "$state")
+        break
+    done
 
-if [ "$POWER_STATE" -eq "1" ] || [ "$ECO_MODE" -eq "0" ]; then
-    optirun_launcher $@
-elif [ "$POWER_STATE" -eq "0" ]; then
-    "$@"
-else
-    "$@"
+    # do not render the program on the nVidia card as we're off-line, exec will
+    # replace the current process by the program specified in the arguments
+    [ $POWER_STATE -eq 0 ] && RUN=exec
 fi
+
+$RUN "$@"
 
