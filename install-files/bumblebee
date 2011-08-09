@@ -81,7 +81,7 @@ start_x() {
         return 1
         ;;
       4) # another X is running
-        log_daemon_msg "Display $VGL_DISPLAY is already in use."
+        log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
         log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 1
         ;;
@@ -246,12 +246,12 @@ status_daemon() {
         return 2
     fi
     # Pidfile available but no bumblebee running, we screwed somewhere
-    if ! pidof -x -o $$ bumblebee; then
+    if ! pidof -x -o $$ "$(readlink -e "$0")" >/dev/null; then
         log_daemon_msg "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
         return 2
     fi
-    
-    # Check for X server and return a usefull value
+
+    # Check for X server and return a useful value
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
       0) # already started
@@ -266,7 +266,7 @@ status_daemon() {
         return 3
         ;;
       4) # another X is running, not ours
-        log_daemon_msg "Display $VGL_DISPLAY is already in use."
+        log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
         log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 3
         ;;
@@ -312,7 +312,6 @@ case "$1" in
     ;;
   --status)
     status_daemon
-    exit $?
     ;;
   --pipe)
     echo "$BUMBLEBEE_FIFO"
