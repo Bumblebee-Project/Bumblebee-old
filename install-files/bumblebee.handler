@@ -26,8 +26,9 @@ start() {
       1) ;; # already running and X is available
       3) ;; # already running, but X server cannot be started
       2) # Can be started
-        "$BIN" -d &>/dev/null
+        "$BIN" -d &>/dev/null &
         # Print a per-distro success message
+        echo "Starting daemon..."
         ;;
     esac
 }
@@ -37,6 +38,7 @@ stop() {
     "$BIN" --status
     case $? in
       0|1|3) # Alive and running
+        echo "Stopping daemon..."
         kill -TERM "$(cat $PIDFILE)"
         ;;
       2) # Not started
