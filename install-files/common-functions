@@ -62,7 +62,7 @@ disable_graphics() {
 load_graphics_driver() {
     local remove_driver
     local driver="$(get_graphics_driver)"
-    if ! lsmod | grep -q "^$driver "; do
+    if ! lsmod | grep -q "^$driver "; then
         for remove_driver in $(get_conflicting_drivers "$driver"); do
             # unload conflicting drivers if loaded, ignore failure
             if lsmod | grep -q "^$remove_driver "; do
