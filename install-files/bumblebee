@@ -88,9 +88,9 @@ start_x() {
     esac
 
     log_daemon_msg "Starting X..."
-
-    LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH" \
-        "$X_DAEMON" "$X_DAEMON_ARGS $VGL_DISPLAY" &
+    
+    # Doesn't work quoted. This way starts fine
+    LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH $X_DAEMON $X_DAEMON_ARGS $VGL_DISPLAY &
 
     # wait for at most three seconds before the server has started
     local retries=0

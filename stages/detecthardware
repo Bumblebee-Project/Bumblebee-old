@@ -13,6 +13,8 @@ case $(wc -l <<<"$NVIDIABUSID") in
     echo "The BusID of the nVidia card can't be determined."
     ;;
   1)
+    # Add the "PCI:" prefix, needed for xorg.conf file
+    NVIDIABUSID="PCI:$NVIDIABUSID"
     echo "Detected Bus ID: $NVIDIABUSID"
     ;;
   *)
