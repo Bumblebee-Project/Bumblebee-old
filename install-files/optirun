@@ -34,15 +34,10 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 # load settings
 . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
 
-# DEFAULT VALUE
-VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
-
 show_help_msg() {
     :
 }
 
-#READ ARGUMENTS
-#echo "$*"
 while :; do
 	case "$1" in
 	  -f)
@@ -51,11 +46,8 @@ while :; do
         echo "connected to a power supply (e.g. running on battery)"
 		;; #force optirun if on battery
 	  -32)
-	    # This part can be deprecated as we are already loading the 32bit
-	    # libraries in X_LD_LIBRARY_PATH.
-        # Lekensteyn: What about apps like Wine which can run both 32/64?
-		echo "The 32-bit nVidia driver will be used"
-		;; #launch vglrun with 32 bits nvidia driver
+	    echo "Ignoring -32 as optirun automatically detects which libraries should be used"
+		;;
 	  -c)
 		shift
 		case "$1" in
@@ -79,8 +71,13 @@ while :; do
 			exit 2
 		fi
 		;;
+      --help)
+        show_help_msg
+        exit 0
+        ;;
 	  --)
 		# commonly found in parameters, usage: optirun -- -not -recognised -as -param
+		shift
 		break
 		;;
 	  -*)
@@ -96,10 +93,9 @@ while :; do
 	shift
 done
 
-# Maybe remove this, use -32 arg instead
-# if executed from a symlink named optirun32, use the 32b path if exist
-if [ "${0##*/}" = "optirun32" -a -d /usr/lib32/nvidia-current ]; then
-    echo "Running optirun32 is deprecated, please use optirun -32"
+if [[ $0 =~ /optirun(32|64)$ ]]; then
+    echo "Running ${0##*/} is deprecated as optirun detects automatically"
+    echo "whether the 32-bit or 64-bit libraries should be used. Use optirun instead"
 fi
 
 msg_shown=false
@@ -110,7 +106,7 @@ show_msg() {
 	fi
 }
 
-# OPTIRUN
+# Launch an application on the nVidia card
 optirun_launcher() {
     local bumblebee_script="$(which bumblebee)"
     "$bumblebee_script" --status
@@ -129,7 +125,12 @@ optirun_launcher() {
         exit 2
         ;;
     esac
-    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" "$@"
+
+    local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
+    # export settings from configuration file
+    export VGL_LOG
+    export VGL_READBACK
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 }
 
 # This maybe needed in the daemon side
