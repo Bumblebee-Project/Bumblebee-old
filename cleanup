@@ -1,0 +1,36 @@
+#!/bin/bash
+OVERRIDEAUTODETECT=false
+while [ $# -gt 0 ]; then
+    case "$1" in
+      --force)
+        OVERRIDEAUTODETECT=true
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "Unknown option: $1"
+        exit 255
+        ;;
+    esac
+    shift
+fi
+if ! $OVERRIDEAUTODETECT; then
+    if [ ! -f "/etc/bumblebee" ]; then
+        echo "There is no ancient version to cleanup, to override this, run"
+        echo "this program with the --force option."
+        exit 1
+    fi
+fi
+echo "An ancient version of Bumblebee has been detected, cleaning up..."
+for junk in \
+    /usr/local/bin/bumblebee-enablecard \
+    /usr/local/bin/bumblebee-enablecard.old \
+    /usr/local/bin/bumblebee-disablecard \
+    /usr/local/bin/bumblebee-disablecard.old \
+    ; do
+    echo [ -f "$junk" ]; then
+        rm -vf "$junk"
+    fi
+done
