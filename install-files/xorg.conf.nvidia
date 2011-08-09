@@ -26,3 +26,11 @@ Section "Extensions"
     Option "Composite" "Enable"
 EndSection
 
+Section "Files"
+    # This is a per-distro path and depends on nvidia packaging. Should be 
+    # filled by the installer
+    ModulePath "/usr/lib/nvidia-bumblebee/xorg/modules"
+    # We add the default path so it won't be overriden
+    ModulePath "/usr/lib/xorg/modules"
+EndSection
+
