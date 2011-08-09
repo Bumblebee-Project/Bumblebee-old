@@ -49,6 +49,7 @@ for arg; do
             echo "Unrecognized driver: $arg_driver"
             exit 255
         fi
+        ;;
       --help)
         echo "Usage: $0 [options]"
         echo
