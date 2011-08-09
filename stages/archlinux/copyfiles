@@ -1,4 +1,2 @@
 #!/bin/bash
-
 install -m644 install-files/drivers/nvidia.options.archlinux "$LIBDIR/drivers"
-install -m644 install-files/optirun.bash_completion "/etc/bash_completion.d/optirun"

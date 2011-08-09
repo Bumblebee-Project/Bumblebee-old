@@ -1,2 +1,1 @@
 #!/bin/bash
-install -m644 install-files/optirun.bash_completion "/etc/bash_completion.d/optirun"
