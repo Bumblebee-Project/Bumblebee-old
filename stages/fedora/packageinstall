@@ -25,7 +25,7 @@ NV_DRIVERS_VERSION="${LATEST%%/*}"
 echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 
 # Extract the binary
-sh "${TMPDIR}/${NV_DRIVER}" --target="${TMPDIR}/nvidia" -x
+sh "${TMPDIR}/${NV_DRIVER}" --target "${TMPDIR}/nvidia" -x
 
 rm -rf "$NVIDIA_LIBDIR"
 
