@@ -27,24 +27,14 @@
 #
 ### END LICENSE
 
-
-### COMMENT
-#This is a optirun script which takes arguments: compression, architecture, display (just for testing purpose).
-#If the force argument is omitted, the script will not launch the app with bumblebee if the computer is on battery
-#Usage :
-#    ecoptirun -f -32 -c <compression_value> -d <display value>
-# -f : Force optirun : force the app to be run with bumblebee if on battery
-# -32 : 32Bits library : use the 32bits Nvidia driver (ecoptirun -32 is equivalent to optirun32)
-# -c <compression_value> : Compression : -c must be followed by jpeg, proxy, rgb, yuv or xv argument (See the VGL doc)
-# -d <display_value> : -d must be followed by :0, :1 or :2 argument (See the VGL doc)
-### END COMMENT
-
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 . "$BUMBLEBEE_LIBDIR/common-functions"
+
+# load settings
 . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
 
-#DEFAULT VALUE
+# DEFAULT VALUE
 VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
 
 show_help_msg() {
@@ -56,13 +46,14 @@ show_help_msg() {
 while :; do
 	case "$1" in
 	  -f)
-		ECO_MODE='0'
-		echo "The application will be run with Bumblebee even if it's not connected to a power supply (e.g. running on battery)"
+		ECO_MODE=0
+		echo "The application will be run with Bumblebee even if it's not"
+        echo "connected to a power supply (e.g. running on battery)"
 		;; #force optirun if on battery
 	  -32)
-	    #This part can be deprecated as we are already loading the 32bit 
-	    # libreries in X_LD_LIBRARY_PATH
-		#VGL_DRIVER=$X_LD_LIBRARY_PATH
+	    # This part can be deprecated as we are already loading the 32bit
+	    # libraries in X_LD_LIBRARY_PATH.
+        # Lekensteyn: What about apps like Wine which can run both 32/64?
 		echo "The 32-bit nVidia driver will be used"
 		;; #launch vglrun with 32 bits nvidia driver
 	  -c)
@@ -72,7 +63,7 @@ while :; do
 			VGL_COMPRESS=$1
 			echo "Bumblebee will transfer frames using : $VGL_COMPRESS"
 			;;
-		*)
+		  *)
 			echo "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
 			exit 3
 			;;
@@ -105,19 +96,10 @@ while :; do
 	shift
 done
 
-# Maybe output ECOPTIRUN messages after parameter validation
-#echo "Arguments for the application:" "$@"
-#echo "Eco mode:" $ECO_MODE #make sure it's set even if it's not used
-#echo "32 bits mode:" $lib32_mode
-#echo "Compression mode:" $VGL_COMPRESS
-#echo "Display:" $VGL_DISPLAY 
-
-
 # Maybe remove this, use -32 arg instead
 # if executed from a symlink named optirun32, use the 32b path if exist
 if [ "${0##*/}" = "optirun32" -a -d /usr/lib32/nvidia-current ]; then
-	# VGL_DRIVER="/usr/lib32/nvidia-current:$VGL_DRIVER"
-	echo "Deprecated optirun call"
+    echo "Running optirun32 is deprecated, please use optirun -32"
 fi
 
 msg_shown=false
@@ -130,8 +112,8 @@ show_msg() {
 
 # OPTIRUN
 optirun_launcher() {
-    local bumblebee_script=$(which bumblebee)
-    $bumblebee_script --status
+    local bumblebee_script="$(which bumblebee)"
+    "$bumblebee_script" --status
     case $? in
       0) # All running just start the application
         ;;
