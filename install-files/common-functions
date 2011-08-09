@@ -77,7 +77,7 @@ load_graphics_driver() {
 # action is performed
 unload_graphics_driver() {
     local driver="$(get_graphics_driver)"
-    if lsmod | grep -q "^$driver "; do
+    if lsmod | grep -q "^$driver "; then
       "${MODPROBE}" -r "$driver" || return 1
     fi
     return 0
