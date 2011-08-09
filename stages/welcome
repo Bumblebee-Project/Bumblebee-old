@@ -8,9 +8,9 @@ if ! $UNATTENDED; then
 	echo "Please note that this script will probably only work with Ubuntu,"
 	echo "Debian, OpenSuSE, Arch Linux and Fedora based distributions"
 	echo
-	echo "Would you like to continue? (y / n)"
-	read answer
+	read -p "Would you like to continue? (y / n) " answer
 	if [[ $answer != [yY]* ]]; then
 		echo "Installation aborted"
+        exit 1
 	fi
 fi
