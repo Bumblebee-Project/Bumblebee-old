@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          bumblebee
 # Required-Start:    nvidia-kernel
@@ -7,42 +7,39 @@
 # Should-Stop:       kdm gdm
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Bumblebee initscript
-# Description:       Bumblebee initscript for Optimus Graphics support
+# Short-Description: Bumblebee supporting nVidia Optimus cards
+# Description:       Bumblebee supporting nVidia Optimus cards
 ### END INIT INFO
 
-# Bumblebee daemon handler script. Distro-independent script to start/stop 
+# Bumblebee daemon handler script. Distro-independent script to start/stop
 # daemon. Should be runnable in any distro but won't give any feedback.
-# Use it as a template for making distro-specific initscripts.
-
-. /etc/bumblebee/bumblebee.conf
 
 NAME=bumblebee
-BIN=$(which $NAME)
+BIN="$(which $NAME)"
+PIDFILE=/var/run/$NAME.pid
 
-#TODO Check different exit status for appropriate feedback
 start() {
     # Start the daemon only if there is not another instance running
-    $BIN --status
+    "$BIN" --status
     case $? in
-      0|1|3) # Started or reboot needed, print fail message
-        ;;
+      0) ;; # already running
+      1) ;; # already running and X is available
+      3) ;; # already running, but X server cannot be started
       2) # Can be started
-        $BIN -d &>/dev/null
+        "$BIN" -d &>/dev/null
         # Print a per-distro success message
         ;;
     esac
 }
 
-#TODO Check different exit status for appropriate feedback
 stop() {
     # Stop the daemon only if there is an instance running
-    $BIN --status
+    "$BIN" --status
     case $? in
-      0|1|3) # Started or reboot needed. We can kill it anyway
-        killall -TERM "$NAME"
+      0|1|3) # Alive and running
+        kill -TERM "$(cat $PIDFILE)"
         ;;
-      2) # Not started. 
+      2) # Not started
         ;;
     esac
 }
@@ -64,9 +61,10 @@ case "$1" in
     restart
     ;;
   status)
-    # This is an Arch function
-    #ck_status $NAME
-  ;;
+    # not implemented
+    ;;
   *)
-    echo "usage: $0 {start|stop|restart}"  
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
 esac
