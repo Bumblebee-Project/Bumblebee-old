@@ -14,6 +14,9 @@ install -m644 install-files/bumblebee "$SBINDIR"
 install -d -m755 "$BINDIR"
 install -m755 install-files/bumblebee-bugreport "$BINDIR"
 
+install -d -m755 /etc/init.d
+install -m755 install-files/bumblebee.handler /etc/init.d/bumblebee
+
 install -d -m755 /etc/bash_completion.d
 
 # whenever possible, the below scripts should be integrated in a package manager
