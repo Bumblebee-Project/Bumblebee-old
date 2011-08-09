@@ -23,7 +23,32 @@ if ! $OVERRIDEAUTODETECT; then
         exit 1
     fi
 fi
-echo "An ancient version of Bumblebee has been detected, cleaning up..."
+
+
+# Distro-specific cleanups
+if grep -iq ubuntu /etc/issue; then
+    if [[ $(dpkg-query -W -f '${Status}' bumblebee 2>/dev/null) == install* ]]; then
+        echo "Old Bumblebee package installation detected, removing..."
+        if ! apt-get purge -y bumblebee; then
+            echo "The old Bumblebee package could not be removed."
+            echo "Installation aborted."
+            exit 1
+        fi
+    fi
+    # Touched in postinst, but unused
+    rm -vf /etc/default/bumblebee-initial
+
+    # Bumblebee fails to clean up /etc/rc?.d, we'll do it if necessary
+    update-rc.d bumblebee remove
+
+    # Remove PPA if found to avoid conflicts
+    if [ -f /etc/apt/sources.list.d/mj-casalogic-bumblebee-natty.list ]; then
+        rm -vf /etc/apt/sources.list.d/mj-casalogic-bumblebee-natty.list
+    fi
+fi
+
+
+# Common cleanup
 for junk in \
     /usr/local/bin/bumblebee-enablecard \
     /usr/local/bin/bumblebee-enablecard.old \
