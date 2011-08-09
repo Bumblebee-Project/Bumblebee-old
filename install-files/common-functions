@@ -38,6 +38,20 @@ get_graphics_driver() {
     return 1
 }
 
+# Displays any conflicting drivers that must be unloaded before $driver can be
+# loaded. The first argument is $driver
+get_conflicting_drivers() {
+    local driver="$1"
+    case "$driver" in
+      nvidia)
+        echo "nouveau"
+        ;;
+      nouveau)
+        echo "nvidia"
+        ;;
+    esac
+}
+
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
@@ -49,11 +63,27 @@ disable_graphics() {
 
 # load the driver, return 1 on failure
 load_graphics_driver() {
-    "${MODPROBE}" "$(get_graphics_driver)" || return 1
+    local remove_driver
+    local driver="$(get_graphics_driver)"
+    if ! lsmod | grep -q "^$driver "; do
+        for remove_driver in $(get_conflicting_drivers "$driver"); do
+            # unload conflicting drivers if loaded, ignore failure
+            if lsmod | grep -q "^$remove_driver "; do
+                "${MODPROBE}" -r "$remove_driver"
+            fi
+        done
+      "${MODPROBE}" "$driver" || return 1
+    fi
+    return 0
 }
-# unload the driver, return 1 on failure
+# unload the driver, return 1 on failure. If the driver was already loaded, no
+# action is performed
 unload_graphics_driver() {
-    "${MODPROBE}" -r "$(get_graphics_driver)" || return 1
+    local driver="$(get_graphics_driver)"
+    if lsmod | grep -q "^$driver "; do
+      "${MODPROBE}" -r "$driver" || return 1
+    fi
+    return 0
 }
 
 # Should detect distro by name in /etc/issue. Prints the result as
