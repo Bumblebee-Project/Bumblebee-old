@@ -131,8 +131,8 @@ xserver_available() {
         # n > 0 && n <= 0)
         return 2
     fi
-    if kill -0 "$pid"; then
-        # process does not exist or not allowed to send signal
+    if ps --pid "$pid" &>/dev/null; then
+        # process does not exist
         return 2
     fi
 
