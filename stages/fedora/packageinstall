@@ -27,34 +27,34 @@ echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 # Extract the binary
 sh "${TMPDIR}/${NV_DRIVER}" --target="${TMPDIR}/nvidia" -x
 
-rm -rf $NVIDIA_LIBDIR
+rm -rf "$NVIDIA_LIBDIR"
 
 if [ "$ARCH" = "x86_64" ]; then
     rm -rf /usr/lib/nvidia-current
 fi
 
-NVIDIA_ARGS=--no-x-check\
-             -s\
-            --x-prefix=$NVIDIA_LIBDIR
-            --x-library-path=$NVIDIA_LIBDIR
-            --installer-prefix=$NVIDIA_LIBDIR
-            --x-module-path=$NVIDIA_LIBDIR/xorg/modules\
-            --utility-prefix=$NVIDIA_LIBDIR --utility-libdir=.\
-            --opengl-prefix=$NVIDIA_LIBDIR --opengl-libdir=.\
+NVIDIA_ARGS=( --no-x-check
+             -s
+            --x-prefix="$NVIDIA_LIBDIR"
+            --x-library-path="$NVIDIA_LIBDIR"
+            --installer-prefix="$NVIDIA_LIBDIR"
+            --x-module-path="$NVIDIA_LIBDIR/xorg/modules"
+            --utility-prefix="$NVIDIA_LIBDIR" --utility-libdir=.
+            --opengl-prefix="$NVIDIA_LIBDIR" --opengl-libdir=. )
 
-NVIDIA_ARGS2=
 if [ "$ARCH" = "x86_64" ]; then
-    NVIDIA_ARGS2=--compat32-prefix=/usr/lib/nvidia-current --compat32-libdir=.
+    NVIDIA_ARGS[${#NVIDIA_ARGS}]=--compat32-prefix=/usr/lib/nvidia-current
+    NVIDIA_ARGS[${#NVIDIA_ARGS}]=--compat32-libdir=.
 fi
 
-"${TMPDIR}/nvidia/nvidia-installer" $NVIDIA_ARGS $NVIDIA_ARGS2
+"${TMPDIR}/nvidia/nvidia-installer" "${NVIDIA_ARGS[@]}"
 
 # Make sure we can run the nvidia X-server without all kind of library issues
 # See also http://us.download.nvidia.com/XFree86/Linux-x86/<version>/README/installedcomponents.html
-# or http://us.download.nvidia.com/XFree86/Linux-x86_64/<version>/README/installedcomponents.html 
-rm $NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.${NV_DRIVERS_VERSION}
-rm $NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.1
-rm $NVIDIA_LIBDIR/xorg/modules/libwfb.so
+# or http://us.download.nvidia.com/XFree86/Linux-x86_64/<version>/README/installedcomponents.html
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.${NV_DRIVERS_VERSION}"
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.1"
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libwfb.so"
 
 # cleanup
 rm -rf "${TMPDIR}"
