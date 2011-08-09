@@ -85,7 +85,7 @@ while :; do
 		;;
 	  -*)
 		echo "Unknown parameter: $1"
-		exit 3
+		exit 255
 		;;
 	  *)
 		# begin of a command, assuming no optirun parameters after this one
