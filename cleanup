@@ -19,28 +19,15 @@ done
 if ! $OVERRIDEAUTODETECT; then
     if [ ! -f "/etc/bumblebee" ]; then
         echo "There is no ancient version to cleanup, to override this, run"
-        echo "this program with the --force option."
+        echo "this program with the --force option. Note: this cleaner can"
+        echo "only cleanup versions after 1.4.13 (released March 17th, 2011)."
         exit 1
     fi
 fi
 
-# Only apply changes on existing unmodded uninstallers
-if [ -x /usr/local/bin/bumblebee-uninstall ] &&
-    ! grep -q -e '--unattended' /usr/local/bin/bumblebee-uninstall; then
-    # don't require sudo, replace lines about messing in home directories by
-    # the no-op operator, make sure that the uninstaller returns 1 on failure
-    # and stop slowing down by five seconds
-    sed -i /usr/local/bin/bumblebee-uninstall \
-        -e 's,\[ "\$HOME" == "/root" \],false,' \
-        -e 's/^ .*\$HOME.*/:/;s,exit 0,exit 1,;/sleep 5/d'
-
-    # allow for an unattended uninstallation
-    CHECK='for arg; do [[ $arg == --unattended ]] && break; done && answer=Y || \\'
-    sed -i /usr/local/bin/bumblebee-uninstall -e "/read answer/i $CHECK"
-
-    # finally, reaching EOF is success
-    echo 'exit 0' >> /usr/local/bin/bumblebee-uninstall
-fi
+# ok, the old uninstaller is horrible, do not even use it
+[ -x /etc/init.d/bumblebee ] && /etc/init.d/bumblebee disable
+[ -x /usr/local/bin/bumblebee-enablecard ] && /usr/local/bin/bumblebee-enablecard
 
 # Distro-specific cleanups
 if grep -iq ubuntu /etc/issue; then
@@ -52,11 +39,13 @@ if grep -iq ubuntu /etc/issue; then
             exit 1
         fi
     fi
+
+    [ -x /usr/local/bin/bumblebee-enablecard
     # Touched in postinst, but unused
     rm -vf /etc/default/bumblebee-initial
 
     # Bumblebee fails to clean up /etc/rc?.d, we'll do it if necessary
-    update-rc.d bumblebee remove
+    update-rc.d -f bumblebee remove
 
     # Remove PPA if found to avoid conflicts
     if [ -f /etc/apt/sources.list.d/mj-casalogic-bumblebee-natty.list ]; then
@@ -64,15 +53,51 @@ if grep -iq ubuntu /etc/issue; then
     fi
 fi
 
+if grep -iq opensuse /etc/issue; then
+    :
+fi
 
-# Common cleanup
+if grep -iq debian /etc/issue; then
+    :
+fi
+
+# Distro-independent cleanup
+
+# Do not show * if there is no matching file
+shopt -s nullglob
+
+# restore backed up files
+for bashrc in \
+    /etc/bashrc /etc/bash.bashrc \
+    /etc/modprobe.d/blacklist.conf \
+    /etc/modules \
+    /etc/X11/xorg.conf \
+    ; do
+    [ -f "${file}.optiorig" ] && mv -v "${file}.optiorig" "$file"
+done
+
 for junk in \
+    /etc/X11/xorg.conf.nvidia \
+    /etc/init.d/bumblebee \
     /usr/local/bin/bumblebee-enablecard \
     /usr/local/bin/bumblebee-enablecard.old \
     /usr/local/bin/bumblebee-disablecard \
     /usr/local/bin/bumblebee-disablecard.old \
+    /usr/local/bin/optirun \
+    /usr/local/bin/optirun32 \
+    /usr/local/bin/optirun64 \
+    /usr/local/bin/bumblebee-disablecard-on-powerup \
+    /usr/local/bin/bumblebee* \
+    /etc/default/bumblebee \
+    /etc/alternatives/xorg_extra_modules-bumblebee \
+    /etc/bash_completion.d/optirun* \
     ; do
-    if [ -f "$junk" ]; then
-        rm -vf "$junk"
-    fi
+    [ -f "$junk" ] && rm -vf "$junk"
+done
+
+for junk_dirs in \
+    /usr/share/doc/bumblebee \
+    /usr/share/doc/packages/bumblebee \
+    ; do
+    [ -d "$junk" ] && rm -rvf "$junk"
 done
