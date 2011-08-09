@@ -35,3 +35,5 @@ install_step "$DISTRO/copyfiles"
 echo "== Configuring =="
 install_step configure
 install_step "$DISTRO/configure"
+
+install_step finish
