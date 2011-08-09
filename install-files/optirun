@@ -45,38 +45,38 @@ msg() {
 }
 
 while :; do
-	case "$1" in
-	  -f)
-		ECO_MODE=0
-		msg "The application will be run with Bumblebee even if it's not"
+    case "$1" in
+      -f)
+        ECO_MODE=0
+        msg "The application will be run with Bumblebee even if it's not"
         msg "connected to a power supply (e.g. running on battery)"
-		;; #force optirun if on battery
-	  -32)
-	    msg "Ignoring -32 as optirun automatically detects which libraries should be used"
-		;;
-	  -c)
-		shift
-		case "$1" in
-		  jpeg|proxy|rgb|yuv|xv)
-			VGL_COMPRESS=$1
-			msg "Bumblebee will transfer frames using: $VGL_COMPRESS"
-			;;
-		  *)
-			msg "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
-			exit 3
-			;;
-		esac
-		;;
-	  -d)
-		shift
-		if ! [[ $1 =~ ^:[0-9]+$ ]]; then
-			VGL_DISPLAY=$1
-			msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
-		else
-			msg "The display parameter -d must be followed by a colon and digits like :8"
-			exit 2
-		fi
-		;;
+        ;; #force optirun if on battery
+      -32)
+        msg "Ignoring -32 as optirun automatically detects which libraries should be used"
+        ;;
+      -c)
+        shift
+        case "$1" in
+          jpeg|proxy|rgb|yuv|xv)
+            VGL_COMPRESS=$1
+            msg "Bumblebee will transfer frames using: $VGL_COMPRESS"
+            ;;
+          *)
+            msg "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
+            exit 3
+            ;;
+        esac
+        ;;
+      -d)
+        shift
+        if ! [[ $1 =~ ^:[0-9]+$ ]]; then
+            VGL_DISPLAY=$1
+            msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
+        else
+            msg "The display parameter -d must be followed by a colon and digits like :8"
+            exit 2
+        fi
+        ;;
       --help)
         show_help_msg
         exit 0
@@ -85,22 +85,22 @@ while :; do
         # if $PRINT_MESSAGE is set to : (no-op), no messages will be displayed
         PRINT_MESSAGE=:
         ;;
-	  --)
-		# commonly found in parameters, usage: optirun -- -not -recognised -as -param
-		shift
-		break
-		;;
-	  -*)
-		msg "Unknown parameter: $1"
-		exit 255
-		;;
-	  *)
-		# begin of a command, assuming no optirun parameters after this one
-		break
-		;;
-	esac
-	# move to the next option in the command
-	shift
+      --)
+        # commonly found in parameters, usage: optirun -- -not -recognised -as -param
+        shift
+        break
+        ;;
+      -*)
+        msg "Unknown parameter: $1"
+        exit 255
+        ;;
+      *)
+        # begin of a command, assuming no optirun parameters after this one
+        break
+        ;;
+    esac
+    # move to the next option in the command
+    shift
 done
 
 if [[ $0 =~ /optirun(32|64)$ ]]; then
@@ -110,10 +110,10 @@ fi
 
 msg_shown=false
 show_msg() {
-	if ! $msg_shown; then
-		msg "Another bumblebee powered application is running, keeping bumblebee alive."
-		msg_shown=true
-	fi
+    if ! $msg_shown; then
+        msg "Another bumblebee powered application is running, keeping bumblebee alive."
+        msg_shown=true
+    fi
 }
 
 # Launch an application on the nVidia card
@@ -148,15 +148,15 @@ optirun_launcher() {
 
 POWER_STATE=0
 for state in /sys/class/power_supply/*/online; do
-	POWER_STATE=$(cat "$state")
-	break
+    POWER_STATE=$(cat "$state")
+    break
 done
 
 if [ "$POWER_STATE" -eq "1" ] || [ "$ECO_MODE" -eq "0" ]; then
-	optirun_launcher $@
+    optirun_launcher $@
 elif [ "$POWER_STATE" -eq "0" ]; then
-	"$@"
+    "$@"
 else
-	"$@"
+    "$@"
 fi
 
