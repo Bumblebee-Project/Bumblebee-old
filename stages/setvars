@@ -5,6 +5,9 @@ ARCH=$(uname -m)
 MODPROBE=$(which modprobe)
 LSPCI=$(which lspci)
 
+IS_64=false
+[[ $ARCH == x86_64 ]] && IS_64=true
+
 UNATTENDED=false
 
 # Install locations
@@ -12,7 +15,8 @@ BINDIR=/usr/local/bin
 SBINDIR=/usr/local/sbin
 CONFDIR=/etc/bumblebee
 LIBDIR=/usr/local/lib/bumblebee
-NVIDIA_LIBDIR=/usr/lib/nvidia-current
+NVIDIA_LIB32DIR=/usr/lib/nvidia-current
+NVIDIA_LIB64DIR=/usr/lib/nvidia-current
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia')
