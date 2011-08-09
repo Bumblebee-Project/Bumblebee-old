@@ -9,6 +9,14 @@ while [ $# -gt 0 ]; do
         shift
         break
         ;;
+      --help)
+        echo "This cleaner can be used to correct failures from previous Bumblebee versions."
+        echo "Usage: ${0##*/} [options]"
+        echo "  --force"
+        echo "    Proceed with cleaning up even if the installation does not look ancient"
+        echo "  --help"
+        echo "    Print this help message"
+        ;;
       *)
         echo "Unknown option: $1"
         exit 255
@@ -23,6 +31,15 @@ if ! $OVERRIDEAUTODETECT; then
         echo "only cleanup versions after 1.4.13 (released March 17th, 2011)."
         exit 1
     fi
+fi
+
+if (( UID != 0 )); then
+    echo "You must run this cleanup program as root."
+    if which sudo &>/dev/null; then
+        echo "That can be done by running:"
+        echo "    sudo $0"
+    fi
+    exit 2
 fi
 
 # Do not show * if there is no matching file
