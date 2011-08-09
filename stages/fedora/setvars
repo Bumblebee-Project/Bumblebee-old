@@ -1,2 +1,2 @@
 #!/bin/bash
-[[ $ARCH == x86_64 ]] && NVIDIA_LIBDIR=/usr/lib64/nvidia-current
+NVIDIA_LIB64DIR=/usr/lib64/nvidia-current

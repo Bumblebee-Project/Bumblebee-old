@@ -6,10 +6,12 @@ fi
 
 echo "Getting latest nVidia drivers version"
 
-if [ "$ARCH" = "x86_64" ]; then
+if $IS_64; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86_64/"
+    NVIDIA_LIBDIR="$NVIDIA_LIB64DIR"
 elif [ "$ARCH" = "i686" ]; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86/"
+    NVIDIA_LIBDIR="$NVIDIA_LIB32DIR"
 fi
 
 LATEST=`wget -q -O - ${BASEDIR}/latest.txt | cut -f2 -d" " | tr -d '\n\r'`
@@ -27,11 +29,9 @@ echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 # Extract the binary
 sh "${TMPDIR}/${NV_DRIVER}" --target "${TMPDIR}/nvidia" -x
 
-rm -rf "$NVIDIA_LIBDIR"
+rm -rf "$NVIDIA_LIB32DIR"
+rm -rf "$NVIDIA_LIB64DIR"
 
-if [ "$ARCH" = "x86_64" ]; then
-    rm -rf /usr/lib/nvidia-current
-fi
 
 NVIDIA_ARGS=( --no-x-check
              -s
@@ -43,7 +43,7 @@ NVIDIA_ARGS=( --no-x-check
             --opengl-prefix="$NVIDIA_LIBDIR" --opengl-libdir=. )
 
 if [ "$ARCH" = "x86_64" ]; then
-    NVIDIA_ARGS[${#NVIDIA_ARGS}]=--compat32-prefix=/usr/lib/nvidia-current
+    NVIDIA_ARGS[${#NVIDIA_ARGS}]="--compat32-prefix=$NVIDIA_LIB32DIR"
     NVIDIA_ARGS[${#NVIDIA_ARGS}]=--compat32-libdir=.
 fi
 
