@@ -183,7 +183,7 @@ start_daemon() {
             if [ -n "$pids" ]; then
                 start_x
             fi
-        else
+        elif [[ $STOP_SERVICE_ON_EXIT == [Yy]* ]]; then
             # allow to quit X if there are no clients running or if the client
             # does not have child programs running. xlsclients did not work :(
             if [ -z "$pids" ] || ! ps --ppid "$pids" > /dev/null; then

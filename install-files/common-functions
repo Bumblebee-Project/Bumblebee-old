@@ -175,9 +175,14 @@ set_graphics_driver() {
 # load the settings and sets some other variables
 load_settings() {
     # defaults
-    BUMBLEBEE_GROUP=bumblebee
+    STOP_SERVICE_ON_EXIT=y
+    VGL_DISPLAY=:8
+    VGL_COMPRESS=proxy
+    VGL_READBACK=pbo
+    ECO_MODE=0
     DRIVER=nvidia
     X_CONFFILE=
+    BUMBLEBEE_GROUP=bumblebee
     . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
 
     # allow the user to specify a custom xorg path, otherwise base on driver
