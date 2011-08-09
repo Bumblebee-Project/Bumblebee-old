@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Repair GL on the intel display
+update-alternatives --force --set gl_conf /usr/lib/mesa/ld.so.conf
+ldconfig
