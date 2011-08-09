@@ -25,13 +25,21 @@ if ! $OVERRIDEAUTODETECT; then
     fi
 fi
 
+# Do not show * if there is no matching file
+shopt -s nullglob
+
 # ok, the old uninstaller is horrible, do not even use it
 [ -x /etc/init.d/bumblebee ] && /etc/init.d/bumblebee disable
 [ -x /usr/local/bin/bumblebee-enablecard ] && /usr/local/bin/bumblebee-enablecard
 
+# Test if a debian package is installed
+dpkg_installed() {
+    [[ $(dpkg-query -W -f '${Status}' "$1" 2>/dev/null) == install* ]]
+}
+
 # Distro-specific cleanups
 if grep -iq ubuntu /etc/issue; then
-    if [[ $(dpkg-query -W -f '${Status}' bumblebee 2>/dev/null) == install* ]]; then
+    if dpkg_installed bumblebee; then
         echo "Old Bumblebee package installation detected, removing..."
         if ! apt-get purge -y bumblebee; then
             echo "The old Bumblebee package could not be removed."
@@ -40,17 +48,48 @@ if grep -iq ubuntu /etc/issue; then
         fi
     fi
 
-    [ -x /usr/local/bin/bumblebee-enablecard
-    # Touched in postinst, but unused
-    rm -vf /etc/default/bumblebee-initial
-
     # Bumblebee fails to clean up /etc/rc?.d, we'll do it if necessary
     update-rc.d -f bumblebee remove
 
     # Remove PPA if found to avoid conflicts
-    if [ -f /etc/apt/sources.list.d/mj-casalogic-bumblebee-natty.list ]; then
-        rm -vf /etc/apt/sources.list.d/mj-casalogic-bumblebee-natty.list
+    for ppalist in /etc/apt/sources.list.d/mj-casalogic-bumblebee-*.list; do
+        rm -vf "$ppalist"
+    done
+
+    # On versions before Oneiric
+    if dpkg --compare-versions "$(lsb_release -rs)" le 11.04; then
+        update-alternatives --remove x86_64-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
+        update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/alt_ld.so.conf
+        update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
+
+        update-alternatives --force \
+            --install /etc/ld.so.conf.d/GL.conf gl_conf /usr/lib/mesa/ld.so.conf 500 \
+            --slave /usr/lib/xorg/extra-modules xorg_extra_modules /usr/lib/xorg/x11-extra-modules
+
+        if dpkg_installed nvidia-current; then
+            # upgrade or downgrade to the most recent version from the repos
+            if grep -q '^ *--install /etc/ld.so.conf.d/x86_64-linux-gnu_GL.conf ' \
+                /var/lib/dpkg/info/nvidia-current.postinst; then
+                nvidia_version=$(LANG=C apt-cache policy nvidia-current |\
+                    grep '^     [^ ]' | sort | awk '{print $1}' | head -1)
+                if [ -n "$nvidia_version" ]; then
+                    apt-get install -y "nvidia-current=$nvidia_version"
+                else # no version found, perhaps the restricted repo is disabled
+                    apt-get remove -y nvidia-current
+                fi
+            fi
+        fi
     fi
+    for junk in \
+        /etc/default/bumblebee-initial \
+        /etc/alternatives/xorg_extra_modules-bumblebee \
+        /usr/lib/xorg/x11-extra-modules/xorg \
+        /usr/lib/nvidia-current/xorg/xorg \
+        /etc/alternatives/_xorg_extra_modules \
+        /etc/bash_completion.d/optirun*
+    do
+        [ -f "$junk" ] && rm -vf "$junk"
+    done
 fi
 
 if grep -iq opensuse /etc/issue; then
@@ -62,9 +101,6 @@ if grep -iq debian /etc/issue; then
 fi
 
 # Distro-independent cleanup
-
-# Do not show * if there is no matching file
-shopt -s nullglob
 
 # restore backed up files
 for bashrc in \
@@ -88,16 +124,14 @@ for junk in \
     /usr/local/bin/optirun64 \
     /usr/local/bin/bumblebee-disablecard-on-powerup \
     /usr/local/bin/bumblebee* \
-    /etc/default/bumblebee \
-    /etc/alternatives/xorg_extra_modules-bumblebee \
-    /etc/bash_completion.d/optirun* \
-    ; do
+    /etc/default/bumblebee
+    do
     [ -f "$junk" ] && rm -vf "$junk"
 done
 
 for junk_dirs in \
     /usr/share/doc/bumblebee \
-    /usr/share/doc/packages/bumblebee \
-    ; do
+    /usr/share/doc/packages/bumblebee
+    do
     [ -d "$junk" ] && rm -rvf "$junk"
 done
