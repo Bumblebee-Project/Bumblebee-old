@@ -9,5 +9,5 @@ done
 if [ ${#missing_dependencies} -gt 0 ]; then
     echo "Missing dependencies: ${missing_dependencies[*]}"
     echo "These packages are available from the AUR"
-    exit 2
+    exit 4
 fi
