@@ -116,29 +116,51 @@ show_msg() {
     fi
 }
 
-# Launch an application on the nVidia card
-optirun_launcher() {
-    local bumblebee_script="$(which bumblebee)"
-    "$bumblebee_script" --status
+# Ensures that the X server can be used. Return values:
+# 0 - the X server is available
+# 1 - the X server is unavailable
+optirun_ready() {
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
     case $? in
-      0) # All running just start the application
+      0) # X is started
         ;;
-      1) # Start X server then the application
+      [12]) # Not started yet
         echo start > "$BUMBLEBEE_FIFO"
+
+        # Wait for at most 3.5 seconds before X is available
+        local retries
+        for ((retries=7; retries; retries--)); do
+            xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
+                > /dev/null && return 0
+        done
         ;;
-      2) # Daemon not present
-        exit 1
+      3) # xserver / driver crash
+        return 1
         ;;
-      3) # Reboot required
-        exit 2
+      4) # not our X
+        return 1
         ;;
     esac
-
+    return 0
+}
+# Launch an application on the nVidia card
+# return values do not make sense since it could come from the app as well
+optirun_launcher() {
+    if ! optirun_ready; then
+        msg "The Bumblebee X server was not available, please check the"
+        msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+        # If we cannot use the Bumblebee X server, run the program without it
+        exec "$@"
+        return
+    fi
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
     # export settings from configuration file
     export VGL_LOG
     export VGL_READBACK
     vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
+
+    # notify the daemon that we are done
+    echo stop > "$BUMBLEBEE_FIFO"
 }
 
 RUN=optirun_launcher
