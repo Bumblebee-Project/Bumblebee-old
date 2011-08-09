@@ -69,7 +69,7 @@ while :; do
         ;;
       -d)
         shift
-        if ! [[ $1 =~ ^:[0-9]+$ ]]; then
+        if ! [[ $1 =~ "^:[0-9]+$" ]]; then
             VGL_DISPLAY=$1
             msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
         else

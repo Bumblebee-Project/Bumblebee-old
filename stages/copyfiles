@@ -9,17 +9,14 @@ install -m644 install-files/common-functions "$LIBDIR"
 
 install -d -m755 "$LIBDIR/drivers"
 
-install -d -m755 "$SBINDIR"
 install -m755 install-files/bumblebee "$SBINDIR"
 
-install -d -m755 "$BINDIR"
 install -m755 install-files/bumblebee-bugreport "$BINDIR"
 
-install -d -m755 /etc/init.d
-install -m755 install-files/bumblebee.handler /etc/init.d/bumblebee
+install -m755 install-files/bumblebee.handler "$INITDIR/bumblebee"
 
-install -d -m755 /etc/bash_completion.d
-install -m644 install-files/optirun.bash_completion /etc/bash_completion.d/optirun.sh
+#install -d -m755 /etc/bash_completion.d
+#install -D -m644 install-files/optirun.bash_completion /etc/bash_completion.d/optirun
 
 # whenever possible, the below scripts should be integrated in a package manager
 install -m755 install-files/bumblebee-uninstall "$BINDIR"
