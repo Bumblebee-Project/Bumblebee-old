@@ -55,7 +55,8 @@ dpkg_installed() {
 }
 
 # Distro-specific cleanups
-if grep -iq ubuntu /etc/issue; then
+if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
+    echo "Detected distributon: Ubuntu-based"
     if dpkg_installed bumblebee; then
         echo "Old Bumblebee package installation detected, removing..."
         if ! apt-get purge -y bumblebee; then
@@ -107,14 +108,19 @@ if grep -iq ubuntu /etc/issue; then
     do
         [ -f "$junk" ] && rm -vf "$junk"
     done
-fi
-
-if grep -iq opensuse /etc/issue; then
-    :
-fi
-
-if grep -iq debian /etc/issue; then
-    :
+elif grep -iq fedora /etc/issue; then
+    echo "Detected distribution: Fedora-based"
+elif grep -iq opensuse /etc/issue; then
+    echo "Detected distribution: OpenSUSE-based"
+elif grep -iq 'arch linux' /etc/issue; then
+    echo "Detected distribution: Arch Linux-based"
+elif grep -iq debian /etc/issue; then
+    echo "Detected distribution: Debian-based"
+elif grep -iq gentoo /etc/issue; then
+    echo "Detected distribution: Gentoo-based"
+else
+    echo "The distribution could not be determined or is unsupported."
+    exit 3
 fi
 
 # Distro-independent cleanup
