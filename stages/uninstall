@@ -6,6 +6,7 @@ $UNATTENDED && uninstall_opts[${#uninstall_opts}]='--unattended'
 for uninstaller in /usr/local/bin/bumblebee-uninstall \
     "$BINDIR/bumblebee-uninstall"; do
     if [ -x "$uninstaller" ]; then
+        echo "Running $uninstaller..."
         if ! "$uninstaller" "${uninstall_opts[@]}"; then
             echo "Uninstallation failed, installation aborted."
             exit 5

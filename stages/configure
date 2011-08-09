@@ -9,9 +9,11 @@ fi
 re_busid='^( *BusID +")[^"]*'
 
 for driver in nvidia; do
+    echo "Setting Bus ID in xorg.conf.$driver..."
     sed -E -i "$CONFDIR/xorg.conf.$driver" \
         -e "s,${re_busid},\1${NVIDIABUSID},"
 done
 
-# add the bumblebee group, but do not warn if the group already exist
-groupadd -f bumblebee
+# add the bumblebee group
+echo "Adding group Bumblebee if it did not already exist..."
+groupadd bumblebee
