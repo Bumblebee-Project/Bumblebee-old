@@ -24,6 +24,23 @@ if ! $OVERRIDEAUTODETECT; then
     fi
 fi
 
+# Only apply changes on existing unmodded uninstallers
+if [ -x /usr/local/bin/bumblebee-uninstaller ] &&
+    ! grep -eq '--unattended' /usr/local/bin/bumblebee-uninstall; then
+    sed -i /usr/local/bin/bumblebee-uninstall \
+        -e 's,\[ "\$HOME" == "/root" \],false,' # don't require sudo \
+        -e 's/^ .*\$HOME.*/:/' # replace lines about messing in Homedirs \
+                               # directories by the no-op operator \
+        -e 's,exit 0,exit 1,' # there is no clean exit if the user aborts \
+        -e '/sleep 5/d' # umad? Why slow down? Get rid of it.
+
+        # allow for an unattended uninstallation
+        CHECK='for arg; do [[ $arg == --unattended ]] && break; done && answer=Y || \\'
+        sed -i /usr/local/bin/bumblebee-uninstall "/read answer/i $CHECK"
+
+    # finally, reaching EOF is success
+    echo 'exit 0' >> /usr/local/bin/bumblebee-uninstall
+fi
 
 # Distro-specific cleanups
 if grep -iq ubuntu /etc/issue; then
