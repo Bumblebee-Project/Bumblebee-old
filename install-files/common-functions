@@ -144,13 +144,13 @@ xserver_available() {
     fi
 
     # dirty: it justs checks the leading part, the display part is ignored
-    if [[ $cmd =~ ^"$x_daemon $x_daemon_args" ]]; then
+    if [[ $cmd == "$x_daemon $x_daemon_args"* ]]; then
         echo "$pid"
         return 0
     fi
 
     # it's another X instance
-    if [[ $cmd =~ ^"$x_daemon" ]]; then
+    if [[ $cmd == "$x_daemon"* ]]; then
         # not a bumblebee X server
         return 4
     fi
