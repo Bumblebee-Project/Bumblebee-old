@@ -19,6 +19,7 @@ install -m755 install-files/bumblebee-bugreport "$BINDIR"
 install -m755 install-files/bumblebee.handler "$INITDIR/bumblebee"
 
 #install -d -m755 /etc/bash_completion.d
+#install -D -m644 install-files/optirun.bash_completion /etc/bash_completion.d/optirun
 
 # whenever possible, the below scripts should be integrated in a package manager
 install -m755 install-files/bumblebee-uninstall "$BINDIR"

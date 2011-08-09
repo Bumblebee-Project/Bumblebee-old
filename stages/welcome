@@ -5,8 +5,14 @@ if ! $UNATTENDED; then
     echo
     echo "This will enable you to utilize both your Intel and nVidia card"
     echo
-    echo "Please note that this script will probably only work with Ubuntu,"
-    echo "Debian, OpenSuSE, Arch Linux and Fedora based distributions"
+    #echo "Please note that this script will probably only work with Ubuntu,"
+    #echo "Debian, OpenSuSE, Arch Linux and Fedora based distributions"
+    if ! [[ $DISTRO =~ ^ubuntu|archlinux$ ]]; then
+        echo "Currently, the installer works for Ubuntu-based and Arch Linux"
+        echo "only. If you would like to port the installer to $DISTRO, please"
+        echo "visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+        exit 1
+    fi
     echo
     read -p "Would you like to continue? (y / n) " answer
     if [[ $answer != [yY]* ]]; then
