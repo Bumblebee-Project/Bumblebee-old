@@ -115,10 +115,6 @@ done
 for junk in \
     /etc/X11/xorg.conf.nvidia \
     /etc/init.d/bumblebee \
-    /usr/local/bin/bumblebee-enablecard \
-    /usr/local/bin/bumblebee-enablecard.old \
-    /usr/local/bin/bumblebee-disablecard \
-    /usr/local/bin/bumblebee-disablecard.old \
     /usr/local/bin/optirun \
     /usr/local/bin/optirun32 \
     /usr/local/bin/optirun64 \
