@@ -4,6 +4,7 @@ install -m644 install-files/bumblebee.conf "$CONFDIR"
 install -m644 install-files/xorg.conf.nvidia "$CONFDIR"
 
 install -d -m755 "$LIBDIR"
+install -m644 install-files/common-paths "$LIBDIR"
 install -m644 install-files/common-functions "$LIBDIR"
 
 install -d -m755 "$LIBDIR/drivers"
