@@ -38,25 +38,31 @@ show_help_msg() {
     :
 }
 
+# only print a message if the user wants to
+PRINT_MESSAGE=echo
+msg() {
+    $PRINT_MESSAGE "$1"
+}
+
 while :; do
 	case "$1" in
 	  -f)
 		ECO_MODE=0
-		echo "The application will be run with Bumblebee even if it's not"
-        echo "connected to a power supply (e.g. running on battery)"
+		msg "The application will be run with Bumblebee even if it's not"
+        msg "connected to a power supply (e.g. running on battery)"
 		;; #force optirun if on battery
 	  -32)
-	    echo "Ignoring -32 as optirun automatically detects which libraries should be used"
+	    msg "Ignoring -32 as optirun automatically detects which libraries should be used"
 		;;
 	  -c)
 		shift
 		case "$1" in
 		  jpeg|proxy|rgb|yuv|xv)
 			VGL_COMPRESS=$1
-			echo "Bumblebee will transfer frames using : $VGL_COMPRESS"
+			msg "Bumblebee will transfer frames using: $VGL_COMPRESS"
 			;;
 		  *)
-			echo "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
+			msg "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
 			exit 3
 			;;
 		esac
@@ -65,9 +71,9 @@ while :; do
 		shift
 		if ! [[ $1 =~ ^:[0-9]+$ ]]; then
 			VGL_DISPLAY=$1
-			echo "Bumblebee will use the $VGL_DISPLAY display for rendering"
+			msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
 		else
-			echo "The display parameter -d must be followed by a colon and digits like :8"
+			msg "The display parameter -d must be followed by a colon and digits like :8"
 			exit 2
 		fi
 		;;
@@ -75,13 +81,17 @@ while :; do
         show_help_msg
         exit 0
         ;;
+      --silent)
+        # if $PRINT_MESSAGE is set to : (no-op), no messages will be displayed
+        PRINT_MESSAGE=:
+        ;;
 	  --)
 		# commonly found in parameters, usage: optirun -- -not -recognised -as -param
 		shift
 		break
 		;;
 	  -*)
-		echo "Unknown parameter: $1"
+		msg "Unknown parameter: $1"
 		exit 255
 		;;
 	  *)
@@ -94,14 +104,14 @@ while :; do
 done
 
 if [[ $0 =~ /optirun(32|64)$ ]]; then
-    echo "Running ${0##*/} is deprecated as optirun detects automatically"
-    echo "whether the 32-bit or 64-bit libraries should be used. Use optirun instead"
+    msg "Running ${0##*/} is deprecated as optirun detects automatically"
+    msg "whether the 32-bit or 64-bit libraries should be used. Use optirun instead"
 fi
 
 msg_shown=false
 show_msg() {
 	if ! $msg_shown; then
-		echo "Another bumblebee powered application is running, keeping bumblebee alive."
+		msg "Another bumblebee powered application is running, keeping bumblebee alive."
 		msg_shown=true
 	fi
 }
