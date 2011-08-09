@@ -1,16 +1,16 @@
 #!/bin/bash
 if ! $UNATTENDED; then
-	echo "Welcome to the installation of Bumblebee version $(cat VERSION)"
-	echo "Licensed under Red Bull, BEER-WARE License and GPL"
-	echo
-	echo "This will enable you to utilize both your Intel and nVidia card"
-	echo
-	echo "Please note that this script will probably only work with Ubuntu,"
-	echo "Debian, OpenSuSE, Arch Linux and Fedora based distributions"
-	echo
-	read -p "Would you like to continue? (y / n) " answer
-	if [[ $answer != [yY]* ]]; then
-		echo "Installation aborted"
+    echo "Welcome to the installation of Bumblebee version $(cat VERSION)"
+    echo "Licensed under Red Bull, BEER-WARE License and GPL"
+    echo
+    echo "This will enable you to utilize both your Intel and nVidia card"
+    echo
+    echo "Please note that this script will probably only work with Ubuntu,"
+    echo "Debian, OpenSuSE, Arch Linux and Fedora based distributions"
+    echo
+    read -p "Would you like to continue? (y / n) " answer
+    if [[ $answer != [yY]* ]]; then
+        echo "Installation aborted"
         exit 1
-	fi
+    fi
 fi
