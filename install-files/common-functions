@@ -15,9 +15,6 @@ IS_64=false
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
-# Some common configuration files
-BUMBLEBEE_CONFDIR=/etc/bumblebee
-
 # We would need some other way to retrieve version number
 BUMBLEBEE_VERSION=1.7.10
 
@@ -162,3 +159,44 @@ xserver_available() {
     return 2
 }
 
+# sets the graphics driver for the script and load related settings
+set_graphics_driver() {
+    DRIVER="$1"
+
+    # The library path in which the X server can find libraries like GL
+    X_LD_LIBRARY_PATH=
+
+    # allow to set X_LD_LIBRARY_PATH if needed
+    if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
+        . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
+    fi
+}
+
+# load the settings and sets some other variables
+load_settings() {
+    # defaults
+    BUMBLEBEE_GROUP=bumblebee
+    DRIVER=nvidia
+    X_CONFFILE=
+    . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
+
+    # allow the user to specify a custom xorg path, otherwise base on driver
+    [ -z "$X_CONFFILE" ] && X_CONFFILE="$BUMBLEBEE_CONFDIR/xorg.conf.${DRIVER}"
+
+    # -config file   use a certain xorg.conf so the nvidia drivers can be used
+    # -sharevts      without this option, the current VTY running X becomes
+    #                blank while the Bumblebee X server is running
+    # -nolisten tcp  do not use start a TCP server listening for connections
+    # -noreset       do not logout after the last program closes
+    X_DAEMON_ARGS="-config $X_CONFFILE -sharevts -nolisten tcp -noreset"
+
+    set_graphics_driver "$DRIVER"
+
+    # Remove colon and everything before it: :1.0 -> 1.0
+    DISPLAY_NUMBER=${VGL_DISPLAY##*:}
+    # Remove dot and everything after it: 1.0 -> 0
+    DISPLAY_NUMBER=${DISPLAY_NUMBER%%.*}
+    PIDFILE="/tmp/.X${DISPLAY_NUMBER}-lock"
+    X_LOGFILE="/var/log/Xorg.${DISPLAY_NUMBER}.log"
+
+}

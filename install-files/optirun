@@ -29,10 +29,10 @@
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
+. "$BUMBLEBEE_LIBDIR/common-paths"
 . "$BUMBLEBEE_LIBDIR/common-functions"
 
-# load settings
-. "$BUMBLEBEE_CONFDIR/bumblebee.conf"
+load_settings
 
 show_help_msg() {
     :
@@ -124,8 +124,6 @@ optirun_launcher() {
       0) # All running just start the application
         ;;
       1) # Start X server then the application
-        # THE FIFO IS NOT DEFINED!!!
-        BUMBLEBEE_FIFO=$($bumblebee_script --pipe)
         echo start > "$BUMBLEBEE_FIFO"
         ;;
       2) # Daemon not present

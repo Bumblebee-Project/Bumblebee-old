@@ -2,50 +2,10 @@
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
+. "$BUMBLEBEE_LIBDIR/common-paths"
 . "$BUMBLEBEE_LIBDIR/common-functions"
 
-# Full paths to possible optirun binaries
-OPTIRUNS=()
-OPTIRUNS[0]=$(which optirun)
-# provided for backwards compatibility, optirun32 is deprecated in favor of
-# optirun32 -32, optirun64 is equal to optirun
-OPTIRUNS[1]=$(which optirun32)
-OPTIRUNS[2]=$(which optirun64)
-
-# Defaults
-BUMBLEBEE_PIDFILE=/var/run/bumblebee.pid
-BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
-BUMBLEBEE_GROUP=bumblebee
-DRIVER=nvidia
-X_CONFFILE=
-
-X_LD_LIBRARY_PATH=
-X_DAEMON=$(which X)
-
-# Load settings
-. "$BUMBLEBEE_CONFDIR/bumblebee.conf"
-
-# allow the user to specify a custom xorg path, otherwise base on driver
-[ -z "$X_CONFFILE" ] && X_CONFFILE="${BUMBLEBEE_CONFDIR}/xorg.conf.${DRIVER}"
-
-# -config file   use a certain xorg.conffile so the nvidia drivers can be used
-# -sharevts      without this option, the current VTY running X becomes blank
-#                while the Bumblebee X server is running
-# -nolisten tcp  do not use start a TCP server listening for connections
-# -noreset       do not logout after the last program closes
-X_DAEMON_ARGS="-config $X_CONFFILE -sharevts -nolisten tcp -noreset"
-
-# Remove colon and everything before it: :1.0 -> 1.0
-display=${VGL_DISPLAY##*:}
-# Remove dot and everything after it: 1.0 -> 0
-display=${display%%.*}
-PIDFILE="/tmp/.X${display}-lock"
-X_LOG="/var/log/Xorg.${display}.log"
-
-# allow to set X_LD_LIBRARY_PATH if needed
-if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
-    . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
-fi
+load_settings
 
 # Log a message to our log file
 log_daemon_msg() {
@@ -88,9 +48,9 @@ start_x() {
     esac
 
     log_daemon_msg "Starting X..."
-    
-    # Doesn't work quoted. This way starts fine
-    LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH $X_DAEMON $X_DAEMON_ARGS $VGL_DISPLAY &
+
+    LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
+        "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
     # wait for at most three seconds before the server has started
     local retries=0
@@ -102,7 +62,7 @@ start_x() {
 
     # fail if the X server is not running
     if ! xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS"; then
-        log_daemon_msg "The Bumblebee X Server failed to start. Please check $X_LOG"
+        log_daemon_msg "The Bumblebee X server failed to start. Please check $X_LOGFILE"
         return 1
     fi
 
@@ -312,9 +272,6 @@ case "$1" in
     ;;
   --status)
     status_daemon
-    ;;
-  --pipe)
-    echo "$BUMBLEBEE_FIFO"
     ;;
   *)
     show_help_msg
