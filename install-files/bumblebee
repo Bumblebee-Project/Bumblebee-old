@@ -246,7 +246,7 @@ status_daemon() {
         return 2
     fi
     # Pidfile available but no bumblebee running, we screwed somewhere
-    if [ ! pidof -x -o $$ bumblebee ]; then
+    if ! pidof -x -o $$ bumblebee; then
         log_daemon_msg "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
         return 2
     fi
@@ -313,6 +313,9 @@ case "$1" in
   --status)
     status_daemon
     exit $?
+    ;;
+  --pipe)
+    echo "$BUMBLEBEE_FIFO"
     ;;
   *)
     show_help_msg

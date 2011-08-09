@@ -137,6 +137,7 @@ optirun_launcher() {
         ;;
       1) # Start X server then the application
         # THE FIFO IS NOT DEFINED!!!
+        BUMBLEBEE_FIFO=$($bumblebee_script --pipe)
         echo start > "$BUMBLEBEE_FIFO"
         ;;
       2) # Daemon not present

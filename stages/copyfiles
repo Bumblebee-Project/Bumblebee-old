@@ -1,5 +1,5 @@
 #!/bin/bash
-install -d -m644 "$CONFDIR"
+install -d -m755 "$CONFDIR"
 install -m644 install-files/bumblebee.conf "$CONFDIR"
 install -m644 install-files/xorg.conf.nvidia "$CONFDIR"
 
@@ -11,7 +11,7 @@ install -d -m755 "$LIBDIR/drivers"
 install -d -m755 "$SBINDIR"
 install -m644 install-files/bumblebee "$SBINDIR"
 
-install -d -m644 "$BINDIR"
+install -d -m755 "$BINDIR"
 install -m755 install-files/bumblebee-bugreport "$BINDIR"
 
 install -d -m755 /etc/bash_completion.d

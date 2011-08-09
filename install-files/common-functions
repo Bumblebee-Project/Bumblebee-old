@@ -12,8 +12,6 @@ ARCH=$(uname -m)
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
 
-IS_64=is64arch
-
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
