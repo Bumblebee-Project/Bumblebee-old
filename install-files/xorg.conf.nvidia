@@ -19,6 +19,9 @@ Section "Device"
     # ConnectedMonitor actually overrides the detected display device,
     # UseDisplayDevice can be seen as a list of allowed devices
     # Defaults to use CRT if available, next DFP and finally TV
+    # This option should be set or the X server will fail. As the card is 
+    # not connected to anything
+    Option          "ConnectedMonitor" "CRT-0"
 EndSection
 
 # Composite is enabled by default but I'll keep it for now
