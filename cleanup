@@ -1,6 +1,6 @@
 #!/bin/bash
 OVERRIDEAUTODETECT=false
-while [ $# -gt 0 ]; then
+while [ $# -gt 0 ]; do
     case "$1" in
       --force)
         OVERRIDEAUTODETECT=true
@@ -15,7 +15,7 @@ while [ $# -gt 0 ]; then
         ;;
     esac
     shift
-fi
+done
 if ! $OVERRIDEAUTODETECT; then
     if [ ! -f "/etc/bumblebee" ]; then
         echo "There is no ancient version to cleanup, to override this, run"
@@ -30,7 +30,7 @@ for junk in \
     /usr/local/bin/bumblebee-disablecard \
     /usr/local/bin/bumblebee-disablecard.old \
     ; do
-    echo [ -f "$junk" ]; then
+    if [ -f "$junk" ]; then
         rm -vf "$junk"
     fi
 done
