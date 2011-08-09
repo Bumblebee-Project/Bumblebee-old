@@ -69,6 +69,7 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
     # Bumblebee fails to clean up /etc/rc?.d, we'll do it if necessary
     update-rc.d -f bumblebee remove
 
+    echo "Disabling conflicting PPAs if any..."
     # Remove PPA if found to avoid conflicts
     for ppalist in /etc/apt/sources.list.d/mj-casalogic-bumblebee-*.list; do
         rm -vf "$ppalist"
@@ -76,6 +77,7 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
 
     # On versions before Oneiric
     if dpkg --compare-versions "$(lsb_release -rs)" le 11.04; then
+        echo "Fixing alternatives links if any"
         update-alternatives --remove x86_64-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/alt_ld.so.conf
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
@@ -98,6 +100,8 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
             fi
         fi
     fi
+
+    echo "Removing junkfiles if any..."
     for junk in \
         /etc/default/bumblebee-initial \
         /etc/alternatives/xorg_extra_modules-bumblebee \
@@ -125,8 +129,9 @@ fi
 
 # Distro-independent cleanup
 
+echo "Restoring backed up files if any..."
 # restore backed up files
-for bashrc in \
+for file in \
     /etc/bashrc /etc/bash.bashrc \
     /etc/modprobe.d/blacklist.conf \
     /etc/modules \
@@ -135,6 +140,7 @@ for bashrc in \
     [ -f "${file}.optiorig" ] && mv -v "${file}.optiorig" "$file"
 done
 
+echo "Remove distro-independent files if any..."
 for junk in \
     /etc/X11/xorg.conf.nvidia \
     /etc/init.d/bumblebee \
@@ -148,9 +154,12 @@ for junk in \
     [ -f "$junk" ] && rm -vf "$junk"
 done
 
+echo "Remove distro-independent directories if any..."
 for junk_dirs in \
     /usr/share/doc/bumblebee \
     /usr/share/doc/packages/bumblebee
     do
-    [ -d "$junk" ] && rm -rvf "$junk"
+    [ -d "$junk_dirs" ] && rm -rvf "$junk_dirs"
 done
+
+echo "Done"
