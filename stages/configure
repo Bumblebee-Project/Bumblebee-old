@@ -15,5 +15,5 @@ for driver in nvidia; do
 done
 
 # add the bumblebee group
-echo "Adding group Bumblebee if it did not already exist..."
-groupadd bumblebee
+#echo "Adding group Bumblebee if it did not already exist..."
+id -g bumblebee && echo "Bumblebee group existent" || groupadd bumblebee && echo "Bumblebee group created"
