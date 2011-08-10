@@ -64,8 +64,8 @@ for arg; do
             exit 255
         fi
         ;;
-      --destdir=*)
-        DESTDIR="${arg##--destdir=}"
+      --dest-dir=*)
+        DESTDIR="${arg##--dest-dir=}"
         # Empty values are allowed which means "do not use a different root"
         if [ -n "$DESTDIR" -a ! -d "$DESTDIR" ]; then
             echo "The destination directory '$DESTDIR' must exist."
@@ -105,7 +105,7 @@ for arg; do
         echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
         echo "    If not specified, nvidia is assumed"
         echo
-        echo "  --destdir=DESTDIR"
+        echo "  --dest-dir=DESTDIR"
         echo "    Use DESTDIR as root folder instead. Useful for chroot installations"
         echo
         echo "  --skip-stages=stage1,stage2,...,stageN"
