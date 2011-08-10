@@ -1,6 +1,7 @@
 #!/bin/bash
 install_step() {
     local stage
+    [ -n "$2" ] && echo "== $2 =="
     # try a customized step first
     for stage in "$BUILDDIR/stages/$1" "stages/$1"; do
         # Only run a step if it exists
@@ -29,24 +30,18 @@ install_step "$DISTRO/setvars"
 
 install_step welcome
 
-echo "== Checking dependencies =="
-install_step "$DISTRO/checkdependencies"
+install_step "$DISTRO/checkdependencies" "Checking dependencies"
 
-echo "== Removing previous version =="
-install_step uninstall
+install_step uninstall "Removing previous version"
 
-echo "== Detecting hardware =="
-install_step detecthardware
+install_step detecthardware "Detecting hardware"
 
-echo "== Building files =="
-install_step buildfiles
+install_step buildfiles "Building files"
 
-echo "== Installing Bumblebee =="
-install_step copyfiles
+install_step copyfiles "Installing Bumblebee"
 install_step "$DISTRO/copyfiles"
 
-echo "== Configuring =="
-install_step configure
+install_step configure "Configuring"
 install_step "$DISTRO/configure"
 
 install_step finish
