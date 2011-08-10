@@ -125,6 +125,11 @@ optirun_ready() {
       0) # X is started
         ;;
       [12]) # Not started yet
+        if [ ! -w "$BUMBLEBEE_FIFO" ]; then
+            msg "You have no permission to start the Bumblebee X server. Add"
+            msg "yourself to the '$BUMBLEBEE_GROUP' group."
+            return 1
+        fi
         echo start > "$BUMBLEBEE_FIFO"
 
         # Wait for at most 3.5 seconds before X is available
