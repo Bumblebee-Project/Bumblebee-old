@@ -1,2 +1,0 @@
-#!/bin/bash
-install_file 644 drivers/nvidia.options.archlinux "$LIBDIR/drivers"

@@ -1,2 +1,0 @@
-#!/bin/bash
-install 644 drivers/nvidia.options.opensuse "$LIBDIR/drivers"
