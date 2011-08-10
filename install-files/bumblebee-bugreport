@@ -50,81 +50,63 @@ echo
 echo "Bug report is being generated"
 echo
 
-rm -rf /tmp/bug-report
-mkdir -p /tmp/bug-report
+BUGREPORT_DIR=/tmp/bug-report
+BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
 
-cp /var/log/Xorg.* /tmp/bug-report/
-cp /etc/bumblebee/xorg.conf* /tmp/bug-report/
-cp /var/log/bumblebee.* /tmp/bug-report/
-cp /etc/bash.bashrc /tmp/bug-report/
+rm -rf "$BUGREPORT_DIR"
+mkdir -p "$BUGREPORT_DIR"
 
+cp /var/log/Xorg.* "$BUGREPORT_DIR"
+cp /etc/bumblebee/xorg.conf* "$BUGREPORT_DIR"
+cp /var/log/bumblebee.* "$BUGREPORT_DIR"
+cp /etc/bash.bashrc "$BUGREPORT_DIR"
 
-echo "Bumblebee Bug Report" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write() {
+    echo "$1" >> "$BUGREPORT_FILE"
+    echo >> "$BUGREPORT_FILE"
+}
 
-echo `cat /etc/bumblebee/bumblebee.conf` >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write "Bumblebee Bug Report"
 
-echo `cat /etc/issue` >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write `cat /etc/bumblebee/bumblebee.conf`
 
-echo "uname -a info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-uname -a >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write `cat /etc/issue`
 
-echo "lspci info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-lspci >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write "uname -a info"
+write `uname -a`
 
-echo "ps aux info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-ps aux | grep X >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write "lspci info"
+write `lscpi`
 
-echo "library info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+write "ps aux info"
+write `ps aux | grep X`
 
-if [ -d /usr/lib32/nvidia-current ]; then
-    echo "/usr/lib32/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
-    ls -la /usr/lib32/nvidia-current >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
+write "library info"
+
+for lib in \
+    /usr/lib/nvidia-current \
+    /usr/lib32/nvidia-current \
+    /usr/lib64/nvidia-current
+do
+    if [ -d "$lib" ]; then
+        write "$lib"
+        write `ls -la "$lib"`
 fi
 
-if [ -d /usr/lib64/nvidia-current ]; then
-    echo "/usr/lib64/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
-    ls -la /usr/lib64/nvidia-current >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
-fi
+write "modules info"
+write `lsmod`
 
-if [ -d /usr/lib/nvidia-current ]; then
-    echo "/usr/lib/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
-    ls -la /usr/lib/nvidia-current >> /tmp/bug-report/bumblebee-report
-    echo >> /tmp/bug-report/bumblebee-report
-fi
+write "alternatives info"
+write `ls -la /etc/alternatives`
 
-echo "modules info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-lsmod >> /tmp/bug-report/bumblebee-report 
-echo >> /tmp/bug-report/bumblebee-report
+write "dmidecode"
 
-echo "alternatives info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-ls -la /etc/alternatives >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-
-echo "dmidecode" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-dmidecode --string baseboard-manufacturer >> /tmp/bug-report/bumblebee-report
-dmidecode --string baseboard-product-name >> /tmp/bug-report/bumblebee-report
-dmidecode --string baseboard-version >> /tmp/bug-report/bumblebee-report
-dmidecode --string system-manufacturer >> /tmp/bug-report/bumblebee-report
-dmidecode --string system-product-name >> /tmp/bug-report/bumblebee-report
-dmidecode --string system-version >> /tmp/bug-report/bumblebee-report
+dmidecode --string baseboard-manufacturer >> "$BUGREPORT_FILE"
+dmidecode --string baseboard-product-name >> "$BUGREPORT_FILE"
+dmidecode --string baseboard-version >> "$BUGREPORT_FILE"
+dmidecode --string system-manufacturer >> "$BUGREPORT_FILE"
+dmidecode --string system-product-name >> "$BUGREPORT_FILE"
+dmidecode --string system-version >> "$BUGREPORT_FILE"
 
 tar zcf $HOME/bumblebee-bugreport-`date +2%3y%m%d_%H%M%S`.tar.gz /tmp/bug-report/
 
