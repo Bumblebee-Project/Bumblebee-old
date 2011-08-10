@@ -60,62 +60,6 @@ COLUMNS=`stty size | cut -f2 -d' '`
 CONFDIR=/etc/bumblebee
 NVIDIA_LIBDIR=/usr/lib/nvidia-current
 
-if [ "$DISTRO" == "UBUNTU" ] ; then
-    # Before you start with messing with symlinks or removing files, make sure
-    # that you know what you are doing. Examine the installation scripts of
-    # nvidia-current and libgl1-mesa-glx to get an idea how the alternatives
-    # system should be used. If you're using rm or ln in /etc/alternatives, you
-    # are doing it wrong.
-    # A helpful command for showing links being created on configuring an other
-    # alternative:     update-alternatives --display gl_conf
-
-    # Since Bumblebee is a project to get Optimus laptops to work, we can safely
-    # assume that the nvidia driver is not used for the default display (:0)
-    # Therefore default to mesa instead of nvidia. vglrun sets the GL library
-    # path to /usr/lib{,32}/nvidia-current for programs running on the display
-    # accelerated by the nvidia card. Since most graphical applications are not
-    # statically linked nor setuid/setgid binaries, this is fine. There is an
-    # exception on this: programs which overwrite LD_LIBRARY_PATH will fail to
-    # load the nvidia GL driver. However, this method will allow GL on the Intel
-    # display where the previous situation breaks it.
-    # TLDR: this allows the intel display to use GL, the bumblebee display will
-    #       load the nvidia driver through vglrun in almost all cases
-    #       this takes care of setting correct links which is used on
-    #       /usr/lib/nvidia-current/gl.conf
-    #       multiarch support
-
-    # Repair GL on the intel display
-    for arch in x86_64-linux-gnu i386-linux-gnu; do
-        # check if the link exist to prevent error messages
-        if update-alternatives --list ${arch}_gl_conf &>/dev/null; then
-            update-alternatives --force --set ${arch}_gl_conf /usr/lib/$arch/mesa/ld.so.conf
-        fi
-    done
-
-    # versions before Oneiric without multiarch
-    if update-alternatives --list gl_conf &>/dev/null; then
-        update-alternatives --force --set gl_conf /usr/lib/mesa/ld.so.conf
-    fi
-
-    # remove a legacy link which was not used anyway
-    rm -rf /etc/alternatives/xorg_extra_modules-bumblebee
-    rm -rf /etc/alternatives/_xorg_extra_modules
-
-    # fix appeared in commit 68a75db4df628a910886, it should remove an excess
-    # symlink; /usr/lib/xorg/extra-modules ->
-    # /etc/alternatives/{_,}xorg_extra_modules -> /usr/lib/nvidia-current/xorg
-    rm -f /usr/lib/nvidia-current/xorg/xorg
-    # if /etc/alternatives/xorg_extra_modules pointed to extra-modules...
-    rm -f /usr/lib/xorg/extra-modules/xorg
-    # or even x11-extra-modules
-    rm -f /usr/lib/xorg/x11-extra-modules/xorg
-
-    # Refresh the dynamic loader search path so /etc/ld.so.conf.d/GL.conf ->
-    # /etc/alternatives/gl_conf -> /usr/lib/mesa/ld.so.conf
-    ldconfig
-
-fi
-
 echo
 echo "Configuring... Please wait"
 echo
