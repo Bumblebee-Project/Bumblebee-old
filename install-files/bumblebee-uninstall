@@ -1,0 +1,49 @@
+#!/bin/bash
+# Bumblebee uninstaller
+# Author: Lekensteyn <lekensteyn@gmail.com>
+
+# The line below should never be removed and should match regex: *# *BEE..
+# BEE_UNINSTALLER_NEW DO NOT REMOVE THIS LINE
+
+UNATTENDED=false
+KEEP_CONFFILE=false
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+      --unattended)
+        UNATTENDED=true
+        ;;
+      --upgrade)
+        KEEP_CONFFILE=true
+        ;;
+      --)
+        shift
+        break
+        ;;
+      --help)
+        echo "Usage: $0 [options]"
+        echo
+        echo "  --unattended"
+        echo "    Do not confirm, proceed with uninstallation"
+        echo
+        echo "  --upgrade"
+        echo "    Upgrade mode, do not remove configuration files"
+        exit 0
+        ;;
+      *)
+        # remember our policy on GH-14: ignore unrecognized options
+        echo "Ignored unrecognized option: '$1'"
+        ;;
+    esac
+done
+
+if ! $UNATTENDED; then
+    echo "You are about to uninstall Bumblebee."
+    read -p "Continue [y/N]? " yn
+    if [ $yn != [Yy]* ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+fi
+
+# REPLACE WITH UNINSTALL COMMANDS
