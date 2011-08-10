@@ -174,7 +174,9 @@ start_daemon() {
     local pids
     while :; do
         # this is our "sleep" function, it waits for clients to give commands
-        command=$(< "$BUMBLEBEE_FIFO")
+        exec 3< "$BUMBLEBEE_FIFO"
+        read command <&3
+
         # space-separated list of optirun instances
         pids=$(pidof -x "${OPTIRUNS[@]}")
 
