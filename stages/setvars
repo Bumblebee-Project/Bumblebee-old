@@ -45,7 +45,7 @@ for arg; do
         UNATTENDED=true
         ;;
       --driver=*)
-        arg_driver="${arg##--driver-}"
+        arg_driver="${arg##--driver=}"
         DRIVER=
         for driver in "${AVAILABLE_DRIVERS[@]}"; do
             if [[ $driver == "$arg_driver" ]]; then
