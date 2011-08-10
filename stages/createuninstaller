@@ -1,0 +1,9 @@
+#!/bin/bash
+# Creates the uninstaller
+# Depends: stages/buildfiles install-files/bumblebee-uninstall
+
+
+set_file install-files/bumblebee-uninstall
+#"$CONFIGURING_FILE"
+
+install_file 755 bumblebee-uninstall "$BINDIR"
