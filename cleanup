@@ -115,7 +115,7 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
         /etc/alternatives/_xorg_extra_modules \
         /etc/bash_completion.d/optirun*
     do
-        [ -f "$junk" ] && rm -vf "$junk"
+        [ -L "$junk" -o -f "$junk" ] && rm -vf "$junk"
     done
 elif grep -iq fedora /etc/issue; then
     echo "Detected distribution: Fedora-based"
