@@ -65,18 +65,18 @@ def_var() {
     sed "s,^\( *\)${varname}=.*,$data," -i "$CONFIGURING_FILE"
 }
 
-set_tpl stages/configure
+set_file stages/configure
 subst_var NVIDIABUSID
 subst_var CONFDIR
 
-set_tpl install-files/optirun
+set_file install-files/optirun
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 
-set_tpl install-files/bumblebee
+set_file install-files/bumblebee
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 
-set_tpl install-files/common-files
+set_file install-files/common-files
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
 
-set_tpl "install-files/drivers/$DRIVER.options.$DISTRO" \
+set_file "install-files/drivers/$DRIVER.options.$DISTRO" \
     "install-files/drivers/$DRIVER.options"
