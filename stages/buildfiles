@@ -58,7 +58,7 @@ def_var() {
     local varname="$1"
 
     # escape single quote
-    local data="${2//'/'\'')"
+    local data="${2//'/'\\''}"
     data="$(sed_escape "$data")"
 
     # Replace " VAR=WHAT" by " VAR='value of $data'"
