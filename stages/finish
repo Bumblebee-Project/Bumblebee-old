@@ -2,7 +2,9 @@
 
 echo
 echo "===== Installation finished ====="
-echo "Please re-login to apply group settings and library paths."
+echo "You need to add users which are allowed to use Bumblebee to the group:"
+echo "    sudo usermod -a -G bumblebee username-here"
+echo "After that, please re-login to apply group settings and library paths."
 echo
 echo "Programs do not run themselves automatically with Bumblebee. If you would"
 echo "like to run 'glxgears' with Bumblebee, you have to run the below command:"
