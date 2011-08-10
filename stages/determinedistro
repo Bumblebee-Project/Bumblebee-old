@@ -1,12 +1,8 @@
 #!/bin/bash
 # XXX: This should be done with the function in common-functions
 
-if grep -iq Fedora /etc/issue; then
-    DISTRO=fedora
-elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
+if grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
     DISTRO=ubuntu
-elif grep -iq OpenSUSE /etc/issue; then
-    DISTRO=opensuse
 elif grep -iq "Arch Linux" /etc/issue; then
     DISTRO=archlinux
     #echo "You are running Arch Linux, please see the buildscript here for support:"
@@ -17,6 +13,18 @@ elif grep -iq "Arch Linux" /etc/issue; then
     #echo
     #$UNATTENDED || read
     #exit 3
+elif grep -iq Fedora /etc/issue; then
+    DISTRO=fedora
+    echo "You are running Fedora, the work is in progress for you distro but not"
+    echo "sufficient. If you would like to help to port the installer to fedora,"
+    echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
+elif grep -iq OpenSUSE /etc/issue; then
+    DISTRO=opensuse
+    echo "You are running openSUSE, the work is in progress for you distro but not"
+    echo "sufficient. If you would like to help to port the installer to openSUSE,"
+    echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
 elif grep -iq Debian /etc/issue; then
     DISTRO=debian
     echo "You are running Debian Linux, please see the debumblebee project for support:"

@@ -7,7 +7,7 @@ BUMBLEBEE_CONFDIR=/etc/bumblebee
 OPTIRUNS=()
 OPTIRUNS[0]=$(which optirun)
 # provided for backwards compatibility, optirun32 is deprecated in favor of
-# optirun32 -32, optirun64 is equal to optirun
+# optirun -32, optirun64 is equal to optirun
 OPTIRUNS[1]=$(which optirun32)
 OPTIRUNS[2]=$(which optirun64)
 
