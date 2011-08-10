@@ -46,8 +46,8 @@ subst_var() {
     fi
     data="$(sed_escape "$data")"
 
-    # Replace " VAR=WHAT" by " VAR='value of $data'"
-    sed "s,^\( *\)${varname}=.*,$data," -i "$CONFIGURING_FILE"
+    # Replace 'echo "${VAR}" by 'echo "value of \$VAR"'
+    sed "s,${varname},$data,g" -i "$CONFIGURING_FILE"
 }
 
 # Sets a variable definition in the active file
@@ -62,7 +62,7 @@ def_var() {
     data="$(sed_escape "$data")"
 
     # Replace " VAR=WHAT" by " VAR='value of $data'"
-    sed "s,^\( *\)${varname}=.*,$data," -i "$CONFIGURING_FILE"
+    sed "s,^\( *${varname}=\).*,\1$data," -i "$CONFIGURING_FILE"
 }
 
 set_file stages/configure
