@@ -5,6 +5,13 @@
 # The line below should never be removed and should match regex: *# *BEE..
 # BEE_UNINSTALLER_NEW DO NOT REMOVE THIS LINE
 
+# Exit codes:
+# 0 - uninstall was succesful
+# 1 - uninstallation could not be started (confirmation rejected, insufficient
+#     privileges)
+# 2 - Uninstall failure - nothing was removed but services might be stopped
+# 3 - Uninstall failure - unstable state (half-removed)
+
 UNATTENDED=false
 KEEP_CONFFILE=false
 
@@ -37,6 +44,18 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+if (( EUID != 0 )); then
+    echo "You do not have sufficient privileges to uninstall Bumblebee"
+    echo
+    if which sudo &>/dev/null; then
+        echo "Please run: sudo $0"
+    else
+        echo "Please run this script as root"
+    fi
+    echo
+    exit 1
+fi
+
 if ! $UNATTENDED; then
     echo "You are about to uninstall Bumblebee."
     read -p "Continue [y/N]? " yn
@@ -46,4 +65,8 @@ if ! $UNATTENDED; then
     fi
 fi
 
+echo "Stopping services..."
+/etc/init.d/bumblebee stop
+
+# Begin uninstallation of files
 # REPLACE WITH UNINSTALL COMMANDS
