@@ -1,26 +1,19 @@
-IMPORTANT:
+Bumblebee's next stable release is staged for this week (August 12th - 14th) if
+there are no blockers.
 
-DO NOT USE THIS GIT FOR NOW !!!!
+Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
+#bumblebee on Freenode if you wish to help testing and creating the installer.
 
-Old Readme
+Users who want to test the development code should run:
 
-Ubuntu Users:
+    git clone git://github.com/Bumblebee-Project/Bumblebee.git
+    cd Bumblebee
+    git checkout develop
+    sudo ./cleanup
+    sudo ./install
 
-Bumblebee has now been packaged into a PPA @ Launchpad:
 
-https://launchpad.net/~mj-casalogic/+archive/bumblebee/
-
-This will probably be the most up-to-date version for Ubuntu from now on...
-
-For people currently running the script/git version please do :
-
-sudo bumblebee-uninstall
-sudo apt-get install ppa-purge
-sudo ppa-purge ppa:ubuntu-x-swat/x-updates
-sudo ppa-purge ppa:xorg-edgers/ppa
-sudo apt-add-repository ppa:mj-casalogic/bumblebee
-sudo apt-get update
-sudo apt-get install bumblebee
+**possibly outdated information below**
 
 openSuSE Users:
 
