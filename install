@@ -19,8 +19,7 @@ install_step() {
 
 install_step checkprivileges
 
-# Perhaps the below action must be included in a file too so it can be disabled
-mkdir -p "$BUILDDIR/install-files" "$BUILDDIR/stages"
+install_step builddir
 
 install_step determinedistro
 
