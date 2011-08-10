@@ -1,24 +1,24 @@
 #!/bin/bash
-install -d -m755 "$CONFDIR"
-install -m644 install-files/bumblebee.conf "$CONFDIR"
-install -m644 install-files/xorg.conf.nvidia "$CONFDIR"
+install_dir 755 "$CONFDIR"
+install_file 644 bumblebee.conf "$CONFDIR"
+install_file 644 xorg.conf.nvidia "$CONFDIR"
 
-install -d -m755 "$LIBDIR"
-install -m644 install-files/common-paths "$LIBDIR"
-install -m644 install-files/common-functions "$LIBDIR"
+install_dir 755 "$LIBDIR"
+install_file 644 common-paths "$LIBDIR"
+install_file 644 common-functions "$LIBDIR"
 
-install -d -m755 "$LIBDIR/drivers"
+install_dir 755 "$LIBDIR/drivers"
 
-install -m755 install-files/bumblebee "$SBINDIR"
+install_file 755 bumblebee "$SBINDIR"
 
-install -m755 install-files/optirun "$BINDIR"
-install -m755 install-files/bumblebee-bugreport "$BINDIR"
+install_file 755 optirun "$BINDIR"
+install_file 755 bumblebee-bugreport "$BINDIR"
 
-install -m755 install-files/bumblebee.handler "$INITDIR/bumblebee"
+install_file 755 bumblebee.handler "$INITDIR/bumblebee"
 
-#install -d -m755 /etc/bash_completion.d
-#install -D -m644 install-files/optirun.bash_completion /etc/bash_completion.d/optirun
+#install_dir 755 /etc/bash_completion.d
+#install_file 644 optirun.bash_completion /etc/bash_completion.d/optirun
 
 # whenever possible, the below scripts should be integrated in a package manager
-install -m755 install-files/bumblebee-uninstall "$BINDIR"
-install -m755 install-files/bumblebee-configuration "$BINDIR"
+install_file 755 bumblebee-uninstall "$BINDIR"
+install_file 755 bumblebee-configuration "$BINDIR"
