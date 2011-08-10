@@ -138,6 +138,8 @@ for arg; do
     esac
 done
 
+# files installed by the installer, useful for uninstalling
+INSTALLED_FILES=()
 
 # Creates a directory on the target system
 install_dir() {
@@ -156,6 +158,7 @@ install_file() {
     [ ! -f "$prefix/$source" ] && prefix=install-files
     if [ -f "$prefix/$source" ]; then
         install -D -m$mode "$prefix/$source" "$DESTDIR$target"
+        INSTALLED_FILES[${#INSTALLED_FILES}]="$target"
     else
         echo "'$source' did not exist, ignoring"
     fi
