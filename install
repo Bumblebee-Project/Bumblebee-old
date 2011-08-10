@@ -1,7 +1,14 @@
 #!/bin/bash
 install_step() {
-    # Only run a step if it exists
-    [ -f "stages/$1" ] && . "stages/$1"
+    local stage
+    # try a customized step first
+    for stage in "$BUILDDIR/stages/$1" "stages/$1"; do
+        # Only run a step if it exists
+        if [ -f "$stage" ]; then
+            . "$stage"
+            break
+        fi
+    done
 }
 
 # definition of tools (like $LSPCI) as well as command options parsing and
@@ -10,6 +17,9 @@ install_step() {
 . stages/setvars
 
 install_step checkprivileges
+
+# Perhaps the below action must be included in a file too so it can be disabled
+mkdir -p "$BUILDDIR/install-files" "$BUILDDIR/stages"
 
 install_step determinedistro
 echo "${DISTRO}-based distribution found"
@@ -27,6 +37,9 @@ install_step uninstall
 
 echo "== Detecting hardware =="
 install_step detecthardware
+
+echo "== Building files =="
+install_step buildfiles
 
 echo "== Installing Bumblebee =="
 install_step copyfiles

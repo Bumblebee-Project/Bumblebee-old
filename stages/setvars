@@ -10,6 +10,9 @@ IS_64=false
 
 UNATTENDED=false
 
+# this directory is used for outputting installer files
+BUILDDIR=.build
+
 # installation output directory, useful for chroot builds
 DESTDIR=
 
@@ -103,7 +106,7 @@ install_file() {
     local mode=$1
     local source="$2"
     local target="$3"
-    local prefix=.build
+    local prefix="$BUILDDIR/install-files"
     [ ! -f "$prefix/$source" ] && prefix=install-files
     install -D -m$mode "$prefix/$source" "$DESTDIR$target"
 }

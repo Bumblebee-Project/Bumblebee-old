@@ -8,6 +8,7 @@ install_file 644 common-paths "$LIBDIR"
 install_file 644 common-functions "$LIBDIR"
 
 install_dir 755 "$LIBDIR/drivers"
+install_file 644 "drivers/$DRIVER.options" "$LIBDIR/drivers"
 
 install_file 755 bumblebee "$SBINDIR"
 

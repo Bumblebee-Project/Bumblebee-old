@@ -1,0 +1,82 @@
+#!/bin/bash
+# This stage configures files so the resulting files can be used immediately by
+# package managers
+# Author: Lekensteyn <lekensteyn@gmail.com>
+
+# Subject file for replacements by subst_var and def_var
+CONFIGURING_FILE=
+
+# Escapes \, & and , to prevent the sed expression from failing
+sed_escape() {
+    local data="$1"
+    data="${data//\\/\\\\}"
+    data="${data//&/\\&}"
+    data="${data//,/\\,}"
+    echo "$data"
+}
+
+# copies a file (first argument) to the build directory (optionally rename it
+# to the second argument) and set is as subject. Returns false if the source
+# did not exist
+set_file() {
+    local file="$1"
+    local target="$BUILDDIR/$file"
+    [ -n "$2" ] && target="$BUILDDIR/$2"
+    if [ -f "$file" ]; then
+        install -D "$file" "$target"
+        CONFIGURING_FILE="$target"
+    else
+        CONFIGURING_FILE=
+    fi
+}
+
+# Substitute a variable in the active file, the first argument is the variable
+# name, the second the replacement. If omitted, the contents of the variable is
+# used. It's assumed that the variable in the subject file is quoted and
+# between curly brackets: echo "\$varname contains: ${varname}"
+subst_var() {
+    # Return if there is no subject file
+    [ -f "$CONFIGURING_FILE" ] || return
+
+    local varname="$1"
+    local data="$2"
+    # no replacement passed, assuming indirection of var
+    if [ $# -eq 1 ]; then
+        data="$(eval echo "\$$varname")"
+    fi
+    data="$(sed_escape "$data")"
+
+    # Replace " VAR=WHAT" by " VAR='value of $data'"
+    sed "s,^\( *\)${varname}=.*,$data," -i "$CONFIGURING_FILE"
+}
+
+# Sets a variable definition in the active file
+def_var() {
+    # Return if there is no subject file
+    [ -f "$CONFIGURING_FILE" ] || return
+
+    local varname="$1"
+
+    # escape single quote
+    local data="${2//'/'\'')"
+    data="$(sed_escape "$data")"
+
+    # Replace " VAR=WHAT" by " VAR='value of $data'"
+    sed "s,^\( *\)${varname}=.*,$data," -i "$CONFIGURING_FILE"
+}
+
+set_tpl stages/configure
+subst_var NVIDIABUSID
+subst_var CONFDIR
+
+set_tpl install-files/optirun
+def_var BUMBLEBEE_LIBDIR "$LIBDIR"
+
+set_tpl install-files/bumblebee
+def_var BUMBLEBEE_LIBDIR "$LIBDIR"
+
+set_tpl install-files/common-files
+def_var BUMBLEBEE_CONFDIR "$CONFDIR"
+
+set_tpl "install-files/drivers/$DRIVER.options.$DISTRO" \
+    "install-files/drivers/$DRIVER.options"
