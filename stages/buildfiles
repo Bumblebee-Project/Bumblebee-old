@@ -47,7 +47,7 @@ subst_var() {
     data="$(sed_escape "$data")"
 
     # Replace 'echo "${VAR}" by 'echo "value of \$VAR"'
-    sed "s,${varname},$data,g" -i "$CONFIGURING_FILE"
+    sed "s,\${${varname}},$data,g" -i "$CONFIGURING_FILE"
 }
 
 # Sets a variable definition in the active file
