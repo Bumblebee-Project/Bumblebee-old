@@ -202,7 +202,7 @@ start_daemon() {
 status_daemon() {
     # Check for pid file available
     if [ ! -f "$BUMBLEBEE_PIDFILE" ]; then
-        log_daemon_msg "No pidfile couldn't be found. Bumblebee daemon is not running"
+        log_daemon_msg "No pidfile could be found. Bumblebee daemon is not running"
         return 2
     fi
     # Pidfile available but no bumblebee running, we screwed somewhere
