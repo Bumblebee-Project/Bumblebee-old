@@ -19,10 +19,3 @@ BUMBLEBEE_FIFO=/var/run/bumblebee.fifo
 
 # The Xorg server binary
 X_DAEMON=$(which X)
-
-# The library path in which the X server can find libraries like GL
-X_LD_LIBRARY_PATH=
-# allow to set X_LD_LIBRARY_PATH if needed
-if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
-    . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
-fi
