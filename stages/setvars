@@ -10,6 +10,9 @@ IS_64=false
 
 UNATTENDED=false
 
+# installation output directory, useful for chroot builds
+DESTDIR=
+
 # Install locations
 BINDIR=/usr/local/bin
 SBINDIR=/usr/local/sbin
@@ -55,6 +58,14 @@ for arg; do
             exit 255
         fi
         ;;
+      --destdir=*)
+        DESTDIR="${arg##--destdir=}"
+        # Empty values are allowed which means "do not use a different root"
+        if [ -n "$DESTDIR" -a ! -d "$DESTDIR" ]; then
+            echo "The destination directory '$DESTDIR' must exist."
+            exit 255
+        fi
+        ;;
       --help)
         echo "Usage: $0 [options]"
         echo
@@ -65,6 +76,9 @@ for arg; do
         echo "  --driver=DRIVER"
         echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
         echo "    If not specified, nvidia is assumed"
+        echo
+        echo "  --destdir=DESTDIR"
+        echo "    Use DESTDIR as root folder instead. Useful for chroot installations"
         exit 0
         ;;
       *)
@@ -74,3 +88,22 @@ for arg; do
         ;;
     esac
 done
+
+
+# Creates a directory on the target system
+install_dir() {
+    local mode=$1
+    local target="$2"
+    install -d -m$mode "$DESTDIR$target"
+}
+
+# Copies a file to the target system, using a configured file if needed. This
+# configured file can be created in stages/build
+install_file() {
+    local mode=$1
+    local source="$2"
+    local target="$3"
+    local prefix=.build
+    [ ! -f "$prefix/$source" ] && prefix=install-files
+    install -D -m$mode "$prefix/$source" "$DESTDIR$target"
+}
