@@ -2,6 +2,13 @@
 install_step() {
     local stage
     [ -n "$2" ] && echo "== $2 =="
+    for stage in "${SKIP_STAGES[@]}"; do
+        if [[ $stage == "$1" ]]; then
+            echo "(skipped)"
+            return
+        fi
+    done
+
     # try a customized step first
     for stage in "$BUILDDIR/stages/$1" "stages/$1"; do
         # Only run a step if it exists

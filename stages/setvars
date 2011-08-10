@@ -10,6 +10,9 @@ IS_64=false
 
 UNATTENDED=false
 
+# These stages will not be executed by the installer
+SKIP_STAGES=
+
 # this directory is used for outputting installer files
 BUILDDIR=.build
 
@@ -69,6 +72,28 @@ for arg; do
             exit 255
         fi
         ;;
+      --skip-stages=*)
+        SKIP_STAGES="${arg##--skip-stages=}"
+
+        # strip out duplicates and put in an array
+        IFS=$'\n'
+        SKIP_STAGES=( $(tr ',' '\n' <<<"$SKIP_STAGES" | sort -u) )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_stages=()
+        for stage in "${SKIP_STAGES[@]}"; do
+            if [ ! -f "stages/$stage" ]; then
+                invalid_stages[${#invalid_stages}]="$stage"
+            fi
+        done
+
+        if [ ${#invalid_stages} -gt 0 ]; then
+            echo "Invalid stages: ${invalid_stages[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+        ;;
       --help)
         echo "Usage: $0 [options]"
         echo
@@ -82,6 +107,13 @@ for arg; do
         echo
         echo "  --destdir=DESTDIR"
         echo "    Use DESTDIR as root folder instead. Useful for chroot installations"
+        echo
+        echo "  --skip-stages=stage1,stage2,...,stageN"
+        echo "    Warning: this is an expert option, only use it if you know what you are"
+        echo "    doing! This option accepts a comma-separated list of stages to be disabled."
+        echo "    A stage is a file in the stages/ directory at the root of the installer."
+        echo "    Examples: ubuntu/setvars,welcome,fedora/dependencies"
+        echo "    When using this option repeatedly, the previous list is cleared."
         exit 0
         ;;
       *)
