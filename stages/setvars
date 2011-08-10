@@ -113,7 +113,9 @@ for arg; do
         echo "    If not specified, nvidia is assumed"
         echo
         echo "  --dest-dir=DESTDIR"
-        echo "    Use DESTDIR as root folder instead. Useful for chroot installations"
+        echo "    Use DESTDIR as root folder instead. Useful for chroot installations. Set it"
+        echo "    to an empty value if you do not want to use a different root directory. The"
+        echo "    contents of this directory are not cleared before use."
         echo
         echo "  --build-dir=PATH"
         echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
