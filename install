@@ -23,7 +23,6 @@ install_step checkprivileges
 mkdir -p "$BUILDDIR/install-files" "$BUILDDIR/stages"
 
 install_step determinedistro
-echo "${DISTRO}-based distribution found"
 
 # optional distro-specific variables, like paths
 install_step "$DISTRO/setvars"

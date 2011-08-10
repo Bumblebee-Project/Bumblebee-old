@@ -49,3 +49,5 @@ else
     echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
     exit 3
 fi
+
+echo "${DISTRO}-based distribution detected"
