@@ -92,8 +92,12 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
             # upgrade or downgrade to the most recent version from the repos
             if grep -q '^ *--install /etc/ld.so.conf.d/x86_64-linux-gnu_GL.conf ' \
                 /var/lib/dpkg/info/nvidia-current.postinst; then
-                nvidia_version=$(LANG=C apt-cache policy nvidia-current |\
-                    grep '^     [^ ]' | sort | awk '{print $1}' | head -1)
+                nvidia_version=$(LANG=C apt-cache policy nvidia-current | awk '
+                    /^     [^ ]/{version = $1}
+                    /^ \*\*\* [^ ]/{version = $2}
+                    /^        [^ ]/{server = $2
+                        if (server !~ /^\//) {print version;exit}
+                    }')
                 if [ -n "$nvidia_version" ]; then
                     apt-get install -y "nvidia-current=$nvidia_version"
                 else # no version found, perhaps the restricted repo is disabled
