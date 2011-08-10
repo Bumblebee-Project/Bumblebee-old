@@ -165,10 +165,17 @@ set_graphics_driver() {
 
     # The library path in which the X server can find libraries like GL
     X_LD_LIBRARY_PATH=
+    X_LD_LIB32_PATH=
+    X_LD_LIB64_PATH=
 
     # allow to set X_LD_LIBRARY_PATH if needed
     if [ -s "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options" ]; then
         . "${BUMBLEBEE_LIBDIR}/drivers/${DRIVER}.options"
+        if $IS_64; then
+            [ -n "$X_LD_LIB64_PATH" ] && X_LD_LIBRARY_PATH="$X_LD_LIB64_PATH"
+        else
+            [ -n "$X_LD_LIB32_PATH" ] && X_LD_LIBRARY_PATH="$X_LD_LIB32_PATH"
+        fi
     fi
 }
 

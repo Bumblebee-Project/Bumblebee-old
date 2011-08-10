@@ -1,6 +1,3 @@
 #!/bin/bash
-if $IS_64; then
-    X_LD_LIBRARY_PATH=/usr/lib/nvidia-bumblebee:/usr/lib32/nvidia-bumblebee
-else
-    X_LD_LIBRARY_PATH=/usr/lib/nvidia-bumblebee
-fi
+X_LD_LIB32_PATH=/usr/lib/nvidia-bumblebee
+X_LD_LIB64_PATH=/usr/lib/nvidia-bumblebee:/usr/lib32/nvidia-bumblebee
