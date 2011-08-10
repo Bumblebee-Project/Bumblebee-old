@@ -72,6 +72,13 @@ for arg; do
             exit 255
         fi
         ;;
+      --build-dir=*)
+        BUILDDIR="${arg##--build-dir=}"
+        if [ ! -d "$BUILDDIR" ]; then
+            echo "The build directory '$BUILDDIR' must exist."
+            exit 255
+        fi
+        ;;
       --skip-stages=*)
         SKIP_STAGES="${arg##--skip-stages=}"
 
@@ -107,6 +114,11 @@ for arg; do
         echo
         echo "  --dest-dir=DESTDIR"
         echo "    Use DESTDIR as root folder instead. Useful for chroot installations"
+        echo
+        echo "  --build-dir=PATH"
+        echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
+        echo "    must exist to avoid accidentally overwritting directories. The entries"
+        echo "    PATH/stages and PATH/install-files are removed."
         echo
         echo "  --skip-stages=stage1,stage2,...,stageN"
         echo "    Warning: this is an expert option, only use it if you know what you are"
