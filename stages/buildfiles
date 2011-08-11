@@ -54,7 +54,8 @@ def_var() {
     local data="${2//'/'\\''}"
 
     # Replace " VAR=WHAT" by " VAR='value of $data'"
-    sreplace "^\( *${varname}=\).*" '\1%s' "$data"
+    # sprintf likes to eat slashes, beware!
+    sreplace "^\( *${varname}=\).*" '\\1%s' "$data"
 }
 
 # Replace a regex match with another string in the active file. The first arg
