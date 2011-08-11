@@ -66,11 +66,10 @@ sreplace() {
 
     local search="$1"
     local replacement="$2"
-    shift 2
-    local args=("$@")
-    local i
-    for ((i=0; i<${#args}; i++)); do
-        args[$i]="$(sed_escape "${args[i]}")"
+    local args=()
+    while [ $# -gt 2 ]; do
+        args[${#args[@]}]="$(sed_escape "$3")"
+        shift
     done
 
     replacement="$(printf "$replacement" "${args[@]}")"
