@@ -27,6 +27,7 @@ LIBDIR=/usr/local/lib/bumblebee
 INITDIR=/etc/init.d
 NVIDIA_LIB32DIR=/usr/lib/nvidia-current
 NVIDIA_LIB64DIR=/usr/lib/nvidia-current
+XORG_MODULEPATH=/usr/lib/xorg/modules
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia')
