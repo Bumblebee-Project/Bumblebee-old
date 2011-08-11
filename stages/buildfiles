@@ -35,34 +35,26 @@ set_file() {
 # used. It's assumed that the variable in the subject file is quoted and
 # between curly brackets: echo "\$varname contains: ${varname}"
 subst_var() {
-    # Return if there is no subject file
-    [ -f "$CONFIGURING_FILE" ] || return
-
     local varname="$1"
     local data="$2"
     # no replacement passed, assuming indirection of var
     if [ $# -eq 1 ]; then
         data="$(eval echo "\$$varname")"
     fi
-    data="$(sed_escape "$data")"
 
     # Replace 'echo "${VAR}" by 'echo "value of \$VAR"'
-    sed "s,\${${varname}},$data,g" -i "$CONFIGURING_FILE"
+    sreplace "\${${varname}}" '%s' "$data"
 }
 
 # Sets a variable definition in the active file
 def_var() {
-    # Return if there is no subject file
-    [ -f "$CONFIGURING_FILE" ] || return
-
     local varname="$1"
 
     # escape single quote
     local data="${2//'/'\\''}"
-    data="$(sed_escape "$data")"
 
     # Replace " VAR=WHAT" by " VAR='value of $data'"
-    sed "s,^\( *${varname}=\).*,\1$data," -i "$CONFIGURING_FILE"
+    sreplace "^\( *${varname}=\).*" '\1%s' "$data"
 }
 
 # Replace a regex match with another string in the active file. The first arg
