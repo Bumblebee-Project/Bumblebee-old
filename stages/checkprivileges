@@ -3,7 +3,7 @@ if (( EUID != 0 )); then
     echo "You do not have sufficient privileges to install Bumblebee"
     echo
     if which sudo &>/dev/null; then
-        echo "Please run: sudo ./install"
+        echo "Please run: sudo $0"
     else
         echo "Please run this script as root"
     fi
