@@ -65,6 +65,28 @@ def_var() {
     sed "s,^\( *${varname}=\).*,\1$data," -i "$CONFIGURING_FILE"
 }
 
+# Replace a regex match with another string in the active file. The first arg
+# is the search term, the second a sprintf formatted string which will not be
+# escaped, third and up will be sed-escaped and sprintf'd in the second arg
+sreplace() {
+    # Return if there is no subject file
+    [ -f "$CONFIGURING_FILE" ] || return
+
+    local search="$1"
+    local replacement="$2"
+    shift 2
+    local args=("$@")
+    local i
+    for ((i=0; i<${#args}; i++)); do
+        args[$i]="$(sed_escape "${args[i]}")"
+    done
+
+    replacement="$(printf "$replacement" "${args[@]}")"
+
+    sed "s,$search,$replacement,g" -i "$CONFIGURING_FILE"
+}
+
+
 set_file stages/configure
 subst_var NVIDIABUSID
 subst_var CONFDIR
