@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PACMAN=$(which pacman)
 BINDIR=/usr/bin
-SBINDIR=/usr/local/sbin
-INITDIR=/etc/rc.d
+SBINDIR=/usr/sbin
 CONFDIR=/etc/bumblebee
 LIBDIR=/usr/lib/bumblebee
+INITDIR=/etc/rc.d
 #NVIDIA_LIB32DIR=/usr/lib/nvidia-current
 #NVIDIA_LIB64DIR=/usr/lib/nvidia-current
+XORG_MODULEPATH=/usr/lib/nvidia-bumblebee,/usr/lib/xorg/modules

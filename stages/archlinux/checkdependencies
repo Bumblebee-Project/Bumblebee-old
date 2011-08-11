@@ -1,4 +1,5 @@
 #!/bin/bash
+PACMAN=$(which pacman)
 conflictingpackages=('bumblebee' 'bumblebee-nouveau' 'bumblebee-nouveau-git' 'bumblebee-git' 'bumblebee-develop-git')
 for i in ${conflictingpackages[@]}
 do
