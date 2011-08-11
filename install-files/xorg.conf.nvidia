@@ -15,13 +15,9 @@ Section "Device"
     BusID          ""
     # XXX: Previously, IgnoreEDID was set, but why?
     Option         "UseEDID" "false"
-    # Read docs, use of UseDisplayDevice is recommended over ConnectedMonitor
-    # ConnectedMonitor actually overrides the detected display device,
-    # UseDisplayDevice can be seen as a list of allowed devices
-    # Defaults to use CRT if available, next DFP and finally TV
-    # This option should be set or the X server will fail. As the card is 
-    # not connected to anything
-    Option          "ConnectedMonitor" "CRT-0"
+    # By default, set to DFP,CRT to work for everyone
+    # bumblebee-configuration set it to the correct value
+    Option          "ConnectedMonitor" "DFP,CRT"
 EndSection
 
 # Composite is enabled by default but I'll keep it for now
@@ -30,10 +26,7 @@ Section "Extensions"
 EndSection
 
 Section "Files"
-    # This is a per-distro path and depends on nvidia packaging. Should be 
-    # filled by the installer
-    ModulePath "/usr/lib/nvidia-bumblebee/xorg/modules"
-    # We add the default path so it won't be overriden
-    ModulePath "/usr/lib/xorg/modules"
+    # This is a per-distro path and depends on nvidia packaging.
+    # It is filled by the installer
+    ModulePath ",/usr/lib/xorg/modules"
 EndSection
-
