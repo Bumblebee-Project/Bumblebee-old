@@ -1,6 +1,5 @@
 #!/bin/bash
 
-PACMAN=$(which pacman)
 BINDIR=/usr/bin
 SBINDIR=/usr/sbin
 CONFDIR=/etc/bumblebee
