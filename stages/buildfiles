@@ -26,6 +26,7 @@ set_file() {
         install -D "$file" "$target"
         CONFIGURING_FILE="$target"
     else
+        echo "'$file' not found, ignoring."
         CONFIGURING_FILE=
     fi
 }
