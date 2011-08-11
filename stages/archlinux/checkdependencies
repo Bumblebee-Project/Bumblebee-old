@@ -1,12 +1,15 @@
 #!/bin/bash
 PACMAN=$(which pacman)
+failed=false
+
 conflictingpackages=('bumblebee' 'bumblebee-nouveau' 'bumblebee-nouveau-git' 'bumblebee-git' 'bumblebee-develop-git')
-for i in ${conflictingpackages[@]}
-do
+for i in "${conflictingpackages[@]}"; do
     if $PACMAN -Qq "$i" &>/dev/null ; then
         echo "Please uninstall conflicting package: $i"
+        failed=true
     fi
 done
+
 dependencies=('virtualgl-bin' 'dkms-nvidia' 'nvidia-utils-bumblebee')
 missing_dependencies=()
 for package in "${dependencies[@]}"; do
@@ -17,5 +20,7 @@ done
 if [ ${#missing_dependencies} -gt 0 ]; then
     echo "Missing dependencies: ${missing_dependencies[*]}"
     echo "These packages are available from the AUR"
-    exit 4
+    failed=true
 fi
+
+$failed && exit 4
