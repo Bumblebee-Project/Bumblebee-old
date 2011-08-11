@@ -89,9 +89,11 @@ def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 set_file install-files/bumblebee
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 
-set_file install-files/common-files
+set_file install-files/common-paths
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
 
 set_file "install-files/drivers/$DRIVER.options.$DISTRO" \
     "install-files/drivers/$DRIVER.options"
+
+set_file "install-files/xorg.conf.$DRIVER"
 sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
