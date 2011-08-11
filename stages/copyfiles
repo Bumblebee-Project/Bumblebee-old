@@ -10,9 +10,12 @@ install_file 644 common-functions "$LIBDIR"
 install_dir 755 "$LIBDIR/drivers"
 install_file 644 "drivers/$DRIVER.options" "$LIBDIR/drivers"
 
-install_file 755 bumblebee "$SBINDIR"
+# Do not use install_dir "$SBINDIR" as this may mess with permissions. /file
+# after "$SBINDIR" is necessary to prevent the file "$SBINDIR" being created if
+# the directory "$SBINDIR" does not exist. The same goes for optirun below
+install_file 755 bumblebee "$SBINDIR/bumblebee"
 
-install_file 755 optirun "$BINDIR"
+install_file 755 optirun "$BINDIR/optirun"
 install_file 755 bumblebee-bugreport "$BINDIR"
 
 install_file 755 bumblebee.handler "$INITDIR/bumblebee"
