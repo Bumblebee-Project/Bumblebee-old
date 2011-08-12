@@ -1,32 +1,21 @@
-# This may improve performance as the server does not add pointing devices
-# and keyboards.
 Section "ServerLayout"
     Identifier     "Layout0"
     Option         "AutoAddDevices" "false"
 EndSection
 
-# for options, see the below link (replace 280.13 by your driver version):
-# http://download.nvidia.com/XFree86/FreeBSD-x86/280.13/README/xconfigoptions.html
 Section "Device"
     Identifier     "Device1"
     Driver         "nvidia"
     VendorName     "NVIDIA Corporation"
-    # The PCI Bus ID will be inserted by the installer
     BusID          ""
-    # XXX: Previously, IgnoreEDID was set, but why?
     Option         "UseEDID" "false"
-    # By default, set to DFP,CRT to work for everyone
-    # bumblebee-configuration set it to the correct value
     Option          "ConnectedMonitor" "DFP,CRT"
 EndSection
 
-# Composite is enabled by default but I'll keep it for now
 Section "Extensions"
     Option "Composite" "Enable"
 EndSection
 
 Section "Files"
-    # This is a per-distro path and depends on nvidia packaging.
-    # It is filled by the installer
     ModulePath ",/usr/lib/xorg/modules"
 EndSection
