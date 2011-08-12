@@ -4,7 +4,7 @@
 
 
 set_file install-files/bumblebee-uninstall
-def_var CONFDIR
+def_var CONFDIR "$CONFDIR"
 uninstall_cmds=
 
 # Uninstallation targets are added in reverse, so directories will be removed
