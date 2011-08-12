@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Use of file descriptors:
+# 8 - pid file checking, it's closed after use
+# 3 - fifo polling
+# 5 - log file
+
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 . "$BUMBLEBEE_LIBDIR/common-paths"
@@ -9,13 +14,30 @@ load_settings
 
 # Log a message to our log file
 log_daemon_msg() {
-    # should log it to a file
-    echo "$1"
+    # the first number is the uptime in seconds
+    printf '[%10s] %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$1" >&5
 }
 
 # Initialize a log file. If present save it to an old one.
-init_log() {
-    :
+log_init() {
+    # if the log exists and is non-empty...
+    if [ -s "$BUMBLEBEE_LOGFILE" ]; then
+        # start a new file if the file has more than 100 lines
+        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 100 ]; then
+            mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
+        fi
+    fi
+    # Open logfile for appending
+    exec 5>> "$BUMBLEBEE_LOGFILE"
+
+    # log initial message
+    log_daemon_msg "Bumblebee log started at $(date -R)"
+}
+
+# Write the a message along with the time and close the logfile
+log_close() {
+    log_daemon_msg "Bumblebee log ended on $(date -R)"
+    exec 5>&-
 }
 
 # Start Bumblebee's X server running on the nvidia card
@@ -119,10 +141,13 @@ stop_x() {
     return 0
 }
 
+# Called on receiving a signal like TERM
 stop_daemon() {
     stop_x
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
+    log_close
+    exit 0
 }
 
 start_daemon() {
@@ -159,6 +184,9 @@ start_daemon() {
 
     # cleanup on exit
     trap stop_daemon EXIT
+
+    # open the logfile for log_daemon_msg
+    log_init
 
     # ok, bye old fifo if any
     rm -f "$BUMBLEBEE_FIFO"

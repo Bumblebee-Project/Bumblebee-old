@@ -190,6 +190,7 @@ load_settings() {
     DRIVER=nvidia
     X_CONFFILE=
     BUMBLEBEE_GROUP=bumblebee
+    BUMBLEBEE_LOGFILE=/var/log/bumblebee.log
     . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
 
     # allow the user to specify a custom xorg path, otherwise base on driver
