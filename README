@@ -1,4 +1,4 @@
-Bumblebee's next stable release is staged for this week (August 12th - 14th) if
+Bumblebee's next stable release (1.8) is staged for this week (August 12th - 14th) if
 there are no blockers.
 
 Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
@@ -6,9 +6,8 @@ Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
 
 Users who want to test the development code should run:
 
-    git clone git://github.com/Bumblebee-Project/Bumblebee.git
+    git clone git://github.com/Bumblebee-Project/Bumblebee.git -b develop --depth 1
     cd Bumblebee
-    git checkout develop
     sudo ./cleanup
     sudo ./install
 
