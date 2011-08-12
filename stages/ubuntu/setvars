@@ -1,2 +1,2 @@
 #!/bin/bash
-XORG_MODULEPATH=/usr/lib/nvidia-current,/usr/lib/xorg/modules
+XORG_MODULEPATH=/usr/lib/nvidia-current/xorg,/usr/lib/xorg/modules
