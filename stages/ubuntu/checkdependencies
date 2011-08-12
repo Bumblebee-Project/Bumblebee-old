@@ -9,7 +9,7 @@ pkg_is_installed() {
 
 for package in "${dependencies[@]}"; do
     if ! pkg_is_installed "$package"; then
-        missing_dependencies[${#missing_dependencies}]="$package"
+        missing_dependencies[${#missing_dependencies[@]}]="$package"
     fi
 done
 
@@ -24,7 +24,7 @@ if [ -f /etc/bumblebee ]; then
     failed=true
 fi
 
-if [ ${#missing_dependencies} -gt 0 ]; then
+if [ ${#missing_dependencies[@]} -gt 0 ]; then
     # bumblebee is unlikely to be installed with missing these dependencies, so
     # we can skip checks whether we've installed the bumblebee package or not
     echo "Missing dependencies: ${missing_dependencies[*]}"

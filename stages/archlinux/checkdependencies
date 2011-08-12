@@ -14,10 +14,10 @@ dependencies=('virtualgl-bin' 'dkms-nvidia' 'nvidia-utils-bumblebee')
 missing_dependencies=()
 for package in "${dependencies[@]}"; do
     if ! "$PACMAN" -Qq "$package" &>/dev/null; then
-        missing_dependencies[${#missing_dependencies}]="$package"
+        missing_dependencies[${#missing_dependencies[@]}]="$package"
     fi
 done
-if [ ${#missing_dependencies} -gt 0 ]; then
+if [ ${#missing_dependencies[@]} -gt 0 ]; then
     echo "Missing dependencies: ${missing_dependencies[*]}"
     echo "These packages are available from the AUR"
     failed=true
