@@ -61,7 +61,7 @@ fi
 if ! $UNATTENDED; then
     echo "You are about to uninstall Bumblebee."
     read -p "Continue [y/N]? " yn
-    if [ $yn != [Yy]* ]]; then
+    if [[ $yn != [Yy]* ]]; then
         echo "Aborted."
         exit 1
     fi
