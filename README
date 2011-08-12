@@ -17,6 +17,9 @@
 #
 ### END LICENSE
 
+
+### About Bumblebee
+
 This is Bumblebee 2.3, our effort to bring Optimus support to GNU/Linux 
 Operative Systems.
 
@@ -31,13 +34,20 @@ in developpement.
 Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
 #bumblebee on Freenode if you wish to help testing and creating the installer.
 
-First of all: If you have any problem, please create a bug report package
-with the bumblebee-bugreport tool.
 
-Then create an issue on GitHub.
+### Reporting bugs/problems
+
+First of all: If you have any problem, please read this article:
+https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
+
+Then create a bug report package with the bumblebee-bugreport tool and open an 
+issue on GitHub.
 
 This project have had great succes and we need to have a way to easily manage
 support problems.
+
+
+### Installation
 
 There are several ways to start using bumblebee :
 
@@ -53,6 +63,8 @@ If you want newer drivers than the one available in your distro repo, then do :
 3. sudo apt-get install bumblebee
 
 Arch Linux :
+AUR package: http://aur.archlinux.org/packages.php?ID=49469
+Instructions in the ArchWiki: https://wiki.archlinux.org/index.php/Bumblebee
 
 Or by a script install :
 
