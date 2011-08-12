@@ -46,7 +46,7 @@ install_step buildfiles "Building files"
 install_step copyfiles "Installing Bumblebee"
 install_step "$DISTRO/copyfiles"
 
-install_step createuninstall "Creating uninstaller"
+install_step createuninstaller "Creating uninstaller"
 
 install_step configure "Configuring"
 install_step "$DISTRO/configure"

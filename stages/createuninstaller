@@ -4,6 +4,24 @@
 
 
 set_file install-files/bumblebee-uninstall
-#"$CONFIGURING_FILE"
+def_var CONFDIR
+uninstall_cmds=
 
+# Uninstallation targets are added in reverse, so directories will be removed
+# after files
+for dir in "${INSTALLED_DIRS[@]}"; do
+    # Escape single quotes to prevent syntax errors when using weird paths
+    dir="${dir//'/'\\''}"
+    # concatenate uninstallation targets
+    uninstall_cmds="$(printf "uninstall_dir '%s'\n%s" "$dir" "$uninstall_cmds")"
+done
+
+for file in "${INSTALLED_FILES[@]}"; do
+    # Escape single quotes to prevent syntax errors when using weird paths
+    file="${file//'/'\\''}"
+    # concatenate uninstallation targets
+    uninstall_cmds="$(printf "uninstall '%s'\n%s" "$file" "$uninstall_cmds")"
+done
+
+sreplace '^# REPLACE WITH UNINSTALL COMMANDS' '%s' "$uninstall_cmds"
 install_file 755 bumblebee-uninstall "$BINDIR"
