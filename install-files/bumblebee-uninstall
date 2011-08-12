@@ -14,6 +14,7 @@
 
 UNATTENDED=false
 KEEP_CONFFILE=false
+CONFDIR=/etc/bumblebee
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -42,6 +43,7 @@ while [ $# -gt 0 ]; do
         echo "Ignored unrecognized option: '$1'"
         ;;
     esac
+    shift
 done
 
 if (( EUID != 0 )); then
@@ -68,5 +70,23 @@ fi
 echo "Stopping services..."
 /etc/init.d/bumblebee stop
 
+uninstall() {
+    local file="$1"
+    if $KEEP_CONFFILE && [[ $file == "$CONFDIR/"* ]]; then
+        echo "Not removing $file"
+        return
+    fi
+    rm -vf "$1"
+}
+uninstall_dir() {
+    local dir="$1"
+    rmdir -v "$1"
+}
+
 # Begin uninstallation of files
 # REPLACE WITH UNINSTALL COMMANDS
+
+# XXX: check if I am allowed to be removed
+# remove myself. Note: do not source this fill, or /bin/bash will be removed!
+rm -f "$0"
+echo "Bumblebee has been uninstalled."
