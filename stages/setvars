@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
 MODPROBE=$(which modprobe)
@@ -92,11 +91,11 @@ for arg; do
         invalid_stages=()
         for stage in "${SKIP_STAGES[@]}"; do
             if [ ! -f "stages/$stage" ]; then
-                invalid_stages[${#invalid_stages}]="$stage"
+                invalid_stages[${#invalid_stages[@]}]="$stage"
             fi
         done
 
-        if [ ${#invalid_stages} -gt 0 ]; then
+        if [ ${#invalid_stages[@]} -gt 0 ]; then
             echo "Invalid stages: ${invalid_stages[*]}"
             echo "Try '$0 --help' for more information."
             exit 255
@@ -159,7 +158,7 @@ install_file() {
     [ ! -f "$prefix/$source" ] && prefix=install-files
     if [ -f "$prefix/$source" ]; then
         install -D -m$mode "$prefix/$source" "$DESTDIR$target"
-        INSTALLED_FILES[${#INSTALLED_FILES}]="$target"
+        INSTALLED_FILES[${#INSTALLED_FILES[@]}]="$target"
     else
         echo "'$source' did not exist, ignoring"
     fi

@@ -43,8 +43,8 @@ NVIDIA_ARGS=( --no-x-check
             --opengl-prefix="$NVIDIA_LIBDIR" --opengl-libdir=. )
 
 if [ "$ARCH" = "x86_64" ]; then
-    NVIDIA_ARGS[${#NVIDIA_ARGS}]="--compat32-prefix=$NVIDIA_LIB32DIR"
-    NVIDIA_ARGS[${#NVIDIA_ARGS}]=--compat32-libdir=.
+    NVIDIA_ARGS[${#NVIDIA_ARGS[@]}]="--compat32-prefix=$NVIDIA_LIB32DIR"
+    NVIDIA_ARGS[${#NVIDIA_ARGS[@]}]=--compat32-libdir=.
 fi
 
 "${TMPDIR}/nvidia/nvidia-installer" "${NVIDIA_ARGS[@]}"
