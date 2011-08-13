@@ -35,18 +35,6 @@ Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
 #bumblebee on Freenode if you wish to help testing and creating the installer.
 
 
-### Reporting bugs/problems
-
-First of all: If you have any problem, please read this article:
-https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
-
-Then create a bug report package with the bumblebee-bugreport tool and open an 
-issue on GitHub.
-
-This project have had great succes and we need to have a way to easily manage
-support problems.
-
-
 ### Installation
 
 There are several ways to start using bumblebee :
@@ -86,6 +74,18 @@ Users who want to test the development code should run:
     cd Bumblebee
     sudo ./cleanup
     sudo ./install
+
+
+### Reporting bugs/problems
+
+First of all: If you have any problem, please read this article:
+https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
+
+Then create a bug report package with the bumblebee-bugreport tool and open an 
+issue on GitHub.
+
+This project have had great succes and we need to have a way to easily manage
+support problems.
 
 Status updates can be found here on twitter: http://twitter.com/Team_Bumblebee
 
