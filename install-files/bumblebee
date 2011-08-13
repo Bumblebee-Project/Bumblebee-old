@@ -85,6 +85,13 @@ start_x() {
         ;;
     esac
 
+    # XXX: forward the output / stderr to some log
+    # enable the card and load drivers
+    if ! enable_graphics; then
+        log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+        return 1
+    fi
+
     log_daemon_msg "Starting X..."
 
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
@@ -153,6 +160,12 @@ stop_x() {
     esac
 
     log_daemon_msg "X has been stopped."
+
+    if ! disable_graphics; then
+        log_daemon_msg "The card could not be disabled or the drivers failed to unload."
+        log_daemon_msg "Perhaps an other program is utilizing the card."
+    fi
+
     # Everything OK, We are gone!
     return 0
 }
