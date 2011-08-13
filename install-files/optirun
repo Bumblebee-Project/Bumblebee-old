@@ -114,6 +114,13 @@ optirun_ready() {
       0) # X is started
         ;;
       [12]) # Not started yet
+        # XXX: a better way to check if the daemon is running
+        if [ ! -e "$BUMBLEBEE_FIFO" ]; then
+            msg "The Bumblebee daemon has not been started. To start the daemon, run:"
+            # XXX: distro-dependant command
+            msg "    sudo /etc/init.d/bumblebee start"
+            return 1
+        fi
         if [ ! -w "$BUMBLEBEE_FIFO" ]; then
             msg "You have no permission to start the Bumblebee X server. Add"
             msg "yourself to the '$BUMBLEBEE_GROUP' group."
