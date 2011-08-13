@@ -2,7 +2,7 @@
 # Beware: this file is processed by stages/buildfiles
 
 # check if nouveau is not blacklisted or commented
-if grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
+if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
     # blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
     # blacklist.conf or nvidia.conf (OpenSUSE)
     echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
