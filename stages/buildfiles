@@ -6,12 +6,14 @@
 # Subject file for replacements by subst_var and def_var
 CONFIGURING_FILE=
 
-# Escapes \, & and , to prevent the sed expression from failing
+# Escapes \, & and , and newlines to prevent the sed expression from failing
 sed_escape() {
     local data="$1"
     data="${data//\\/\\\\}"
     data="${data//&/\\&}"
     data="${data//,/\\,}"
+    data="${data//
+/\n}"
     echo "$data"
 }
 

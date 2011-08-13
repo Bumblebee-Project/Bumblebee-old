@@ -1,22 +1,23 @@
 #!/bin/bash
+# When adding a target, you'll need to provide the *full* path to the target,
+# otherwise the uninstaller will get confused
+
 install_dir 755 "$CONFDIR"
-install_file 644 bumblebee.conf "$CONFDIR"
-install_file 644 xorg.conf.nvidia "$CONFDIR"
+install_file 644 bumblebee.conf "$CONFDIR/bumblebee.conf"
+install_file 644 "xorg.conf.$DRIVER" "$CONFDIR/xorg.conf.$DRIVER"
 
 install_dir 755 "$LIBDIR"
-install_file 644 common-paths "$LIBDIR"
-install_file 644 common-functions "$LIBDIR"
+install_file 644 common-paths "$LIBDIR/common-paths"
+install_file 644 common-functions "$LIBDIR/common-functions"
 
 install_dir 755 "$LIBDIR/drivers"
-install_file 644 "drivers/$DRIVER.options" "$LIBDIR/drivers"
+install_file 644 "drivers/$DRIVER.options" "$LIBDIR/drivers/$DRIVER.options"
 
-# Do not use install_dir "$SBINDIR" as this may mess with permissions. /file
-# after "$SBINDIR" is necessary to prevent the file "$SBINDIR" being created if
-# the directory "$SBINDIR" does not exist. The same goes for optirun below
+# Do not use install_dir "$SBINDIR" as this may mess with permissions.
 install_file 755 bumblebee "$SBINDIR/bumblebee"
 
 install_file 755 optirun "$BINDIR/optirun"
-install_file 755 bumblebee-bugreport "$BINDIR"
+install_file 755 bumblebee-bugreport "$BINDIR/bumblebee-bugreport"
 
 install_file 755 bumblebee.handler "$INITDIR/bumblebee"
 
@@ -24,4 +25,4 @@ install_file 755 bumblebee.handler "$INITDIR/bumblebee"
 #install_file 644 optirun.bash_completion /etc/bash_completion.d/optirun
 
 # whenever possible, the below scripts should be integrated in a package manager
-install_file 755 bumblebee-configuration "$BINDIR"
+install_file 755 bumblebee-configuration "$BINDIR/bumblebee-configuration"

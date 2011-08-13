@@ -57,7 +57,7 @@ Ubuntu :
 1. sudo add-apt-repository ppa:bumblebee/stable
 
 If you want newer drivers than the one available in your distro repo, then do :
-1bis. sudo add-apt-repository ppa:x-swat/update
+1bis. sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
 
 2. sudo apt-get update
 3. sudo apt-get install bumblebee

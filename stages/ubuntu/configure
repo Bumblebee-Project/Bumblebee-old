@@ -14,3 +14,6 @@ if update-alternatives --list gl_conf &>/dev/null; then
 fi
 
 ldconfig
+
+# Install the service
+update-rc.d bumblebee defaults

@@ -1,4 +1,25 @@
 #!/bin/bash
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
+
+# Use of file descriptors:
+# 8 - pid file checking, it's closed after use
+# 3 - fifo polling
+# 5 - log file
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
@@ -9,13 +30,30 @@ load_settings
 
 # Log a message to our log file
 log_daemon_msg() {
-    # should log it to a file
-    echo "$1"
+    # the first number is the uptime in seconds
+    printf '[%10s] %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$1" >&5
 }
 
 # Initialize a log file. If present save it to an old one.
-init_log() {
-    :
+log_init() {
+    # if the log exists and is non-empty...
+    if [ -s "$BUMBLEBEE_LOGFILE" ]; then
+        # start a new file if the file has more than 100 lines
+        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 100 ]; then
+            mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
+        fi
+    fi
+    # Open logfile for appending
+    exec 5>> "$BUMBLEBEE_LOGFILE"
+
+    # log initial message
+    log_daemon_msg "Bumblebee log started at $(date -R)"
+}
+
+# Write the a message along with the time and close the logfile
+log_close() {
+    log_daemon_msg "Bumblebee log ended on $(date -R)"
+    exec 5>&-
 }
 
 # Start Bumblebee's X server running on the nvidia card
@@ -119,10 +157,13 @@ stop_x() {
     return 0
 }
 
+# Called on receiving a signal like TERM
 stop_daemon() {
     stop_x
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
+    log_close
+    exit 0
 }
 
 start_daemon() {
@@ -159,6 +200,9 @@ start_daemon() {
 
     # cleanup on exit
     trap stop_daemon EXIT
+
+    # open the logfile for log_daemon_msg
+    log_init
 
     # ok, bye old fifo if any
     rm -f "$BUMBLEBEE_FIFO"
@@ -204,12 +248,12 @@ start_daemon() {
 status_daemon() {
     # Check for pid file available
     if [ ! -f "$BUMBLEBEE_PIDFILE" ]; then
-        log_daemon_msg "No pidfile could be found. Bumblebee daemon is not running"
+        echo "No pidfile could be found. Bumblebee daemon is not running"
         return 2
     fi
     # Pidfile available but no bumblebee running, we screwed somewhere
     if ! pidof -x -o $$ "$(readlink -e "$0")" >/dev/null; then
-        log_daemon_msg "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
+        echo "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
         return 2
     fi
 
@@ -223,13 +267,13 @@ status_daemon() {
         return 1
         ;;
       3) # driver crash
-        log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
-        log_daemon_msg "Reboot the machine if you want to use Bumblebee"
+        echo "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        echo "Reboot the machine if you want to use Bumblebee"
         return 3
         ;;
       4) # another X is running, not ours
-        log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
-        log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        echo "Display $VGL_DISPLAY is already in use by an other program."
+        echo "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 3
         ;;
     esac
@@ -240,10 +284,11 @@ show_version_msg() {
     cat <<EOF
 Bumblebee version ${BUMBLEBEE_VERSION}
 
-Licenced under GNU GPL v3, "Beer-ware License" and "Red Bull License"
-as published by Martin Juhl.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
 
-More info at: https://github.com/Bumblebee-Project/Bumblebee
+Website: https://launchpad.net/~bumblebee
 EOF
 }
 

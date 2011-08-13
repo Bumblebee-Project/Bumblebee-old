@@ -140,12 +140,14 @@ done
 
 # files installed by the installer, useful for uninstalling
 INSTALLED_FILES=()
+INSTALLED_DIRS=()
 
 # Creates a directory on the target system
 install_dir() {
     local mode=$1
     local target="$2"
     install -d -m$mode "$DESTDIR$target"
+    INSTALLED_DIRS[${#INSTALLED_DIRS[@]}]="$target"
 }
 
 # Copies a file to the target system, using a configured file if needed. This

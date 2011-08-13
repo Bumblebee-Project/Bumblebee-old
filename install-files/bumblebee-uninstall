@@ -1,6 +1,20 @@
 #!/bin/bash
-# Bumblebee uninstaller
-# Author: Lekensteyn <lekensteyn@gmail.com>
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
 # The line below should never be removed and should match regex: *# *BEE..
 # BEE_UNINSTALLER_NEW DO NOT REMOVE THIS LINE
@@ -14,6 +28,7 @@
 
 UNATTENDED=false
 KEEP_CONFFILE=false
+CONFDIR=/etc/bumblebee
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -42,6 +57,7 @@ while [ $# -gt 0 ]; do
         echo "Ignored unrecognized option: '$1'"
         ;;
     esac
+    shift
 done
 
 if (( EUID != 0 )); then
@@ -59,7 +75,7 @@ fi
 if ! $UNATTENDED; then
     echo "You are about to uninstall Bumblebee."
     read -p "Continue [y/N]? " yn
-    if [ $yn != [Yy]* ]]; then
+    if [[ $yn != [Yy]* ]]; then
         echo "Aborted."
         exit 1
     fi
@@ -68,5 +84,23 @@ fi
 echo "Stopping services..."
 /etc/init.d/bumblebee stop
 
+uninstall() {
+    local file="$1"
+    if $KEEP_CONFFILE && [[ $file == "$CONFDIR/"* ]]; then
+        echo "Not removing $file"
+        return
+    fi
+    rm -vf "$1"
+}
+uninstall_dir() {
+    local dir="$1"
+    rmdir -v "$1"
+}
+
 # Begin uninstallation of files
 # REPLACE WITH UNINSTALL COMMANDS
+
+# XXX: check if I am allowed to be removed
+# remove myself. Note: do not source this fill, or /bin/bash will be removed!
+rm -f "$0"
+echo "Bumblebee has been uninstalled."
