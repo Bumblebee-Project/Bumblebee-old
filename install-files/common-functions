@@ -58,11 +58,11 @@ get_graphics_driver() {
 get_conflicting_drivers() {
     local driver="$1"
     case "$driver" in
-      nvidia)
+      nvidia|nvidia-current)
         echo "nouveau"
         ;;
       nouveau)
-        echo "nvidia"
+        echo "nvidia nvidia-current"
         ;;
     esac
 }
