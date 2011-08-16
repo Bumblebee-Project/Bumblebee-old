@@ -65,7 +65,7 @@ start_x() {
     log_daemon_msg "Checking for X server availability..."
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
-      0) # already started
+      [05]) # already started
         log_daemon_msg "X server is already started"
         return 0
         ;;
@@ -101,19 +101,32 @@ start_x() {
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
     log_daemon_msg "Waiting for X server to start..."
-    # wait for at most three seconds before the server has started
-    local retries=0
+    local retries max_retry_count=8
     # wait until the PIDFILE has become available (X is started)
-    while [ ! -s "$PIDFILE" -a $retries -lt 6 ]; do
-        ((retries++))
-        sleep .5
+    for ((retries=0; retries<$max_retry_count; retries++)); do
+        xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+        case $? in
+          [15]) sleep .5 ;; # not ready
+          *) break;; # no need for polling anymore
+        esac
     done
 
     # fail if the X server is not running
-    if ! xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS"; then
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # OK
+        log_daemon_msg "X needed $retries retries to become ready"
+        ;;
+      5)
+        log_daemon_msg "X has not become ready after $max_retry_count retries with delays of 500ms"
+        log_daemon_msg "This could be a bug in X, please check $X_LOGFILE"
+        return 1
+        ;;
+      *)
         log_daemon_msg "The Bumblebee X server failed to start. Please check $X_LOGFILE"
         return 1
-    fi
+        ;;
+    esac
 
     log_daemon_msg "X has started."
     # Everything is OK, X has started

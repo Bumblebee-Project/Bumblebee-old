@@ -111,7 +111,10 @@ show_msg() {
 optirun_ready() {
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
     case $? in
-      0) # X is started
+      0) # X is started and available
+        return 0
+        ;;
+      5) # started but not ready
         ;;
       [12]) # Not started yet
         # XXX: a better way to check if the daemon is running
@@ -127,13 +130,6 @@ optirun_ready() {
             return 1
         fi
         echo start > "$BUMBLEBEE_FIFO"
-
-        # Wait for at most 3.5 seconds before X is available
-        local retries
-        for ((retries=7; retries; retries--)); do
-            xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
-                > /dev/null && return 0
-        done
         ;;
       3) # xserver / driver crash
         return 1
@@ -142,7 +138,17 @@ optirun_ready() {
         return 1
         ;;
     esac
-    return 0
+    # Wait for at most 4.5 seconds before X is available since the daemon waits
+    # too
+    local retries
+    for ((retries=9; retries; retries--)); do
+        xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
+            > /dev/null && return 0
+        sleep .5
+    done
+
+    # at this point, the timeout for the server to become available has reached
+    return 1
 }
 # Launch an application on the nVidia card
 # return values do not make sense since it could come from the app as well
