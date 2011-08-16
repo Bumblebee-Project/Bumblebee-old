@@ -7,16 +7,16 @@ Section "Device"
     Identifier     "Device1"
     Driver         "nvidia"
     VendorName     "NVIDIA Corporation"
-    Option         "NoLogo" "true"
     BusID          ""
+    Option         "NoLogo" "true"
     Option         "UseEDID" "false"
-    Option          "ConnectedMonitor" "DFP,CRT"
+    Option         "ConnectedMonitor" "DFP,CRT"
 EndSection
 
 Section "Extensions"
-    Option "Composite" "Enable"
+    Option         "Composite" "Enable"
 EndSection
 
 Section "Files"
-    ModulePath ",/usr/lib/xorg/modules"
+    ModulePath     ""
 EndSection
