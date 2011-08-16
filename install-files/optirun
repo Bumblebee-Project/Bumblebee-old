@@ -24,7 +24,39 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 load_settings
 
 show_help_msg() {
-    :
+    cat <<EOF
+Usage: ${0##*/} [options] [--] application
+Start an application which may use the nVidia graphics card
+
+  -f
+    Force the use of the nVidia graphics card, even when off-line (running on a
+    battery)
+
+  -c TYPE
+    Sets the compress type for the transport from the nVidia graphics card to
+    the display. Valid values are 'proxy' and 'xv'. This option can be set in
+    the configuration file too. If not set in the configuration file using the
+    'VGL_COMPRESS' option, it defaults to 'proxy'
+
+  -d DISPLAY
+    Set the display on which the Bumblebee X server is available. If not set in
+    the configuration file using the 'VGL_DISPLAY' option, it defaults to ':8'.
+    Do not confuse this with the DISPLAY environment variable which specifies
+    the display on which an application should be drawn
+
+  --silent
+    Do not print messages from optirun. Note: fatal errors (invalid command
+    options) are still printed
+
+  --debug-log=LOG
+  --debug-log LOG
+    Sets the environment options VGL_LOG=LOG and VGL_VERBOSE=1 to log messages
+    from VirtualGL to file LOG. If LOG is empty, messages will be printed to
+    standard output
+
+  --help
+    Prints this help message
+EOF
 }
 
 # only print a message if the user wants to
@@ -94,7 +126,8 @@ while :; do
         break
         ;;
       -*)
-        msg "Unknown parameter: $1"
+        echo "optirun: unrecognized option '$1'"
+        echo "Try '${0##*/}' --help for more information."
         exit 255
         ;;
       *)
@@ -109,6 +142,12 @@ done
 if [[ $0 =~ /optirun(32|64)$ ]]; then
     msg "Running ${0##*/} is deprecated as optirun detects automatically"
     msg "whether the 32-bit or 64-bit libraries should be used. Use optirun instead"
+fi
+
+if [ $# -eq 0 ]; then
+    echo "optirun: no application passed"
+    echo "Try '${0##*/}' --help for more information."
+    exit 255
 fi
 
 msg_shown=false
@@ -194,6 +233,7 @@ optirun_launcher() {
     # export settings from configuration file
     export VGL_LOG
     export VGL_READBACK
+    export VGL_VERBOSE
     vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 
     # notify the daemon that we are done
