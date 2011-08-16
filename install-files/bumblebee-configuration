@@ -41,7 +41,6 @@ ARCH=`uname -m`
 
 # Get tools location
 LSPCI="$(which lspci)"
-MODPROBE="$(which modprobe)"
 
 # Get terminal size
 LINES=`stty size | cut -f1 -d' '`
@@ -71,17 +70,17 @@ for driver in nvidia; do
     sed -E -i "$CONFDIR/xorg.conf.$driver" \
         -e "s,${re_busid},\1${NVIDIABUSID},"
 done
+echo
 
 CONNECTEDMONITOR="UNKNOWN"
 
 if [ "$DISTRO" == "UBUNTU" ] ; then
 
-    ${MODPROBE} nvidia-current
     query_info=$(LD_LIBRARY_PATH="$NVIDIA_LIBDIR" "$NVIDIA_LIBDIR"/bin/nvidia-xconfig --query-gpu-info)
     if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
         CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
     fi
-    ${MODPROBE} -r nvidia
+
 fi
 
 if [ "$CONNECTEDMONITOR" != "CRT-0" ] && [ "$CONNECTEDMONITOR" != "DFP-0" ];then
@@ -102,14 +101,16 @@ choice=$(whiptail --nocancel --menu \
     esac
 fi
 
+echo "Setting monitor in xorg.conf.nvidia..."
+echo
+
 sed -i "s/\([ \t]*Option[ \t]*\"ConnectedMonitor\"[ \t]*\)".*"/\1\"$CONNECTEDMONITOR\"/g" $CONFDIR/xorg.conf.nvidia
 
-
-
+echo "Updating rc.d"
 if [ "$DISTRO" == "UBUNTU" ] ; then
     update-rc.d bumblebee defaults
 fi
-
+echo
 
 LIST_SIZE=$(($LINES - 10))
 choice=$(whiptail --nocancel --menu --default-item 3 \
@@ -154,6 +155,7 @@ fi
 if [ "$DISTRO" == "UBUNTU" ] && [ -n "$SUDO_USER" ]; then
     gpasswd -a "$SUDO_USER" bumblebee
 fi
+echo
 
 #
 #    That's all folks
