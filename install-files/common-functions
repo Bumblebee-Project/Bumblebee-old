@@ -58,11 +58,11 @@ get_graphics_driver() {
 get_conflicting_drivers() {
     local driver="$1"
     case "$driver" in
-      nvidia)
+      nvidia|nvidia-current)
         echo "nouveau"
         ;;
       nouveau)
-        echo "nvidia"
+        echo "nvidia nvidia-current"
         ;;
     esac
 }
@@ -127,6 +127,7 @@ detect_distro() {
 # 2 - the pidfile exists, but is not valid and should be removed
 # 3 - Xorg was previously crashed by nvidia, reboot required
 # 4 - a X server has been detected, but it's not Bumblebee's one
+# 5 - X has started but cannot accept connections (yet)
 xserver_available() {
     local pidfile x_daemon x_daemon_args pid cmd
     pidfile="$1"
@@ -164,6 +165,18 @@ xserver_available() {
     # dirty: it justs checks the leading part, the display part is ignored
     if [[ $cmd == "$x_daemon $x_daemon_args"* ]]; then
         echo "$pid"
+        # gets the display number from the process path. Observations: :1-wtf,
+        # :wtf are allowed display names too. Let's just assume that everyone
+        # uses sane display numbers (:1). Additional note: the display number
+        # in the conffile may change during startup and shutdown
+        local display=":${cmd##* :}"
+        display="${display%% *}"
+
+        if ! xdpyinfo -display "$display" &>/dev/null; then
+            # X is not ready or you're not allowed to connect to it
+            return 5
+        fi
+
         return 0
     fi
 

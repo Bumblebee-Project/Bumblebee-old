@@ -84,6 +84,9 @@ fi
 echo "Stopping services..."
 /etc/init.d/bumblebee stop
 
+echo "Removing services..."
+update-rc.d -f bumblebee remove
+
 uninstall() {
     local file="$1"
     if $KEEP_CONFFILE && [[ $file == "$CONFDIR/"* ]]; then
