@@ -17,3 +17,6 @@ ldconfig
 
 # Install the service
 update-rc.d bumblebee defaults
+
+# Start the bumblebee daemon
+/etc/init.d/bumblebee start
