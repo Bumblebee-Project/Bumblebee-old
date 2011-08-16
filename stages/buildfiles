@@ -87,7 +87,7 @@ subst_var NVIDIABUSID
 subst_var CONFDIR
 
 set_file install-files/bumblebee.handler
-def_var BIN "$BINDIR/bumblebee"
+def_var BIN "$SBINDIR/bumblebee"
 
 set_file install-files/optirun
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
