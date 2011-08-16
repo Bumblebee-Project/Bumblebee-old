@@ -62,7 +62,7 @@ log_close() {
 # 1 - X server is not available
 start_x() {
     # is a X server running?
-    log_daemon_msg "Checking for X server availability..."
+    log_daemon_msg "Checking for X server availability before starting X..."
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
       [05]) # already started
@@ -70,7 +70,7 @@ start_x() {
         return 0
         ;;
       1) # not started, see below
-        log_daemon_msg "X server not started"
+        log_daemon_msg "X server is not started"
         ;;
       2) # ignore pidfile, start X
         log_daemon_msg "Pidfile does already exist and will be removed."
@@ -100,7 +100,7 @@ start_x() {
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
-    log_daemon_msg "Waiting for X server to start..."
+    log_daemon_msg "Waiting for X server to become available..."
     local retries max_retry_count=8
     # wait until the PIDFILE has become available (X is started)
     for ((retries=0; retries<$max_retry_count; retries++)); do
@@ -140,7 +140,7 @@ start_x() {
 stop_x() {
     local pid
     # is a X server running?
-    log_daemon_msg "Checking for X server availability..."
+    log_daemon_msg "Checking for X server availability before stopping it..."
     pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
     case $? in
       0) # It's our server, should stop it
