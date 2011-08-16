@@ -225,6 +225,7 @@ optirun_launcher() {
     if ! optirun_ready; then
         msg "The Bumblebee X server was not available, please check the"
         msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+        msg "=================================================="
         # If we cannot use the Bumblebee X server, run the program without it
         exec "$@"
         return
