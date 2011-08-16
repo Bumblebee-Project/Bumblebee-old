@@ -109,6 +109,22 @@ show_msg() {
 # 0 - the X server is available
 # 1 - the X server is unavailable
 optirun_ready() {
+    # Is the current user allowed to use Bumblebee?
+    # check if the user is a member of the group in this session
+    if ! id -Gn | tr ' ' '\n' | grep -Fxq "$BUMBLEBEE_GROUP"; then
+        # check if the user is a member according to the groups database
+        if getent group bumblebee | cut -d: -f4 | tr ',' '\n' |
+            grep -Fxq "$BUMBLEBEE_GROUP"; then
+            msg "You're already member of the '$BUMBLEBEE_GROUP' group, but"
+            msg "need to re-login to apply these changes.."
+        else
+            msg "You've no permission to start the Bumblebee X server. Add"
+            msg "yourself to the '$BUMBLEBEE_GROUP' group by running:"
+            msg "    sudo usermod -a -G $BUMBLEBEE_GROUP $(id -n)"
+        fi
+        return 1
+    fi
+
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
     case $? in
       0) # X is started and available
