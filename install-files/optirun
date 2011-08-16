@@ -33,6 +33,10 @@ msg() {
     $PRINT_MESSAGE "$1"
 }
 
+# only set VGL_LOG to empty if the variable was not defined, this allows the
+# user to set VGL_LOG= to get default behavior: write to stderr
+: "${VGL_LOG:=/dev/null}"
+
 while :; do
     case "$1" in
       -f)
@@ -73,6 +77,16 @@ while :; do
       --silent)
         # if $PRINT_MESSAGE is set to : (no-op), no messages will be displayed
         PRINT_MESSAGE=:
+        ;;
+      --debug-log=*|--debug-log)
+        VGL_VERBOSE=1
+        # note that empty values are allowed too, it will print errors to stderr
+        if [[ $1 == --debug-log ]]; then
+            shift 1
+            VGL_LOG="$1"
+        else
+            VGL_LOG="${1#--debug-log=}"
+        fi
         ;;
       --)
         # commonly found in parameters, usage: optirun -- -not -recognised -as -param
