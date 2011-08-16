@@ -150,7 +150,7 @@ stop_x() {
         fi
 
         # still running? ow, perhaps a driver crash :?
-        if kill -0 "$pid" >/dev/null; then
+        if kill -0 "$pid" 2>/dev/null; then
             log_daemon_msg "X could not be killed, perhaps the driver crashed?"
             return 1
         fi
