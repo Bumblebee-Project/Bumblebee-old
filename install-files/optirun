@@ -127,8 +127,8 @@ optirun_ready() {
     # check if the user is a member of the group in this session
     if ! id -Gn | tr ' ' '\n' | grep -Fxq "$BUMBLEBEE_GROUP"; then
         # check if the user is a member according to the groups database
-        if getent group bumblebee | cut -d: -f4 | tr ',' '\n' |
-            grep -Fxq "$BUMBLEBEE_GROUP"; then
+        if getent group "$BUMBLEBEE_GROUP" | cut -d: -f4 | tr ',' '\n' |
+            grep -Fxq "$(id -u -n)"; then
             msg "You're already member of the '$BUMBLEBEE_GROUP' group, but"
             msg "need to re-login to apply these changes.."
         else
