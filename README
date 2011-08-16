@@ -26,7 +26,7 @@ Operative Systems.
 With Bumblebee, 3D is enabled on both the Intel and the nVidia cards at the same time.
 
 The Intel card is running the Desktop and the nVidia card can be used for
-the thougher applications with the command "optirun <application>".
+the tougher applications with the command "optirun <application>".
 
 Support for automatically shutting down and starting up the nVidia card is
 in developpement.
