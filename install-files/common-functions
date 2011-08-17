@@ -32,8 +32,8 @@ IS_64=false
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
-# We would need some other way to retrieve version number
-BUMBLEBEE_VERSION=1.7.10
+# This version is set at installation time
+BUMBLEBEE_VERSION=DEV
 
 # retrieve the graphics kernel module to be used for the X server
 # Return values:
@@ -99,25 +99,6 @@ unload_graphics_driver() {
       "${MODPROBE}" -r "$driver" || return 1
     fi
     return 0
-}
-
-# Should detect distro by name in /etc/issue. Prints the result as
-# "distro-like". Returns 0 if supported distro 1 otherwise.
-detect_distro() {
-    local distro
-    for distro in fedora ubuntu opensuse debian 'arch linux' gentoo\
-        'linux mint' 'backtrack 5'; do
-        if grep -iq "$distro" /etc/issue; then
-            # remove whitespace
-            distro="${distro// }"
-            # these are just aliases for ubuntu
-            [[ $distro == linuxmint ]] && distro=ubuntu
-            [[ $distro == backtrack5 ]] && distro=ubuntu
-            echo "$distro"
-            return 0
-        fi
-    done
-    return 1
 }
 
 # Check if the X server is available based on a pidfile, daemon and args.
@@ -216,7 +197,6 @@ load_settings() {
     STOP_SERVICE_ON_EXIT=y
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
-    VGL_READBACK=pbo
     ECO_MODE=0
     DRIVER=nvidia
     X_CONFFILE=

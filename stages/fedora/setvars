@@ -1,2 +1,4 @@
 #!/bin/bash
 NVIDIA_LIB64DIR=/usr/lib64/nvidia-current
+CMD_SVC_STOP='service bumblebee stop'
+CMD_SVC_REMOVE='chkconfig --del bumblebee'

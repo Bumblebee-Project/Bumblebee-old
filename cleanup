@@ -184,4 +184,5 @@ for junk_dirs in \
     [ -d "$junk_dirs" ] && rm -rvf "$junk_dirs"
 done
 
+rm -f /etc/bumblebee
 echo "Done"

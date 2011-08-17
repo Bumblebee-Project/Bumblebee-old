@@ -26,7 +26,7 @@ start() {
       1) ;; # already running and X is available
       3) ;; # already running, but X server cannot be started
       2) # Can be started
-        "$BIN" -d &>/dev/null &
+        "$BIN" -d >/dev/null 2>&1 &
         # Print a per-distro success message
         echo "Starting daemon..."
         ;;

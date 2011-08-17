@@ -1,22 +1,18 @@
 Section "ServerLayout"
-    Identifier     "Layout0"
-    Option         "AutoAddDevices" "false"
-EndSection
-
-Section "Device"
-    Identifier     "Device1"
-    Driver         "nvidia"
-    VendorName     "NVIDIA Corporation"
-    BusID          ""
-    Option         "NoLogo" "true"
-    Option         "UseEDID" "false"
-    Option         "ConnectedMonitor" "DFP,CRT"
-EndSection
-
-Section "Extensions"
-    Option         "Composite" "Enable"
+    Identifier "Layout0"
+    Option "AutoAddDevices" "false"
 EndSection
 
 Section "Files"
-    ModulePath     ""
+    ModulePath ""
+EndSection
+
+Section "Device"
+    Identifier "Device1"
+    Driver "nvidia"
+    VendorName "NVIDIA Corporation"
+    BusID ""
+    Option "NoLogo" "true"
+    Option "UseEDID" "false"
+    Option "ConnectedMonitor" "DFP,CRT"
 EndSection

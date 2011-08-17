@@ -82,10 +82,10 @@ if ! $UNATTENDED; then
 fi
 
 echo "Stopping services..."
-/etc/init.d/bumblebee stop
+# REPLACE WITH STOP SERVICE
 
 echo "Removing services..."
-update-rc.d -f bumblebee remove
+# REPLACE WITH REMOVE SERVICE
 
 uninstall() {
     local file="$1"

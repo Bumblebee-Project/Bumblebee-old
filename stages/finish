@@ -16,6 +16,7 @@ echo "It can be downloaded from https://github.com/Bumblebee-Project/bumblebee-u
 echo
 echo "If you found a bug, have a suggestion or an issue, please create an issue at"
 echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+echo "You may also run bumblebee-bugreport if needed"
 echo
 echo "If you are not satisfied, you can uninstall Bumblebee by running:"
 echo "    $BINDIR/bumblebee-uninstall"

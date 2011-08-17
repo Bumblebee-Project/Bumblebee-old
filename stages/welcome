@@ -1,6 +1,6 @@
 #!/bin/bash
 if ! $UNATTENDED; then
-    echo "Welcome to the installation of Bumblebee version $(cat VERSION)"
+    echo "Welcome to the installation of Bumblebee version $BUMBLEBEE_VERSION"
     echo "Licensed under GPLv3"
     echo
     echo "This will enable you to utilize both your Intel and nVidia card"
