@@ -233,7 +233,6 @@ optirun_launcher() {
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
     # export settings from configuration file
     export VGL_LOG
-    export VGL_READBACK
     export VGL_VERBOSE
     vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 

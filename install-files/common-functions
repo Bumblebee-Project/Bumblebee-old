@@ -216,7 +216,6 @@ load_settings() {
     STOP_SERVICE_ON_EXIT=y
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
-    VGL_READBACK=pbo
     ECO_MODE=0
     DRIVER=nvidia
     X_CONFFILE=
