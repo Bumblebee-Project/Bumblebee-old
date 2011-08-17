@@ -161,7 +161,7 @@ show_msg() {
 # Ensures that the X server can be used. Return values:
 # 0 - the X server is available
 # 1 - the X server is unavailable
-# 1 - the X server is unavailable, user error
+# 2 - the X server is unavailable, user error
 optirun_ready() {
     # Is the current user allowed to use Bumblebee?
     # check if the user is a member of the group in this session
