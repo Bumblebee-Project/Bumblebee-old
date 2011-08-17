@@ -39,6 +39,9 @@ DRIVER=nvidia
 #    fi
 #done
 
+# The version to be installed
+BUMBLEBEE_VERSION="$(cat VERSION)"
+
 ANCIENTINSTALLATIONFOUND=false
 # Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
 # and before abused /etc/bumblebee for storing the version. In current versions

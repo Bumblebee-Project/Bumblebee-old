@@ -98,6 +98,9 @@ def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 set_file install-files/common-paths
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
 
+set_file install-files/common-functions
+def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
+
 set_file "install-files/drivers/$DRIVER.options.$DISTRO" \
     "install-files/drivers/$DRIVER.options"
 

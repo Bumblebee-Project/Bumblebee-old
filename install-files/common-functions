@@ -32,8 +32,8 @@ IS_64=false
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
-# We would need some other way to retrieve version number
-BUMBLEBEE_VERSION=1.7.10
+# This version is set at installation time
+BUMBLEBEE_VERSION=DEV
 
 # retrieve the graphics kernel module to be used for the X server
 # Return values:
