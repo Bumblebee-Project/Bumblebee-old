@@ -173,6 +173,10 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+# Commands (for now, used in uninstaller)
+CMD_SVC_STOP="$INITDIR/bumblebee stop"
+CMD_SVC_REMOVE=
+
 # files installed by the installer, useful for uninstalling
 INSTALLED_FILES=()
 INSTALLED_DIRS=()

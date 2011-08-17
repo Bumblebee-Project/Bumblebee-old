@@ -8,3 +8,4 @@ INITDIR=/etc/rc.d
 #NVIDIA_LIB32DIR=/usr/lib/nvidia-current
 #NVIDIA_LIB64DIR=/usr/lib/nvidia-current
 XORG_MODULEPATH=/usr/lib/nvidia-bumblebee,/usr/lib/xorg/modules
+CMD_SVC_STOP='rc.d stop bumblebee'
