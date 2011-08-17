@@ -117,26 +117,14 @@ choice=$(whiptail --nocancel --menu --default-item 3 \
 " The Image Transport is how the images are transferred from the\n"\
 "nVidia card to the Intel card, people has different experiences of\n"\
 "performance, but just select the default if you are in doubt.\n\n"\
-"I recently discovered that yuv and jpeg both has some lagging\n"\
-"this is only noticable in fast moving games, such as 1st person\n"\
-"shooters and for me, its only good enough with xv, even though\n"\
-"xv brings down performance a little." $LINES $COLUMNS $LIST_SIZE 1 "YUV" 2 "JPEG" 3 "PROXY (Default)" 4 "XV" 5 "RGB" 3>&1 1>&2 2>&3)
+"If you're having problems with proxy, you may try xv instead." $LINES $COLUMNS $LIST_SIZE 1 "PROXY (Default)" 2 "XV" 3>&1 1>&2 2>&3)
 
 case "$choice" in
   1)
-    IMAGETRANSPORT="yuv"
-    ;;
-  2)
-    IMAGETRANSPORT="jpeg"
-    ;;
-  3)
     IMAGETRANSPORT="proxy"
     ;;
-  4)
+  2)
     IMAGETRANSPORT="xv"
-    ;;
-  5)
-    IMAGETRANSPORT="rgb"
     ;;
   *)
     IMAGETRANSPORT="proxy"
