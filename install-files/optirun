@@ -161,6 +161,7 @@ show_msg() {
 # Ensures that the X server can be used. Return values:
 # 0 - the X server is available
 # 1 - the X server is unavailable
+# 1 - the X server is unavailable, user error
 optirun_ready() {
     # Is the current user allowed to use Bumblebee?
     # check if the user is a member of the group in this session
@@ -175,7 +176,7 @@ optirun_ready() {
             msg "yourself to the '$BUMBLEBEE_GROUP' group by running:"
             msg "    sudo usermod -a -G $BUMBLEBEE_GROUP $(id -u -n)"
         fi
-        return 1
+        return 2
     fi
 
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
@@ -222,9 +223,13 @@ optirun_ready() {
 # Launch an application on the nVidia card
 # return values do not make sense since it could come from the app as well
 optirun_launcher() {
-    if ! optirun_ready; then
-        msg "The Bumblebee X server was not available, please check the"
-        msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+    optirun_ready
+    local optirun_retval=$?
+    if [ $optirun_retval -ne 0 ]; then
+        if [ $optirun_retval = 1 ]; then
+            msg "The Bumblebee X server was not available, please check the"
+            msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+        fi
         msg "=================================================="
         # If we cannot use the Bumblebee X server, run the program without it
         exec "$@"
