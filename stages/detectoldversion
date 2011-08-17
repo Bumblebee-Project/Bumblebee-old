@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Detect if cleanup is needed
+# Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
+# and before abused /etc/bumblebee for storing the version. In current versions
+# (Bumblebee-Project/Bumblebee), this is a directory for configuration files
+
+if [ -f /etc/bumblebee ]; then
+    echo "The installer detected an ancient installation of Bumblebee, possibly"
+    echo "from the PPA mj-casalogic/bumblebee or git MrMEEE/bumblebee. Since that"
+    echo "version has a lot of flaws, you will need to run the cleanup script"
+    echo "first which can be done by running: ./cleanup (as root or with sudo)."
+    exit 6
+fi
