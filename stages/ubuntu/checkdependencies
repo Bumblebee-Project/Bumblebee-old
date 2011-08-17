@@ -14,7 +14,10 @@ for package in "${dependencies[@]}"; do
 done
 
 failed=false
-# detect if cleanup is needed
+# Detect if cleanup is needed
+# Bumblebee 1.7.10 (MrMEEE/bumblebee) or 2.2.0 (ppa:mj-casalogic/bumblebee)
+# and before abused /etc/bumblebee for storing the version. In current versions
+# (Bumblebee-Project/Bumblebee), this is a directory for configuration files
 if [ -f /etc/bumblebee ]; then
     echo "The installer detected an ancient installation of Bumblebee, possibly"
     echo "from the PPA mj-casalogic/bumblebee or git MrMEEE/bumblebee. Since"
