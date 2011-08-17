@@ -24,20 +24,12 @@ SBINDIR=/usr/local/sbin
 CONFDIR=/etc/bumblebee
 LIBDIR=/usr/local/lib/bumblebee
 INITDIR=/etc/init.d
-NVIDIA_LIB32DIR=/usr/lib/nvidia-current
-NVIDIA_LIB64DIR=/usr/lib/nvidia-current
 XORG_MODULEPATH=/usr/lib/xorg/modules
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia')
-# the graphics driver to be loaded, defaults to nvidia
+# the graphics driver to be used, defaults to nvidia
 DRIVER=nvidia
-#for driver in nvidia-current nvidia; do
-#    if "${MODPROBE}" --dry-run --quiet $driver; then
-#        DRIVER=$driver
-#        break
-#    fi
-#done
 
 # The version to be installed
 BUMBLEBEE_VERSION="$(cat VERSION)"
