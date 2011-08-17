@@ -1,7 +1,6 @@
 #!/bin/bash
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
-MODPROBE=$(which modprobe)
 LSPCI=$(which lspci)
 
 IS_64=false
