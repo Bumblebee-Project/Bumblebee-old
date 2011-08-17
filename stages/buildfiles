@@ -53,6 +53,10 @@ subst_var() {
 def_var() {
     local varname="$1"
 
+    # quick-and-dirty fix to allow VAR[0]=VAL
+    varname="${varname//[/\\[}"
+    varname="${varname//]/\\]}"
+
     # escape single quote
     local data="${2//'/'\\''}"
 
@@ -97,6 +101,7 @@ def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 
 set_file install-files/common-paths
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
+def_var 'OPTIRUNS[0]' "$BINDIR/optirun"
 
 set_file install-files/common-functions
 def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
