@@ -45,13 +45,18 @@ ANCIENTINSTALLATIONFOUND=false
 # (Bumblebee-Project/Bumblebee), this is a directory for configuration files
 [ -f /etc/bumblebee ] && ANCIENTINSTALLATIONFOUND=true
 
-for arg; do
-    case "$arg" in
+while [ $# -gt 0 ]; do
+    case "$1" in
       --unattended)
         UNATTENDED=true
         ;;
-      --driver=*)
-        arg_driver="${arg##--driver=}"
+      --driver=*|--driver)
+        if [[ $1 == --driver ]]; then
+            shift
+            arg_driver="$1"
+        else
+            arg_driver="${1#--driver=}"
+        fi
         DRIVER=
         for driver in "${AVAILABLE_DRIVERS[@]}"; do
             if [[ $driver == "$arg_driver" ]]; then
@@ -64,23 +69,38 @@ for arg; do
             exit 255
         fi
         ;;
-      --dest-dir=*)
-        DESTDIR="${arg##--dest-dir=}"
+      --dest-dir=*|--dest-dir)
+        if [[ $1 == --dest-dir ]]; then
+            shift
+            DESTDIR="$1"
+        else
+            DESTDIR="${1#--dest-dir=}"
+        fi
         # Empty values are allowed which means "do not use a different root"
         if [ -n "$DESTDIR" -a ! -d "$DESTDIR" ]; then
             echo "The destination directory '$DESTDIR' must exist."
             exit 255
         fi
         ;;
-      --build-dir=*)
-        BUILDDIR="${arg##--build-dir=}"
+      --build-dir=*|--build-dir)
+        if [[ $1 == --build-dir ]]; then
+            shift
+            BUILDDIR="$1"
+        else
+            BUILDDIR="${1#--build-dir=}"
+        fi
         if [ ! -d "$BUILDDIR" ]; then
             echo "The build directory '$BUILDDIR' must exist."
             exit 255
         fi
         ;;
-      --skip-stages=*)
-        SKIP_STAGES="${arg##--skip-stages=}"
+      --skip-stages=*|--skip-stages)
+        if [[ $1 == --skip-stages ]]; then
+            shift
+            SKIP_STAGES="$1"
+        else
+            SKIP_STAGES="${1##--skip-stages=}"
+        fi
 
         # strip out duplicates and put in an array
         IFS=$'\n'
@@ -109,33 +129,45 @@ for arg; do
         echo "    without confirming"
         echo
         echo "  --driver=DRIVER"
+        echo "  --driver DRIVER"
         echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
         echo "    If not specified, nvidia is assumed"
         echo
         echo "  --dest-dir=DESTDIR"
+        echo "  --dest-dir DESTDIR"
         echo "    Use DESTDIR as root folder instead. Useful for chroot installations. Set it"
         echo "    to an empty value if you do not want to use a different root directory. The"
         echo "    contents of this directory are not cleared before use."
         echo
         echo "  --build-dir=PATH"
+        echo "  --build-dir PATH"
         echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
         echo "    must exist to avoid accidentally overwritting directories. The entries"
         echo "    PATH/stages and PATH/install-files are removed."
         echo
         echo "  --skip-stages=stage1,stage2,...,stageN"
+        echo "  --skip-stages stage1,stage2,...,stageN"
         echo "    Warning: this is an expert option, only use it if you know what you are"
         echo "    doing! This option accepts a comma-separated list of stages to be disabled."
         echo "    A stage is a file in the stages/ directory at the root of the installer."
         echo "    Examples: ubuntu/setvars,welcome,fedora/dependencies"
         echo "    When using this option repeatedly, the previous list is cleared."
+        echo
+        echo "  --help"
+        echo "    Show this help message"
         exit 0
         ;;
+      --)
+        shift
+        break
+        ;;
       *)
-        echo "Unrecognized option '$arg'"
+        echo "Unrecognized option '$1'"
         echo "Try '$0 --help' for more information."
         exit 255
         ;;
     esac
+    shift
 done
 
 # files installed by the installer, useful for uninstalling
