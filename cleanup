@@ -92,18 +92,13 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
         rm -vf "$ppalist"
     done
 
-    # On versions before Oneiric
-    if dpkg --compare-versions "$(lsb_release -rs)" le 11.04; then
+    # On versions before Oneiric with no mesa installation using Multiarch
+    if dpkg --compare-versions "$(lsb_release -rs)" le 11.04 &&
+        grep -q 'install /etc/ld.so.conf.d/GL.conf' /var/lib/dpkg/info/libgl1-mesa-glx.postinst; then
         echo "Fixing alternatives links if any"
         update-alternatives --remove x86_64-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/alt_ld.so.conf
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
-
-        if [ -f /usr/lib/mesa/ld.so.conf ]; then
-            update-alternatives --force \
-                --install /etc/ld.so.conf.d/GL.conf gl_conf /usr/lib/mesa/ld.so.conf 500 \
-                --slave /usr/lib/xorg/extra-modules xorg_extra_modules /usr/lib/xorg/x11-extra-modules
-        fi
 
         if dpkg_installed nvidia-current; then
             # upgrade or downgrade to the most recent version from the repos
@@ -122,6 +117,9 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
                 fi
             fi
         fi
+
+        # fix alternatives links and restore /usr/lib/mesa/ld.so.conf
+        apt-get install --reinstall -y libgl1-mesa-glx
     fi
 
     echo "Removing junkfiles if any..."
