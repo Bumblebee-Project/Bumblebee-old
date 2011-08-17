@@ -101,25 +101,6 @@ unload_graphics_driver() {
     return 0
 }
 
-# Should detect distro by name in /etc/issue. Prints the result as
-# "distro-like". Returns 0 if supported distro 1 otherwise.
-detect_distro() {
-    local distro
-    for distro in fedora ubuntu opensuse debian 'arch linux' gentoo\
-        'linux mint' 'backtrack 5'; do
-        if grep -iq "$distro" /etc/issue; then
-            # remove whitespace
-            distro="${distro// }"
-            # these are just aliases for ubuntu
-            [[ $distro == linuxmint ]] && distro=ubuntu
-            [[ $distro == backtrack5 ]] && distro=ubuntu
-            echo "$distro"
-            return 0
-        fi
-    done
-    return 1
-}
-
 # Check if the X server is available based on a pidfile, daemon and args.
 # If available, the PID of Bumblebee's X server is printed and the return value
 # is 0. Other values indicates that the Bumblebee X server is not available:
