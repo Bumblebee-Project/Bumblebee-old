@@ -58,8 +58,6 @@ install_step "$DISTRO/checkdependencies" "Checking dependencies"
 
 install_step uninstall "Removing previous version"
 
-install_step detecthardware "Detecting hardware"
-
 install_step buildfiles "Building files"
 
 install_step copyfiles "Installing Bumblebee"
@@ -67,7 +65,7 @@ install_step "$DISTRO/copyfiles"
 
 install_step createuninstaller "Creating uninstaller"
 
-install_step configure "Configuring"
+install_step configure "Detecting hardware & Configuring"
 install_step "$DISTRO/configure"
 
 install_step finish

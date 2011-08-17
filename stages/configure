@@ -8,7 +8,12 @@ if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
     echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
 fi
 
-# copied from detectharware, this configure step is supposed to be dynamic...
+# Detect PCI Bus ID of the nVidia card
+# -d 10de: shows devices from nvidia only
+# 03 is the Display controller class
+# 0300 is a VGA compatible controller
+# 0302 is a 3D controller
+# (information from /usr/share/misc/pci.ids and the manpage of lspci)
 NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
 re_busid='^( *BusID +")[^"]*'
