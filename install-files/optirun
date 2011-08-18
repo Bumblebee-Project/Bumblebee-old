@@ -24,7 +24,39 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 load_settings
 
 show_help_msg() {
-    :
+    cat <<EOF
+Usage: ${0##*/} [options] [--] application
+Start an application which may use the nVidia graphics card
+
+  -f
+    Force the use of the nVidia graphics card, even when off-line (running on a
+    battery)
+
+  -c TYPE
+    Sets the compress type for the transport from the nVidia graphics card to
+    the display. Valid values are 'proxy' and 'xv'. This option can be set in
+    the configuration file too. If not set in the configuration file using the
+    'VGL_COMPRESS' option, it defaults to 'proxy'
+
+  -d DISPLAY
+    Set the display on which the Bumblebee X server is available. If not set in
+    the configuration file using the 'VGL_DISPLAY' option, it defaults to ':8'.
+    Do not confuse this with the DISPLAY environment variable which specifies
+    the display on which an application should be drawn
+
+  --silent
+    Do not print messages from optirun. Note: fatal errors (invalid command
+    options) are still printed
+
+  --debug-log=LOG
+  --debug-log LOG
+    Sets the environment options VGL_LOG=LOG and VGL_VERBOSE=1 to log messages
+    from VirtualGL to file LOG. If LOG is empty, messages will be printed to
+    standard output
+
+  --help
+    Prints this help message
+EOF
 }
 
 # only print a message if the user wants to
@@ -32,6 +64,10 @@ PRINT_MESSAGE=echo
 msg() {
     $PRINT_MESSAGE "$1"
 }
+
+# only set VGL_LOG to empty if the variable was not defined, this allows the
+# user to set VGL_LOG= to get default behavior: write to stderr
+: "${VGL_LOG:=/dev/null}"
 
 while :; do
     case "$1" in
@@ -74,13 +110,24 @@ while :; do
         # if $PRINT_MESSAGE is set to : (no-op), no messages will be displayed
         PRINT_MESSAGE=:
         ;;
+      --debug-log=*|--debug-log)
+        VGL_VERBOSE=1
+        # note that empty values are allowed too, it will print errors to stderr
+        if [[ $1 == --debug-log ]]; then
+            shift 1
+            VGL_LOG="$1"
+        else
+            VGL_LOG="${1#--debug-log=}"
+        fi
+        ;;
       --)
         # commonly found in parameters, usage: optirun -- -not -recognised -as -param
         shift
         break
         ;;
       -*)
-        msg "Unknown parameter: $1"
+        echo "optirun: unrecognized option '$1'"
+        echo "Try '${0##*/}' --help for more information."
         exit 255
         ;;
       *)
@@ -97,6 +144,12 @@ if [[ $0 =~ /optirun(32|64)$ ]]; then
     msg "whether the 32-bit or 64-bit libraries should be used. Use optirun instead"
 fi
 
+if [ $# -eq 0 ]; then
+    echo "optirun: no application passed"
+    echo "Try '${0##*/}' --help for more information."
+    exit 255
+fi
+
 msg_shown=false
 show_msg() {
     if ! $msg_shown; then
@@ -108,10 +161,30 @@ show_msg() {
 # Ensures that the X server can be used. Return values:
 # 0 - the X server is available
 # 1 - the X server is unavailable
+# 2 - the X server is unavailable, user error
 optirun_ready() {
+    # Is the current user allowed to use Bumblebee?
+    # check if the user is a member of the group in this session
+    if ! id -Gn | tr ' ' '\n' | grep -Fxq "$BUMBLEBEE_GROUP"; then
+        # check if the user is a member according to the groups database
+        if getent group "$BUMBLEBEE_GROUP" | cut -d: -f4 | tr ',' '\n' |
+            grep -Fxq "$(id -u -n)"; then
+            msg "You're already member of the '$BUMBLEBEE_GROUP' group, but"
+            msg "need to re-login to apply these changes.."
+        else
+            msg "You've no permission to start the Bumblebee X server. Add"
+            msg "yourself to the '$BUMBLEBEE_GROUP' group by running:"
+            msg "    sudo usermod -a -G $BUMBLEBEE_GROUP $(id -u -n)"
+        fi
+        return 2
+    fi
+
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
     case $? in
-      0) # X is started
+      0) # X is started and available
+        return 0
+        ;;
+      5) # started but not ready
         ;;
       [12]) # Not started yet
         # XXX: a better way to check if the daemon is running
@@ -127,13 +200,6 @@ optirun_ready() {
             return 1
         fi
         echo start > "$BUMBLEBEE_FIFO"
-
-        # Wait for at most 3.5 seconds before X is available
-        local retries
-        for ((retries=7; retries; retries--)); do
-            xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
-                > /dev/null && return 0
-        done
         ;;
       3) # xserver / driver crash
         return 1
@@ -142,14 +208,29 @@ optirun_ready() {
         return 1
         ;;
     esac
-    return 0
+    # Wait for at most 4.5 seconds before X is available since the daemon waits
+    # too
+    local retries
+    for ((retries=9; retries; retries--)); do
+        xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
+            > /dev/null && return 0
+        sleep .5
+    done
+
+    # at this point, the timeout for the server to become available has reached
+    return 1
 }
 # Launch an application on the nVidia card
 # return values do not make sense since it could come from the app as well
 optirun_launcher() {
-    if ! optirun_ready; then
-        msg "The Bumblebee X server was not available, please check the"
-        msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+    optirun_ready
+    local optirun_retval=$?
+    if [ $optirun_retval -ne 0 ]; then
+        if [ $optirun_retval = 1 ]; then
+            msg "The Bumblebee X server was not available, please check the"
+            msg "Bumblebee logfile at $BUMBLEBEE_LOGFILE"
+        fi
+        msg "=================================================="
         # If we cannot use the Bumblebee X server, run the program without it
         exec "$@"
         return
@@ -157,7 +238,7 @@ optirun_launcher() {
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
     # export settings from configuration file
     export VGL_LOG
-    export VGL_READBACK
+    export VGL_VERBOSE
     vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 
     # notify the daemon that we are done

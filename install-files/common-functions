@@ -32,8 +32,8 @@ IS_64=false
 # the modprobe binary
 MODPROBE="$(which modprobe)"
 
-# We would need some other way to retrieve version number
-BUMBLEBEE_VERSION=1.7.10
+# This version is set at installation time
+BUMBLEBEE_VERSION=DEV
 
 # retrieve the graphics kernel module to be used for the X server
 # Return values:
@@ -58,11 +58,11 @@ get_graphics_driver() {
 get_conflicting_drivers() {
     local driver="$1"
     case "$driver" in
-      nvidia)
+      nvidia|nvidia-current)
         echo "nouveau"
         ;;
       nouveau)
-        echo "nvidia"
+        echo "nvidia nvidia-current"
         ;;
     esac
 }
@@ -101,25 +101,6 @@ unload_graphics_driver() {
     return 0
 }
 
-# Should detect distro by name in /etc/issue. Prints the result as
-# "distro-like". Returns 0 if supported distro 1 otherwise.
-detect_distro() {
-    local distro
-    for distro in fedora ubuntu opensuse debian 'arch linux' gentoo\
-        'linux mint' 'backtrack 5'; do
-        if grep -iq "$distro" /etc/issue; then
-            # remove whitespace
-            distro="${distro// }"
-            # these are just aliases for ubuntu
-            [[ $distro == linuxmint ]] && distro=ubuntu
-            [[ $distro == backtrack5 ]] && distro=ubuntu
-            echo "$distro"
-            return 0
-        fi
-    done
-    return 1
-}
-
 # Check if the X server is available based on a pidfile, daemon and args.
 # If available, the PID of Bumblebee's X server is printed and the return value
 # is 0. Other values indicates that the Bumblebee X server is not available:
@@ -127,6 +108,7 @@ detect_distro() {
 # 2 - the pidfile exists, but is not valid and should be removed
 # 3 - Xorg was previously crashed by nvidia, reboot required
 # 4 - a X server has been detected, but it's not Bumblebee's one
+# 5 - X has started but cannot accept connections (yet)
 xserver_available() {
     local pidfile x_daemon x_daemon_args pid cmd
     pidfile="$1"
@@ -164,6 +146,18 @@ xserver_available() {
     # dirty: it justs checks the leading part, the display part is ignored
     if [[ $cmd == "$x_daemon $x_daemon_args"* ]]; then
         echo "$pid"
+        # gets the display number from the process path. Observations: :1-wtf,
+        # :wtf are allowed display names too. Let's just assume that everyone
+        # uses sane display numbers (:1). Additional note: the display number
+        # in the conffile may change during startup and shutdown
+        local display=":${cmd##* :}"
+        display="${display%% *}"
+
+        if ! xdpyinfo -display "$display" &>/dev/null; then
+            # X is not ready or you're not allowed to connect to it
+            return 5
+        fi
+
         return 0
     fi
 
@@ -203,7 +197,6 @@ load_settings() {
     STOP_SERVICE_ON_EXIT=y
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
-    VGL_READBACK=pbo
     ECO_MODE=0
     DRIVER=nvidia
     X_CONFFILE=

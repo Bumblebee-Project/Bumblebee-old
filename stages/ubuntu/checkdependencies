@@ -1,6 +1,7 @@
 #!/bin/bash
 dependencies=('virtualgl' 'nvidia-current')
 missing_dependencies=()
+failed=false
 
 pkg_is_installed() {
     local pkg="$1"
@@ -13,23 +14,21 @@ for package in "${dependencies[@]}"; do
     fi
 done
 
-failed=false
-# detect if cleanup is needed
-if [ -f /etc/bumblebee ]; then
-    echo "The installer detected an ancient installation of Bumblebee, possibly"
-    echo "from the PPA mj-casalogic/bumblebee or git MrMEEE/bumblebee. Since"
-    echo "that version has a lot of flaws, you will need to run the cleanup"
-    echo "script first which can be done by running:"
-    echo "    sudo ./cleanup"
-    failed=true
-fi
-
 if [ ${#missing_dependencies[@]} -gt 0 ]; then
     # bumblebee is unlikely to be installed with missing these dependencies, so
     # we can skip checks whether we've installed the bumblebee package or not
     echo "Missing dependencies: ${missing_dependencies[*]}"
-    echo "VirtualGL can be installed from the Bumblebee PPA which can be added by running:"
-    echo "    sudo add-apt-repository ppa:bumblebee/stable"
+
+    # do not confuse the user by telling them to add our PPA if VirtualGL is
+    # already installed
+    for dependency in "${missing_dependencies[@]}"; do
+        if [[ $dependency == virtualgl ]]; then
+            echo "'$dependency' can be installed from the Bumblebee PPA which can be added by running:"
+            echo "    sudo add-apt-repository ppa:bumblebee/stable"
+            break
+        fi
+    done
+
     echo "Update your package lists and install the dependencies by running:"
     echo "    sudo apt-get update"
     echo "    sudo apt-get install ${missing_dependencies[*]}"

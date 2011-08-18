@@ -36,6 +36,8 @@ install_step() {
     done
 }
 
+install_step detectoldversion
+
 # definition of tools (like $LSPCI) as well as command options parsing and
 # options like installation path. It's a special case as it needs to be able to
 # access the commandline options, therefore do not use install_step
@@ -56,16 +58,13 @@ install_step "$DISTRO/checkdependencies" "Checking dependencies"
 
 install_step uninstall "Removing previous version"
 
-install_step detecthardware "Detecting hardware"
-
 install_step buildfiles "Building files"
 
 install_step copyfiles "Installing Bumblebee"
-install_step "$DISTRO/copyfiles"
 
 install_step createuninstaller "Creating uninstaller"
 
-install_step configure "Configuring"
+install_step configure "Detecting hardware & Configuring"
 install_step "$DISTRO/configure"
 
 install_step finish

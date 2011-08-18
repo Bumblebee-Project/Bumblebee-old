@@ -38,8 +38,8 @@ log_daemon_msg() {
 log_init() {
     # if the log exists and is non-empty...
     if [ -s "$BUMBLEBEE_LOGFILE" ]; then
-        # start a new file if the file has more than 100 lines
-        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 100 ]; then
+        # start a new file if the file has more than 1000 lines
+        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 1000 ]; then
             mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
         fi
     fi
@@ -62,12 +62,15 @@ log_close() {
 # 1 - X server is not available
 start_x() {
     # is a X server running?
+    log_daemon_msg "Checking for X server availability before starting X..."
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
-      0) # already started
+      [05]) # already started
+        log_daemon_msg "X server is already started"
         return 0
         ;;
       1) # not started, see below
+        log_daemon_msg "X server is not started"
         ;;
       2) # ignore pidfile, start X
         log_daemon_msg "Pidfile does already exist and will be removed."
@@ -75,12 +78,12 @@ start_x() {
         ;;
       3) # driver crash
         log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
-        log_daemon_msg "Reboot the machine if you want to use Bumblebee"
+        log_daemon_msg "  Reboot the machine if you want to use Bumblebee"
         return 1
         ;;
       4) # another X is running
         log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
-        log_daemon_msg "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        log_daemon_msg "  Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 1
         ;;
     esac
@@ -97,19 +100,33 @@ start_x() {
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
-    # wait for at most three seconds before the server has started
-    local retries=0
+    log_daemon_msg "Waiting for X server to become available..."
+    local retries max_retry_count=8
     # wait until the PIDFILE has become available (X is started)
-    while [ ! -s "$PIDFILE" -a $retries -lt 6 ]; do
-        ((retries++))
-        sleep .5
+    for ((retries=0; retries<$max_retry_count; retries++)); do
+        xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+        case $? in
+          [15]) sleep .5 ;; # not ready
+          *) break;; # no need for polling anymore
+        esac
     done
 
     # fail if the X server is not running
-    if ! xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS"; then
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # OK
+        log_daemon_msg "X needed $retries retries to become ready"
+        ;;
+      5)
+        log_daemon_msg "X has not become ready after $max_retry_count retries with delays of 500ms"
+        log_daemon_msg "This could be a bug in X, please check $X_LOGFILE"
+        return 1
+        ;;
+      *)
         log_daemon_msg "The Bumblebee X server failed to start. Please check $X_LOGFILE"
         return 1
-    fi
+        ;;
+    esac
 
     log_daemon_msg "X has started."
     # Everything is OK, X has started
@@ -123,12 +140,14 @@ start_x() {
 stop_x() {
     local pid
     # is a X server running?
+    log_daemon_msg "Checking for X server availability before stopping it..."
     pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
     case $? in
       0) # It's our server, should stop it
         log_daemon_msg "X is running, initiating shutdown..."
         kill -TERM "$pid" 2>/dev/null
 
+        log_daemon_msg "Waiting for X server to stop..."
         # wait for at most five seconds to death
         local retries=0
         # wait until pid is no more
@@ -144,22 +163,23 @@ stop_x() {
         fi
 
         # still running? ow, perhaps a driver crash :?
-        if kill -0 "$pid" >/dev/null; then
+        if kill -0 "$pid" 2>/dev/null; then
             log_daemon_msg "X could not be killed, perhaps the driver crashed?"
             return 1
         fi
         ;;
       1|2) # not started or invalid pidfile
+        log_daemon_msg "The X server has not started or the pidfile is invalid."
         ;;
       3) # crashed, should do a cleanup?
-        log_daemon_msg "X could not be stopped because it the driver has crashed."
+        log_daemon_msg "X could not be stopped because the driver had crashed."
         return 1
         ;;
       4) # Not our server, not our responsibility, don't care.
         ;;
     esac
 
-    log_daemon_msg "X has been stopped."
+    log_daemon_msg "X is stopped."
 
     if ! disable_graphics; then
         log_daemon_msg "The card could not be disabled or the drivers failed to unload."
@@ -220,17 +240,20 @@ start_daemon() {
     # ok, bye old fifo if any
     rm -f "$BUMBLEBEE_FIFO"
 
+    log_daemon_msg "Creating fifo $BUMBLEBEE_FIFO for communication..."
     # the group may write only
     if ! mkfifo --mode=620  "$BUMBLEBEE_FIFO"; then
         log_daemon_msg "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
         return 1
     fi
+    log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
     chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
 
     local command
     local pids
     while :; do
         # this is our "sleep" function, it waits for clients to give commands
+        log_daemon_msg "Waiting for orders"
         exec 3< "$BUMBLEBEE_FIFO"
         read command <&3
 
@@ -240,12 +263,16 @@ start_daemon() {
         if [[ ${command:0:5} == start ]]; then
             # only start if there are actually clients running
             if [ -n "$pids" ]; then
+                log_daemon_msg "Optirun start request received."
                 start_x
             fi
         elif [[ $STOP_SERVICE_ON_EXIT == [Yy]* ]]; then
+            # XXX: protect against flooding
+            log_daemon_msg "Ping received from optirun, configured to stop X if not in use."
             # allow to quit X if there are no clients running or if the client
             # does not have child programs running. xlsclients did not work :(
             if [ -z "$pids" ] || ! ps --ppid "$pids" > /dev/null; then
+                log_daemon_msg "Last optirun client exited."
                 stop_x
             fi
         fi
