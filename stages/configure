@@ -1,11 +1,14 @@
 #!/bin/bash
 # Beware: this file is processed by stages/buildfiles
 
-# check if nouveau is not blacklisted or commented
-if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
-    # blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
-    # blacklist.conf or nvidia.conf (OpenSUSE)
-    echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
+# We don't want nouveau to be blacklisted if we are going to use it (:
+if [ "$DRIVER" == "nvidia" ]; then
+    # check if nouveau is not blacklisted or commented
+    if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
+        # blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
+        # blacklist.conf or nvidia.conf (OpenSUSE)
+        echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
+    fi
 fi
 
 # Detect PCI Bus ID of the nVidia card
