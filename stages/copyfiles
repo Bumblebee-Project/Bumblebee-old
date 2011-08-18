@@ -4,6 +4,7 @@
 
 install_dir 755 "$CONFDIR"
 install_file 644 bumblebee.conf "$CONFDIR/bumblebee.conf"
+# Maybe we should install both conf files?
 install_file 644 "xorg.conf.$DRIVER" "$CONFDIR/xorg.conf.$DRIVER"
 
 install_dir 755 "$LIBDIR"
