@@ -1,6 +1,7 @@
 #!/bin/bash
 dependencies=('virtualgl' 'nvidia-current')
 missing_dependencies=()
+failed=false
 
 pkg_is_installed() {
     local pkg="$1"
