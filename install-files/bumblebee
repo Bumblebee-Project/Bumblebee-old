@@ -37,8 +37,9 @@ log_daemon_msg() {
     # the first number is the uptime in seconds
     local prepend="$(printf '[%10s] ' "$(cut -d' ' -f1 /proc/uptime)")"
 
-    # insert the timestamp ([ 123 ] ) before each line and write it to the log
-    sed "s,^,$prepend," <<<"$msg" >&5
+    # Inserts two spaces for lines following the first, prepends the timestamp
+    # ([  123] ) to each line and write it to the open log
+    sed "2~1s,^,  ,;s,^,$prepend,;" <<<"$msg" >&5
 
     # finally, keep the previous return value
     return $retval
