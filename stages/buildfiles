@@ -111,5 +111,8 @@ def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
 set_file "install-files/drivers/$DRIVER.options.$DISTRO" \
     "install-files/drivers/$DRIVER.options"
 
-set_file "install-files/xorg.conf.$DRIVER"
-sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
+# This build is only needed for nvidia driver
+if [ "$DRIVER" == "nvidia" ]; then
+    set_file "install-files/xorg.conf.$DRIVER"
+    sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
+fi
