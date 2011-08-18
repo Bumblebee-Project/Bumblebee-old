@@ -41,7 +41,7 @@ install_step detectoldversion
 # definition of tools (like $LSPCI) as well as command options parsing and
 # options like installation path. It's a special case as it needs to be able to
 # access the commandline options, therefore do not use install_step
-. stages/setvars
+source stages/setvars
 
 install_step checkprivileges
 
