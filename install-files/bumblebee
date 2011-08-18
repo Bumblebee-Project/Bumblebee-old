@@ -20,6 +20,7 @@
 # 8 - pid file checking, it's closed after use
 # 3 - fifo polling
 # 5 - log file
+# Note: file descriptors are inherited by child programs!
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
@@ -28,10 +29,19 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 
 load_settings
 
-# Log a message to our log file
+# Log a message to our log file while preserving the previous return code
 log_daemon_msg() {
+    local retval=$?
+    local msg="$1"
+
     # the first number is the uptime in seconds
-    printf '[%10s] %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$1" >&5
+    local prepend="$(printf '[%10s] ' "$(cut -d' ' -f1 /proc/uptime)")"
+
+    # insert the timestamp ([ 123 ] ) before each line and write it to the log
+    sed "s,^,$prepend," <<<"$msg" >&5
+
+    # finally, keep the previous return value
+    return $retval
 }
 
 # Initialize a log file. If present save it to an old one.
@@ -88,9 +98,8 @@ start_x() {
         ;;
     esac
 
-    # XXX: forward the output / stderr to some log
-    # enable the card and load drivers
-    if ! enable_graphics; then
+    log_daemon_msg "Enabling graphics card (loading driver)..."
+    if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
         log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
         return 1
     fi
@@ -181,7 +190,8 @@ stop_x() {
 
     log_daemon_msg "X is stopped."
 
-    if ! disable_graphics; then
+    log_daemon_msg "Disabling graphics card (unloading driver)..."
+    if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
         log_daemon_msg "The card could not be disabled or the drivers failed to unload."
         log_daemon_msg "Perhaps an other program is utilizing the card."
     fi
