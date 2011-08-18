@@ -18,8 +18,8 @@
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
-. "$BUMBLEBEE_LIBDIR/common-paths"
-. "$BUMBLEBEE_LIBDIR/common-functions"
+source "$BUMBLEBEE_LIBDIR/common-paths"
+source "$BUMBLEBEE_LIBDIR/common-functions"
 
 load_settings
 
@@ -239,7 +239,8 @@ optirun_launcher() {
     # export settings from configuration file
     export VGL_LOG
     export VGL_VERBOSE
-    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
+    LD_LIBRARY_PATH="$VGL_DRIVER:$LD_LIBRARY_PATH"
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -- "$@"
 
     # notify the daemon that we are done
     echo stop > "$BUMBLEBEE_FIFO"
