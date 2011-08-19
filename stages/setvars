@@ -141,52 +141,54 @@ while [ $# -gt 0 ]; do
         fi
         ;;
       --help)
-        echo "Usage: $0 [options]"
-        echo
-        echo "  --unattended"
-        echo "    Do not pause with informational messages, proceed with the installation"
-        echo "    without confirming"
-        echo
-        echo "  --driver=DRIVER"
-        echo "  --driver DRIVER"
-        echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
-        echo "    If not specified, nvidia is assumed"
-        echo
-        echo "  --dest-dir=DESTDIR"
-        echo "  --dest-dir DESTDIR"
-        echo "    Use DESTDIR as root folder instead. Useful for chroot installations. Set it"
-        echo "    to an empty value if you do not want to use a different root directory. The"
-        echo "    contents of this directory are not cleared before use."
-        echo
-        echo "  --build-dir=PATH"
-        echo "  --build-dir PATH"
-        echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
-        echo "    must exist to avoid accidentally overwritting directories. The entries"
-        echo "    PATH/stages and PATH/install-files are removed."
-        echo
-        echo "  --actions=ACTIONS"
-        echo "  --actions ACTIONS"
-        echo "    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-"
-        echo "    separated list of installer types, valid values are:"
-        echo "      precheck - check if the installer can be run (dependencies)"
-        echo "      build - Generate files to be installed"
-        echo "      install - Copy files"
-        echo "      installuninst - Generate and install uninstaller"
-        echo "      postconfig - Configure the X server, installs services, blacklists drivers"
-        echo "    Note that build, install and postconfig must be run in the stated order."
-        echo "    installuninst can only be run after install."
-        echo "    Disabling stages using --skip-stages takes precedence over --actions"
-        echo
-        echo "  --skip-stages=stage1,stage2,...,stageN"
-        echo "  --skip-stages stage1,stage2,...,stageN"
-        echo "    Warning: this is an expert option, only use it if you know what you are"
-        echo "    doing! This option accepts a comma-separated list of stages to be disabled."
-        echo "    A stage is a file in the stages/ directory at the root of the installer."
-        echo "    Examples: ubuntu/setvars,welcome,fedora/dependencies"
-        echo "    When using this option repeatedly, the previous list is cleared."
-        echo
-        echo "  --help"
-        echo "    Show this help message"
+        cat <<EOF
+Usage: $0 [options]
+
+  --unattended
+    Do not pause with informational messages, proceed with the installation
+    without confirming
+
+  --driver=DRIVER
+  --driver DRIVER
+    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia.
+    If not specified, nvidia is assumed
+
+  --dest-dir=DESTDIR
+  --dest-dir DESTDIR
+    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
+    to an empty value if you do not want to use a different root directory. The
+    contents of this directory are not cleared before use.
+
+  --build-dir=PATH
+  --build-dir PATH
+    Use PATH instead of '.build' for storing files built by the installer. PATH
+    must exist to avoid accidentally overwritting directories. The entries
+    PATH/stages and PATH/install-files are removed.
+
+  --actions=ACTIONS
+  --actions ACTIONS
+    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-
+    separated list of installer types, valid values are:
+      precheck - check if the installer can be run (dependencies)
+      build - Generate files to be installed
+      install - Copy files
+      installuninst - Generate and install uninstaller
+      postconfig - Configure the X server, installs services, blacklists drivers
+    Note that build, install and postconfig must be run in the stated order.
+    installuninst can only be run after install.
+    Disabling stages using --skip-stages takes precedence over --actions
+
+  --skip-stages=stage1,stage2,...,stageN
+  --skip-stages stage1,stage2,...,stageN
+    Warning: this is an expert option, only use it if you know what you are
+    doing! This option accepts a comma-separated list of stages to be disabled.
+    A stage is a file in the stages/ directory at the root of the installer.
+    Examples: ubuntu/setvars,welcome,fedora/dependencies
+    When using this option repeatedly, the previous list is cleared.
+
+  --help
+    Show this help message
+EOF
         exit 0
         ;;
       --)
