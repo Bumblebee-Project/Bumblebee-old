@@ -8,6 +8,9 @@ IS_64=false
 
 UNATTENDED=false
 
+# A space-separated list of installer types to be used. If empty, all installer
+# stages are used
+INCLUDE_GROUPS=
 # These stages will not be executed by the installer
 SKIP_STAGES=
 
@@ -82,6 +85,34 @@ while [ $# -gt 0 ]; do
             exit 255
         fi
         ;;
+      --actions=*|--actions)
+        if [[ $1 == --actions ]]; then
+            shift
+            INCLUDE_GROUPS="$1"
+        else
+            INCLUDE_GROUPS="${1##--actions=}"
+        fi
+
+        # strip out duplicates and put in an array
+        IFS=$'\n'
+        INCLUDE_GROUPS=( $(tr ',' '\n' <<<"$INCLUDE_GROUPS" | sort -u) )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_actions=()
+        for action in "${INCLUDE_GROUPS[@]}"; do
+            case "$action" in
+              precheck|build|install|postconfig) ;;
+              *) invalid_actions[${#invalid_actions[@]}]="$action" ;;
+            esac
+        done
+
+        if [ ${#invalid_actions[@]} -gt 0 ]; then
+            echo "Invalid installer actions: ${invalid_actions[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+        ;;
       --skip-stages=*|--skip-stages)
         if [[ $1 == --skip-stages ]]; then
             shift
@@ -132,6 +163,17 @@ while [ $# -gt 0 ]; do
         echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
         echo "    must exist to avoid accidentally overwritting directories. The entries"
         echo "    PATH/stages and PATH/install-files are removed."
+        echo
+        echo "  --actions=ACTIONS"
+        echo "  --actions ACTIONS"
+        echo "    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-"
+        echo "    separated list of installer types, valid values are:"
+        echo "      precheck - check if the installer can be run (dependencies)"
+        echo "      build - Generate files to be installed"
+        echo "      install - Copy files"
+        echo "      postconfig - Configure the X server, installs services, blacklists drivers"
+        echo "    Note that build, install and postconfig must be run in the stated order."
+        echo "    Disabling stages using --skip-stages takes precedence over --actions"
         echo
         echo "  --skip-stages=stage1,stage2,...,stageN"
         echo "  --skip-stages stage1,stage2,...,stageN"
