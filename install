@@ -36,8 +36,6 @@ install_step() {
     done
 }
 
-install_step detectoldversion
-
 # definition of tools (like $LSPCI) as well as command options parsing and
 # options like installation path. It's a special case as it needs to be able to
 # access the commandline options, therefore do not use install_step
@@ -51,6 +49,8 @@ install_step determinedistro
 
 # optional distro-specific variables, like paths
 install_step "$DISTRO/setvars"
+
+install_step detectoldversion
 
 install_step welcome
 
