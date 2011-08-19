@@ -102,7 +102,7 @@ while [ $# -gt 0 ]; do
         invalid_actions=()
         for action in "${INCLUDE_GROUPS[@]}"; do
             case "$action" in
-              precheck|build|install|postconfig) ;;
+              precheck|build|install|installuninst|postconfig) ;;
               *) invalid_actions[${#invalid_actions[@]}]="$action" ;;
             esac
         done
@@ -171,8 +171,10 @@ while [ $# -gt 0 ]; do
         echo "      precheck - check if the installer can be run (dependencies)"
         echo "      build - Generate files to be installed"
         echo "      install - Copy files"
+        echo "      installuninst - Generate and install uninstaller"
         echo "      postconfig - Configure the X server, installs services, blacklists drivers"
         echo "    Note that build, install and postconfig must be run in the stated order."
+        echo "    installuninst can only be run after install."
         echo "    Disabling stages using --skip-stages takes precedence over --actions"
         echo
         echo "  --skip-stages=stage1,stage2,...,stageN"

@@ -26,4 +26,4 @@ done
 sreplace '^# REPLACE WITH UNINSTALL COMMANDS' '%s' "$uninstall_cmds"
 sreplace '^# REPLACE WITH STOP SERVICE' '%s' "$CMD_SVC_STOP"
 sreplace '^# REPLACE WITH REMOVE SERVICE' '%s' "$CMD_SVC_REMOVE"
-install_file 755 bumblebee-uninstall "$BINDIR"
+install_file 755 bumblebee-uninstall "$BINDIR/bumblebee-uninstall"

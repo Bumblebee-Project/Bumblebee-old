@@ -81,7 +81,7 @@ install_step buildfiles         "Building files" build
 
 install_step copyfiles          "Installing Bumblebee" install
 
-install_step createuninstaller  "Creating uninstaller" build
+install_step createuninstaller  "Creating uninstaller" installuninst
 
 install_step configure          "Detecting hardware & Configuring" postconfig
 install_step "$DISTRO/configure" "" postconfig
