@@ -60,6 +60,30 @@ while [ $# -gt 0 ]; do
             exit 255
         fi
         ;;
+      --bindir=*|--bindir)
+        if [[ $1 == --bindir ]]; then
+            shift
+            BINDIR="$1"
+        else
+            BINDIR="${1#--bindir=}"
+        fi
+        ;;
+      --sbindir=*|--sbindir)
+        if [[ $1 == --sbindir ]]; then
+            shift
+            SBINDIR="$1"
+        else
+            SBINDIR="${1#--sbindir=}"
+        fi
+        ;;
+      --libdir=*|--libdir)
+        if [[ $1 == --libdir ]]; then
+            shift
+            LIBDIR="$1"
+        else
+            LIBDIR="${1#--libdir=}"
+        fi
+        ;;
       --dest-dir=*|--dest-dir)
         if [[ $1 == --dest-dir ]]; then
             shift
@@ -152,6 +176,19 @@ Usage: $0 [options]
   --driver DRIVER
     Use DRIVER as graphics driver. Currently, the only valid driver is nvidia.
     If not specified, nvidia is assumed
+
+  --bindir=DIR
+  --bindir DIR
+    Install binary files to this directory. Defaults to /usr/local/bin
+
+  --sbindir=DIR
+  --sbindir DIR
+    Install system binary files to this directory. Defaults to /usr/local/sbin
+
+  --libdir=DIR
+  --libdir DIR
+    Install library files to this directory. Defaults to
+    /usr/local/lib/bumblebee
 
   --dest-dir=DESTDIR
   --dest-dir DESTDIR
