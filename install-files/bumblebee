@@ -111,7 +111,7 @@ start_x() {
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
     log_daemon_msg "Waiting for X server to become available..."
-    local retries max_retry_count=8
+    local retries max_retry_count=$(($X_SERVER_TIMEOUT * 2))
     # wait until the PIDFILE has become available (X is started)
     for ((retries=0; retries<$max_retry_count; retries++)); do
         xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
