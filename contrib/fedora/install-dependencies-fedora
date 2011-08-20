@@ -1,4 +1,11 @@
 #!/bin/bash
+
+NVIDIA_LIB32DIR=/usr/lib/nvidia
+NVIDIA_LIB64DIR=/usr/lib64/nvidia
+ARCH=$(uname -m)
+IS_64=false
+[[ $ARCH == x86_64 ]] && IS_64=true
+
 if ! yum -y install wget binutils gcc kernel-devel mesa-libGL mesa-libGLU; then
     echo "The package manager failed to install dependencies for the nVidia driver"
     exit 2
@@ -32,8 +39,8 @@ sh "${TMPDIR}/${NV_DRIVER}" --target "${TMPDIR}/nvidia" -x
 rm -rf "$NVIDIA_LIB32DIR"
 rm -rf "$NVIDIA_LIB64DIR"
 
-
 NVIDIA_ARGS=( --no-x-check
+            --no-nouveau-check
              -s
             --x-prefix="$NVIDIA_LIBDIR"
             --x-library-path="$NVIDIA_LIBDIR"
