@@ -208,10 +208,10 @@ optirun_ready() {
         return 1
         ;;
     esac
-    # Wait for at most 4.5 seconds before X is available since the daemon waits
-    # too
-    local retries=$(($X_SERVER_TIMEOUT * 2))
-    for ((retries=9; retries; retries--)); do
+    # Wait for at most $X_SERVER_TIMEOUT + .5 seconds before X is available
+    # since the daemon needs to be able to process the request too
+    local retries=$(($X_SERVER_TIMEOUT * 2 + 1))
+    for ((; retries; retries--)); do
         xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" \
             > /dev/null && return 0
         sleep .5
