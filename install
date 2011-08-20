@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+unset BASH_VERSINFO 2>/dev/null
+if ! [ $BASH_VERSINFO -ge 4 ] 2>/dev/null; then
+    echo "You're not using bash or have an outdated one. Please run:"
+    echo "    sudo ./install"
+    exit 1
+fi
 
 # Arg 1 (required): filename relative to stage/
 # Arg 2: Header text to be displayed before executing the action
