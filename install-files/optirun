@@ -44,6 +44,11 @@ Start an application which may use the nVidia graphics card
     Do not confuse this with the DISPLAY environment variable which specifies
     the display on which an application should be drawn
 
+  --failsafe=Y
+  --failsafe=N
+    If failsafe is enabled, optirun will still start the program if the nVidia
+    card is unavailable. Configuration item:
+
   --silent
     Do not print messages from optirun. Note: fatal errors (invalid command
     options) are still printed
@@ -72,7 +77,7 @@ msg() {
 while :; do
     case "$1" in
       -f)
-        ECO_MODE=0
+        ECO_MODE=N
         msg "The application will be run with Bumblebee even if it's not"
         msg "connected to a power supply (e.g. running on battery)"
         ;; #force optirun if on battery
@@ -84,10 +89,10 @@ while :; do
         case "$1" in
           jpeg|proxy|rgb|yuv|xv)
             VGL_COMPRESS=$1
-            msg "Bumblebee will transfer frames using: $VGL_COMPRESS"
+            echo "Bumblebee will transfer frames using: $VGL_COMPRESS"
             ;;
           *)
-            msg "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
+            echo "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
             exit 3
             ;;
         esac
@@ -96,10 +101,19 @@ while :; do
         shift
         if ! [[ $1 =~ "^:[0-9]+$" ]]; then
             VGL_DISPLAY=$1
-            msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
+            echo "Bumblebee will use the $VGL_DISPLAY display for rendering"
         else
-            msg "The display parameter -d must be followed by a colon and digits like :8"
+            echo "The display parameter -d must be followed by a colon and digits like :8"
             exit 2
+        fi
+        ;;
+      --failsafe|failsafe=*)
+        [[ $1 == --failsafe ]] && shift
+        if [[ $1 == [YyNn]* ]]; then
+            FALLBACK_START="$1"
+        else
+            echo "Invalid value for --failsafe. Valid values are Y and N."
+            exit 255
         fi
         ;;
       --help)
@@ -232,7 +246,7 @@ optirun_launcher() {
         fi
         msg "=================================================="
         # If we cannot use the Bumblebee X server, run the program without it
-        exec "$@"
+        [[ $FALLBACK_START == [Yy]* ]] && exec "$@"
         return
     fi
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
@@ -249,7 +263,7 @@ RUN=optirun_launcher
 
 # Only check if we're off-line when ecomode is enabled as querying the value
 # may introduce a second of delay
-if [[ $ECO_MODE == 1 ]]; then
+if [[ $ECO_MODE == [Yy]* ]]; then
     POWER_STATE=0
     for state in /sys/class/power_supply/*/online; do
         POWER_STATE=$(cat "$state")
