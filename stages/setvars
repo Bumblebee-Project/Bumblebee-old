@@ -34,7 +34,13 @@ AVAILABLE_DRIVERS=('nvidia')
 DRIVER=nvidia
 
 # The version to be installed
-BUMBLEBEE_VERSION="$(cat VERSION)"
+# Try to determine the hash from the git repo
+GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null)"
+# if not a git dir, try using the dirname (e.g. tarball)
+if [ -z "$GIT_HASH" ] && [[ $PWD =~ -Bumblebee-[0-9a-f]{7}$ ]]; then
+    GIT_HASH="${PWD##*-Bumblebee-}"
+fi
+BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
