@@ -4,5 +4,16 @@ BINDIR=/usr/bin
 SBINDIR=/usr/sbin
 LIBDIR=/usr/lib/bumblebee
 INITDIR=/etc/rc.d
-XORG_MODULEPATH=/usr/lib/nvidia-bumblebee,$XORG_MODULEPATH
+PACKER_QUERY="$(which pacman) -Qq"
+CONF_PACKS=('bumblebee' 'bumblebee-nouveau' 'bumblebee-nouveau-git' 'bumblebee-git' 'bumblebee-develop-git')
+case $DRIVER in
+  nvidia)
+    XORG_MODULEPATH=/usr/lib/nvidia-bumblebee,$XORG_MODULEPATH
+    DEP_PACKS=('virtualgl-bin' 'dkms-nvidia' 'nvidia-utils-bumblebee')
+    ;;
+  nouveau) 
+    #No need for setting the module path. Leaving as default
+    DEP_PACKS=('virtualgl-bin' 'nouveau-dri' 'xf86-video-nouveau')
+    ;;
+esac
 CMD_SVC_STOP='rc.d stop bumblebee'
