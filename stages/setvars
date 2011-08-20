@@ -90,6 +90,14 @@ while [ $# -gt 0 ]; do
             LIBDIR="${1#--libdir=}"
         fi
         ;;
+      --initdir=*|--initdir)
+        if [[ $1 == --initdir ]]; then
+            shift
+            INITDIR="$1"
+        else
+            INITDIR="${1#--initdir=}"
+        fi
+        ;;
       --dest-dir=*|--dest-dir)
         if [[ $1 == --dest-dir ]]; then
             shift
@@ -195,6 +203,11 @@ Usage: $0 [options]
   --libdir DIR
     Install library files to this directory. Defaults to
     /usr/local/lib/bumblebee
+
+  --initdir=DIR
+  --initdir DIR
+    Install handler file to this directory. Defaults to
+    /etc/init.d
 
   --dest-dir=DESTDIR
   --dest-dir DESTDIR
