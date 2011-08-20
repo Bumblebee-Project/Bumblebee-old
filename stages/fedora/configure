@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Install the service
+chkconfig --add bumblebee
+
+# Start the bumblebee daemon
+service bumblebee start || true
