@@ -1,4 +1,6 @@
 #!/bin/bash
-NVIDIA_LIB64DIR=/usr/lib64/nvidia-current
 CMD_SVC_STOP='service bumblebee stop'
 CMD_SVC_REMOVE='chkconfig --del bumblebee'
+NVIDIA_LIB32DIR=/usr/lib/nvidia
+NVIDIA_LIB64DIR=/usr/lib64/nvidia
+XORG_MODULEPATH=/usr/lib64/nvidia/xorg,/usr/lib64/xorg/modules,/usr/lib/nvidia/xorg,/usr/lib/xorg/modules
