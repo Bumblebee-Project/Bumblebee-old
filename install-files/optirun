@@ -34,9 +34,9 @@ Start an application which may use the nVidia graphics card
 
   -c TYPE
     Sets the compress type for the transport from the nVidia graphics card to
-    the display. Valid values are 'proxy' and 'xv'. This option can be set in
-    the configuration file too. If not set in the configuration file using the
-    'VGL_COMPRESS' option, it defaults to 'proxy'
+    the display. Valid values are proxy, jpeg, rgb, xv and yuv. This option can
+    be set in the configuration file too. If not set in the configuration file
+    using the VGL_COMPRESS option, it defaults to proxy
 
   -d DISPLAY
     Set the display on which the Bumblebee X server is available. If not set in
@@ -249,6 +249,12 @@ optirun_launcher() {
         [[ $FALLBACK_START == [Yy]* ]] && exec "$@"
         return
     fi
+
+    # VGL transports needs the vglclient to be started once for the current X
+    # server. Since there can only be one vglclient per display (enforced by
+    # vglclient), we can run it multiple times with vglclient taking care of it
+    [[ $VGL_COMPRESS =~ ^jpeg|rgb|yuv$ ]] && vglclient -detach &>/dev/null
+
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
     # export settings from configuration file
     export VGL_LOG
