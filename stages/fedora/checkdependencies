@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# TODO: Check for conflicting packages
+
+dependencies=('VirtualGL')
+missing_dependencies=()
+
+for package in "${dependencies[@]}"; do
+    if ! rpm -q "$package" &>/dev/null; then
+        missing_dependencies[${#missing_dependencies}]="$package"
+    fi
+done
+
+failed=false
+# detect if cleanup is needed
+if [ -f /etc/bumblebee ]; then
+    echo
+    echo "The installer detected an ancient installation of Bumblebee, possibly"
+    echo "from git MrMEEE/bumblebee. Since that version has a lot of flaws,"
+    echo "you will need to run the cleanup script first which can be done by running:"
+    echo "    sudo -E ./cleanup"
+    failed=true
+fi
+
+if [ ${#missing_dependencies} -gt 0 ]; then
+    echo
+    echo "Missing dependencies: ${missing_dependencies[*]}"
+    echo
+    echo "VirtualGL can be retrieved from sourceforge:"
+    echo "    http://sourceforge.net/projects/virtualgl/files/VirtualGL/"
+    echo "And installed by running:"
+    echo "    sudo yum install <path to retrieved rpm>"
+    echo
+    echo "Update your package lists and install the dependencies by running:"
+    echo "    sudo yum update"
+    echo "    sudo yum install ${missing_dependencies[*]}"
+    failed=true
+fi
+
+# TODO: Check if the nvidia stuff is installed
+
+$failed && exit 4
