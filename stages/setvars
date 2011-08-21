@@ -8,6 +8,9 @@ IS_64=false
 
 UNATTENDED=false
 
+# A space-separated list of installer types to be used. If empty, all installer
+# stages are used
+INCLUDE_GROUPS=
 # These stages will not be executed by the installer
 SKIP_STAGES=
 
@@ -33,7 +36,13 @@ AVAILABLE_DRIVERS=('nvidia')
 DRIVER=nvidia
 
 # The version to be installed
-BUMBLEBEE_VERSION="$(cat VERSION)"
+# Try to determine the hash from the git repo
+GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null)"
+# if not a git dir, try using the dirname (e.g. tarball)
+if [ -z "$GIT_HASH" ] && [[ $PWD =~ -Bumblebee-[0-9a-f]{7}$ ]]; then
+    GIT_HASH="${PWD##*-Bumblebee-}"
+fi
+BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -59,6 +68,38 @@ while [ $# -gt 0 ]; do
             exit 255
         fi
         ;;
+      --bindir=*|--bindir)
+        if [[ $1 == --bindir ]]; then
+            shift
+            BINDIR="$1"
+        else
+            BINDIR="${1#--bindir=}"
+        fi
+        ;;
+      --sbindir=*|--sbindir)
+        if [[ $1 == --sbindir ]]; then
+            shift
+            SBINDIR="$1"
+        else
+            SBINDIR="${1#--sbindir=}"
+        fi
+        ;;
+      --libdir=*|--libdir)
+        if [[ $1 == --libdir ]]; then
+            shift
+            LIBDIR="$1"
+        else
+            LIBDIR="${1#--libdir=}"
+        fi
+        ;;
+      --initdir=*|--initdir)
+        if [[ $1 == --initdir ]]; then
+            shift
+            INITDIR="$1"
+        else
+            INITDIR="${1#--initdir=}"
+        fi
+        ;;
       --dest-dir=*|--dest-dir)
         if [[ $1 == --dest-dir ]]; then
             shift
@@ -81,6 +122,34 @@ while [ $# -gt 0 ]; do
         fi
         if [ ! -d "$BUILDDIR" ]; then
             echo "The build directory '$BUILDDIR' must exist."
+            exit 255
+        fi
+        ;;
+      --actions=*|--actions)
+        if [[ $1 == --actions ]]; then
+            shift
+            INCLUDE_GROUPS="$1"
+        else
+            INCLUDE_GROUPS="${1##--actions=}"
+        fi
+
+        # strip out duplicates and put in an array
+        IFS=$'\n'
+        INCLUDE_GROUPS=( $(tr ',' '\n' <<<"$INCLUDE_GROUPS" | sort -u) )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_actions=()
+        for action in "${INCLUDE_GROUPS[@]}"; do
+            case "$action" in
+              precheck|build|install|installuninst|postconfig) ;;
+              *) invalid_actions[${#invalid_actions[@]}]="$action" ;;
+            esac
+        done
+
+        if [ ${#invalid_actions[@]} -gt 0 ]; then
+            echo "Invalid installer actions: ${invalid_actions[*]}"
+            echo "Try '$0 --help' for more information."
             exit 255
         fi
         ;;
@@ -112,39 +181,72 @@ while [ $# -gt 0 ]; do
         fi
         ;;
       --help)
-        echo "Usage: $0 [options]"
-        echo
-        echo "  --unattended"
-        echo "    Do not pause with informational messages, proceed with the installation"
-        echo "    without confirming"
-        echo
-        echo "  --driver=DRIVER"
-        echo "  --driver DRIVER"
-        echo "    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia."
-        echo "    If not specified, nvidia is assumed"
-        echo
-        echo "  --dest-dir=DESTDIR"
-        echo "  --dest-dir DESTDIR"
-        echo "    Use DESTDIR as root folder instead. Useful for chroot installations. Set it"
-        echo "    to an empty value if you do not want to use a different root directory. The"
-        echo "    contents of this directory are not cleared before use."
-        echo
-        echo "  --build-dir=PATH"
-        echo "  --build-dir PATH"
-        echo "    Use PATH instead of '.build' for storing files built by the installer. PATH"
-        echo "    must exist to avoid accidentally overwritting directories. The entries"
-        echo "    PATH/stages and PATH/install-files are removed."
-        echo
-        echo "  --skip-stages=stage1,stage2,...,stageN"
-        echo "  --skip-stages stage1,stage2,...,stageN"
-        echo "    Warning: this is an expert option, only use it if you know what you are"
-        echo "    doing! This option accepts a comma-separated list of stages to be disabled."
-        echo "    A stage is a file in the stages/ directory at the root of the installer."
-        echo "    Examples: ubuntu/setvars,welcome,fedora/dependencies"
-        echo "    When using this option repeatedly, the previous list is cleared."
-        echo
-        echo "  --help"
-        echo "    Show this help message"
+        cat <<EOF
+Usage: $0 [options]
+
+  --unattended
+    Do not pause with informational messages, proceed with the installation
+    without confirming
+
+  --driver=DRIVER
+  --driver DRIVER
+    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia.
+    If not specified, nvidia is assumed
+
+  --bindir=DIR
+  --bindir DIR
+    Install binary files to this directory. Defaults to /usr/local/bin
+
+  --sbindir=DIR
+  --sbindir DIR
+    Install system binary files to this directory. Defaults to /usr/local/sbin
+
+  --libdir=DIR
+  --libdir DIR
+    Install library files to this directory. Defaults to
+    /usr/local/lib/bumblebee
+
+  --initdir=DIR
+  --initdir DIR
+    Install handler file to this directory. Defaults to
+    /etc/init.d
+
+  --dest-dir=DESTDIR
+  --dest-dir DESTDIR
+    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
+    to an empty value if you do not want to use a different root directory. The
+    contents of this directory are not cleared before use.
+
+  --build-dir=PATH
+  --build-dir PATH
+    Use PATH instead of '.build' for storing files built by the installer. PATH
+    must exist to avoid accidentally overwritting directories. The entries
+    PATH/stages and PATH/install-files are removed.
+
+  --actions=ACTIONS
+  --actions ACTIONS
+    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-
+    separated list of installer types, valid values are:
+      precheck - check if the installer can be run (dependencies)
+      build - Generate files to be installed
+      install - Copy files
+      installuninst - Generate and install uninstaller
+      postconfig - Configure the X server, installs services, blacklists drivers
+    Note that build, install and postconfig must be run in the stated order.
+    installuninst can only be run after install.
+    Disabling stages using --skip-stages takes precedence over --actions
+
+  --skip-stages=stage1,stage2,...,stageN
+  --skip-stages stage1,stage2,...,stageN
+    Warning: this is an expert option, only use it if you know what you are
+    doing! This option accepts a comma-separated list of stages to be disabled.
+    A stage is a file in the stages/ directory at the root of the installer.
+    Examples: ubuntu/setvars,welcome,fedora/dependencies
+    When using this option repeatedly, the previous list is cleared.
+
+  --help
+    Show this help message
+EOF
         exit 0
         ;;
       --)

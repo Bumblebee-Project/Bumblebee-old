@@ -66,6 +66,19 @@ shopt -s nullglob
 [ -x /etc/init.d/bumblebee ] && /etc/init.d/bumblebee disable
 [ -x /usr/local/bin/bumblebee-enablecard ] && /usr/local/bin/bumblebee-enablecard
 
+# just to be sure...
+pcibusid="$(lspci -nn -d10de: | grep '030[02]' | cut -d' ' -f1)"
+if lspci -vv -s "$pcibusid" | grep -q '!!!'; then
+    echo "WARNING: Your nvidia card is still disabled. I will not continue to"
+    echo "prevent damage. Try rebooting the machine and try again."
+    echo "If this problem persists, create a new issue at the project page"
+    echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+    echo
+    echo "Technical details:"
+    lspci -vvnn -s "$pcibusid"
+    exit 3
+fi
+
 # Test if a debian package is installed
 dpkg_installed() {
     [[ $(dpkg-query -W -f '${Status}' "$1" 2>/dev/null) == install* ]]
