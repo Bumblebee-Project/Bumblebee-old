@@ -69,6 +69,8 @@ msg() {
 # user to set VGL_LOG= to get default behavior: write to stderr
 : "${VGL_LOG:=/dev/null}"
 
+# Parsing arguments
+EXTRARGS=
 while :; do
     case "$1" in
       -f)
@@ -100,6 +102,16 @@ while :; do
         else
             msg "The display parameter -d must be followed by a colon and digits like :8"
             exit 2
+        fi
+        ;;
+      -fps)
+        shift
+        if ! [[ $1 =~ "^[0-9]*$" ]]; then
+            EXTRAARGS="$EXTRAARGS-fps $1 "
+            msg "Bumblebee will limit the framerate to $1 fps"
+        else
+            msg "The parameter -fps must be followed by a numeric value"
+            exit 4 #Check exit status
         fi
         ;;
       --help)
@@ -138,6 +150,9 @@ while :; do
     # move to the next option in the command
     shift
 done
+
+# Prepare vglrun arguments. For the future use only one variable to do this
+VGLARGS="-c $VGL_COMPRESS -d $VGL_DISPLAY -ld $VGL_DRIVER $EXTRAARGS"
 
 if [[ $0 =~ /optirun(32|64)$ ]]; then
     msg "Running ${0##*/} is deprecated as optirun detects automatically"
@@ -239,7 +254,7 @@ optirun_launcher() {
     # export settings from configuration file
     export VGL_LOG
     export VGL_VERBOSE
-    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
+    vglrun "$VGLARGS" -- "$@"
 
     # notify the daemon that we are done
     echo stop > "$BUMBLEBEE_FIFO"
@@ -262,4 +277,3 @@ if [[ $ECO_MODE == 1 ]]; then
 fi
 
 $RUN "$@"
-
