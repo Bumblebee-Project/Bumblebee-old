@@ -6,7 +6,7 @@ graphics which will be displayed using the Intel card.
 
 Note that you cannot disable the Intel GPU even with Bumblebee installed.
 
-Support for enabling and disabling the the nVidia card is in developement.
+Support for enabling and disabling the the nVidia card is in development.
 
 Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
 #bumblebee on Freenode if you wish to help testing and creating the installer.
@@ -61,7 +61,7 @@ Users who want to test the development code should run:
 After the initial bumblebee installation, you need to add yourself to the
 'bumblebee' group:
 
-    sudo usermod -a -G bumblebee YOURUSERNAMEHERE
+    sudo usermod -a -G bumblebee YOURUSERNAME
 Replace YOURUSERNAME accordingly and please double check the command, if you
 forget the '-a' option, you remove yourself from other groups. After adding
 yourself to the group, you need to re-login for the changes to apply.
@@ -82,7 +82,7 @@ First of all: If you have any problem, please read this article:
 https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
 
 Then create a bug report package with the bumblebee-bugreport tool and open an 
-issue on GitHub.
+issue on GitHub at https://github.com/Bumblebee-Project/Bumblebee/issues
 
 
 ## Developers
