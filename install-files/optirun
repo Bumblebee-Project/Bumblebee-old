@@ -114,6 +114,27 @@ while :; do
             exit 4 #Check exit status
         fi
         ;;
+      -q)
+        shift
+        if ! [[ $1 =~ "^[0-9]*$" ]]; then
+            EXTRAARGS="$EXTRAARGS-q $1 "
+            msg "Bumblebee will use compression quality: $1"
+        else
+            msg "The parameter -q must be followed by a numeric value"
+            exit 4 #Check exit status
+        fi
+        ;;
+      -np) # Carefull on this one. Should be disabled right now but vglrun can
+           # handle invalid values
+        shift
+        if ! [[ $1 =~ "^[0-9]*$" ]]; then
+            EXTRAARGS="$EXTRAARGS-np $1 "
+            msg "Bumblebee will use $1 CPUs for compression"
+        else
+            msg "The parameter -c must be followed by a numeric value"
+            exit 4 #Check exit status
+        fi
+        ;;
       --help)
         show_help_msg
         exit 0
