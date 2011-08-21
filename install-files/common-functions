@@ -197,7 +197,8 @@ load_settings() {
     STOP_SERVICE_ON_EXIT=y
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
-    ECO_MODE=0
+    ECO_MODE=N
+    FALLBACK_START=N
     DRIVER=nvidia
     X_CONFFILE=
     BUMBLEBEE_GROUP=bumblebee

@@ -40,6 +40,12 @@ GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null)"
 if [ -z "$GIT_HASH" ] && [[ $PWD =~ -Bumblebee-[0-9a-f]{7}$ ]]; then
     GIT_HASH="${PWD##*-Bumblebee-}"
 fi
+# Perhaps exported by git archive? Requires export-subst be set for this file
+if [ -z "$GIT_HASH" ]; then
+    GIT_HASH='$Format:%h$'
+    # If not substituted, clear it
+    [ ${#GIT_HASH} -ne 7 ] && GIT_HASH=
+fi
 BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
 
 while [ $# -gt 0 ]; do
@@ -88,6 +94,14 @@ while [ $# -gt 0 ]; do
             LIBDIR="$1"
         else
             LIBDIR="${1#--libdir=}"
+        fi
+        ;;
+      --initdir=*|--initdir)
+        if [[ $1 == --initdir ]]; then
+            shift
+            INITDIR="$1"
+        else
+            INITDIR="${1#--initdir=}"
         fi
         ;;
       --dest-dir=*|--dest-dir)
@@ -195,6 +209,11 @@ Usage: $0 [options]
   --libdir DIR
     Install library files to this directory. Defaults to
     /usr/local/lib/bumblebee
+
+  --initdir=DIR
+  --initdir DIR
+    Install handler file to this directory. Defaults to
+    /etc/init.d
 
   --dest-dir=DESTDIR
   --dest-dir DESTDIR
