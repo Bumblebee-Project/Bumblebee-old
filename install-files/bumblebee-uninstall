@@ -43,13 +43,17 @@ while [ $# -gt 0 ]; do
         break
         ;;
       --help)
-        echo "Usage: $0 [options]"
-        echo
-        echo "  --unattended"
-        echo "    Do not confirm, proceed with uninstallation"
-        echo
-        echo "  --upgrade"
-        echo "    Upgrade mode, do not remove configuration files"
+        cat <<EOF
+Usage: $0 [options]
+  --unattended
+    Do not confirm, proceed with uninstallation
+
+  --upgrade
+    Upgrade mode, do not remove configuration files
+
+  --help
+    Show this help message
+EOF
         exit 0
         ;;
       *)
