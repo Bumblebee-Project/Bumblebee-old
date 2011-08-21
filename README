@@ -1,72 +1,54 @@
-### BEGIN LICENSE
-#
-#    This file is part of Bumblebee.
-#
-#    Bumblebee is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    Bumblebee is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with bumblebee-ui.  If not, see <http://www.gnu.org/licenses/>.
-#
-### END LICENSE
+## About Bumblebee
 
+Bumblebee aims to provide support for nVidia Optimus laptops for GNU/Linux
+distributions. Using Bumblebee, you can use your nVidia card for rendering
+graphics which will be displayed using the Intel card.
 
-### About Bumblebee
+Note that you cannot disable the Intel GPU even with Bumblebee installed.
 
-This is Bumblebee 2.3, our effort to bring Optimus support to GNU/Linux 
-Operative Systems.
-
-With Bumblebee, 3D is enabled on both the Intel and the nVidia cards at the same time.
-
-The Intel card is running the Desktop and the nVidia card can be used for
-the tougher applications with the command "optirun <application>".
-
-Support for automatically shutting down and starting up the nVidia card is
-in developpement.
+Support for enabling and disabling the the nVidia card is in development.
 
 Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
 #bumblebee on Freenode if you wish to help testing and creating the installer.
 
 
-### Installation
+## Installation
 
-There are several ways to start using bumblebee :
+There are several ways to get Bumblebee:
 
-Using your package manager (best way) :
+### Using your package manager (recommended if available):
 
-Ubuntu :
+Ubuntu:
 1. sudo add-apt-repository ppa:bumblebee/stable
 
-If you want newer drivers than the one available in your distro repo, then do :
-1bis. sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+If you want newer drivers than the one available in the official repos, run:
+
+    sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
 
 2. sudo apt-get update
 3. sudo apt-get install bumblebee
 
-Arch Linux :
+Arch Linux:
 AUR package: http://aur.archlinux.org/packages.php?ID=49469
 Instructions in the ArchWiki: https://wiki.archlinux.org/index.php/Bumblebee
 
-Or by a script install :
+### Using the installation script:
+Tarballs can be found at https://github.com/Bumblebee-Project/Bumblebee/downloads
+Download the tarball named like bumblebee-VERSION.tar.gz, extract and install it:
 
-Download the .zip or .tar.gz by clicking the 'Downloads' button on the
-'Source' page to a directory of your liking. Unzip or untar and run the install
-script with 'sudo ./install.sh'
+1. Download
+2. Extract: tar xf bumbleee-VERSION.tar.gz
+3. Change your directory to the extracted folder: cd bumblebee-VERSION
+4. (if you've previously installed Bumblebee < 2.3:) sudo ./cleanup
+5. Run the installer: sudo ./install
 
-Go to the directory of your liking and:
-1. git clone http://github.com/Bumblebee-Project/bumblebee.git
-2. cd bumblebee/
-3. sudo ./install
 
-(The second of this two script methods makes it easier to regularly update bumblebee
-if you're willing to invest a little bit of time in working with git.)
+Installation instructions for getting the code from git:
+
+    git clone git://github.com/Bumblebee-Project/Bumblebee.git
+    cd Bumblebee/
+    sudo ./cleanup
+    sudo ./install
 
 Users who want to test the development code should run:
 
@@ -75,20 +57,45 @@ Users who want to test the development code should run:
     sudo ./cleanup
     sudo ./install
 
+## Usage
+After the initial bumblebee installation, you need to add yourself to the
+'bumblebee' group:
 
-### Reporting bugs/problems
+    sudo usermod -a -G bumblebee YOURUSERNAME
+Replace YOURUSERNAME accordingly and please double check the command, if you
+forget the '-a' option, you remove yourself from other groups. After adding
+yourself to the group, you need to re-login for the changes to apply.
+
+Applications can be started using bumblebee by prefixing it with optirun. For
+example, starting Firefox can be done with:
+
+    optirun firefox
+
+## Uninstall
+If you're unsatisfied with Bumblebee, you can remove it by running:
+
+    sudo bumblebee-uninstall
+
+## Reporting bugs/problems
 
 First of all: If you have any problem, please read this article:
 https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
 
 Then create a bug report package with the bumblebee-bugreport tool and open an 
-issue on GitHub.
+issue on GitHub at https://github.com/Bumblebee-Project/Bumblebee/issues
 
-This project have had great succes and we need to have a way to easily manage
-support problems.
 
-Status updates can be found here on twitter: http://twitter.com/Team_Bumblebee
+## Developers
+The current developers for Bumblebee are:
+- ArchangeGabriel
+- Lekensteyn
+- Samsagax
+- paulvriens
+Check the https://github.com/Bumblebee-Project/Bumblebee/wiki/Developers page
+for developer information.
 
-Commits are flooded here: http://twitter.com/Bumblebee_Git
-
-You may also join the facebook group: http://tinyurl.com/bumblebeefacebook
+## Links
+Status updates can be found here on twitter: https://twitter.com/Team_Bumblebee
+Commits are flooded here:               https://twitter.com/Bumblebee_Git
+You may also join the facebook group:   http://tinyurl.com/bumblebeefacebook
+Launchpad Team page:                    https://launchpad.net/~bumblebee
