@@ -1,0 +1,5 @@
+echo "# Initialization script
+
+export VGL_DISPLAY=:1
+export VGL_COMPRESS=$IMAGETRANSPORT
+export VGL_READBACK=fbo" > /etc/profile.d/virtualgl.sh

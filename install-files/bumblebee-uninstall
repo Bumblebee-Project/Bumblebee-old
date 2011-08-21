@@ -1,0 +1,295 @@
+#!/bin/bash
+ 
+#
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <mj@casalogic.dk> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return Martin Juhl 
+# ----------------------------------------------------------------------------
+#
+
+#    This file is part of bumblebee.
+#
+#    bumblebee is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    bumblebee is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with bumblebee.  If not, see <http://www.gnu.org/licenses/>.
+#
+  
+
+ROOT_UID=0
+
+if grep -iq fedora /etc/issue; then
+    DISTRO=FEDORA
+    BASHRC=/etc/bashrc
+elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
+    DISTRO=UBUNTU
+    BASHRC=/etc/bash.bashrc  
+elif grep -iq OpenSUSE /etc/issue; then
+    DISTRO=OPENSUSE
+    BASHRC=/etc/bash.bashrc
+    if [ "$SUDO_USER" != "" ] ; then
+        HOME=`cat /etc/passwd | grep $SUDO_USER | cut -f6 -d':'`
+    fi
+elif [ `cat /etc/issue | grep -nir debian | wc -l` -gt 0 ] ; then
+ DISTRO=DEBIAN
+ BASHRC=/etc/bash.bashrc
+fi
+
+if (( EUID != ROOT_UID )) ; then
+    echo "You don't have sufficient privileges to run this script."
+    echo
+    echo "Please run the script with: sudo bumblebee-uninstall"
+    exit 1
+fi
+
+if [ "$HOME" == "/root" ] && [ "$DISTRO" != OPENSUSE ] ; then
+    echo "Do not run this script as the root user"
+    echo
+    echo "Please run the script with: sudo bumblebee-uninstall"
+    exit 2
+fi
+   
+ARCH=`uname -m`
+MODPROBE=`which modprobe`
+
+echo "Welcome to the bumblebee uninstallation"
+echo "Licensed under BEER-WARE License and GPL"
+echo
+echo "This script will remove bumblebee completely"
+echo "and also clean up after earlier versions"
+echo
+if [ "$DISTRO" == OPENSUSE ] && [ -f /usr/bin/nvidia-uninstall ] ; then
+    if [ `ps -ea | grep X | wc -l` -gt 0 ] ; then
+      echo "X server is still active. Please go to runlevel 3 and try again."
+      echo "( Login as root and run \"init 3\". Use \"init 5\" to activate the X server again )"
+      exit 1
+    fi
+fi
+if [ $DISTRO = FEDORA ] && [ "$ARCH" = "x86_64" ] ; then
+    echo "Uninstalling will most likely kill your X-session"
+    echo "please make sure that all your data is saved"
+    echo
+fi
+
+echo "Are you sure you want to proceed ? (Y/N)"
+echo
+
+read answer
+
+case "$answer" in
+
+    y | Y )
+      ;;
+  
+    *)
+      exit 0
+      ;;
+esac
+
+sleep 5
+
+echo 
+if [ $DISTRO = UBUNTU  ] || [ $DISTRO = DEBIAN  ]; then
+
+    #	Kill the nvidia X server
+    /etc/init.d/bumblebee disable
+
+    echo "Removing nVidia driver package"
+    echo
+    apt-get -y --purge remove nvidia-current
+    echo "Removing VirtualGL package"
+    echo
+    dpkg -r VirtualGL
+    update-rc.d -f bumblebee remove
+
+elif [ $DISTRO = OPENSUSE ]; then
+
+    #	Kill the nvidia X server
+    /etc/init.d/bumblebee disable
+    chkconfig bumblebee off 
+    echo "Removing VirtualGL package"
+    echo
+    zypper --no-refresh --non-interactive remove VirtualGL
+
+    if [ -f /usr/bin/nvidia-uninstall ] ; then
+
+	    echo "Uninstalling nVidia package"
+
+	    #
+	    #	Cleanup 3D hack for the nVidia package part 1
+	    #
+	    if [ "$ARCH" == "i686" ] ; then
+	        rm -f /usr/lib/libGL.so.*
+	        mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
+	        pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
+	        ln -sf libnvidia-wfb.so.1 libwfb.so
+	        popd > /dev/null
+	    else
+	        rm -f /usr/lib/libGL.so.*
+	        rm -f /usr/lib64/libGL.so.*
+	        mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
+	        pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
+	        ln -sf libnvidia-wfb.so.1 libwfb.so
+	        popd > /dev/null
+	    fi
+
+	    #
+	    #	Uninstall nVidia package
+	    #
+	    /usr/bin/nvidia-uninstall -s
+
+	    #
+	    #	Cleanup 3D hack for the nVidia package part 2
+	    #
+	    rm -rf /usr/X11R6/lib-nvidia
+	    rm -rf /usr/X11R6/lib64-nvidia
+	    rm -rf /usr/lib/xorg-nvidia
+	    rm -rf /usr/lib64/xorg-nvidia
+
+	    rm -rf /usr/X11R6/nvidia
+    fi
+
+    rm /etc/pm/power.d/bumblebee-disablecard-on-powerup 2>/dev/null
+
+elif [ $DISTRO = FEDORA ]; then
+
+    #	Stop the nvidia X server
+    service bumblebee stop
+    chkconfig bumblebee off 
+
+    echo "Removing VirtualGL package"
+    echo
+    yum -y remove VirtualGL
+    if [ -f /etc/profile.d/virtualgl.sh ]; then
+        rm /etc/profile.d/virtualgl.sh
+    fi
+
+    # New method for x86_64 but still the old one for i686
+    if [ "$ARCH" = "x86_64" ]; then
+        echo "Removing nVidia driver package"
+        ${MODPROBE} -r nvidia
+        /usr/lib64/nvidia-current/bin/nvidia-installer -s --uninstall
+    fi
+
+fi
+
+#Unload the nvidia module
+${MODPROBE} -r nvidia
+
+echo
+echo "Restoring old configuration"
+
+if [ -f ${BASHRC}.optiorig ]; then
+    mv $BASHRC.optiorig $BASHRC
+fi
+
+if [ -f /etc/modprobe.d/blacklist.conf.optiorig ]; then
+    mv /etc/modprobe.d/blacklist.conf.optiorig /etc/modprobe.d/blacklist.conf
+fi
+
+if [ -f /etc/modules.optiorig ]; then
+    mv /etc/modules.optiorig /etc/modules
+fi
+
+if [ -f /etc/X11/xorg.conf.optiorig ]; then
+    mv -f /etc/X11/xorg.conf.optiorig /etc/X11/xorg.conf
+fi
+
+rm /etc/X11/xorg.conf.nvidia
+rm -rf /etc/X11/xdm-optimus
+rm -rf /etc/X11/bumblebee
+
+if [ -f /etc/init.d/xdm-optimus ]; then
+    rm /etc/init.d/xdm-optimus
+fi
+
+rm /etc/init.d/bumblebee
+
+if [ -f /etc/modprobe.d/virtualgl.conf ]; then
+    rm /etc/modprobe.d/virtualgl.conf
+fi
+
+if [ -f /usr/local/bin/optimusXserver ]; then
+    rm /usr/local/bin/optimusXserver
+fi
+
+rm /usr/local/bin/bumblebee-bugreport
+
+if [ -f /usr/bin/xdm-optimus ]; then
+    rm /usr/bin/xdm-optimus
+fi
+
+rm -rf /usr/lib64/nvidia-current
+rm -rf /usr/lib/nvidia-current
+rm -rf /usr/lib/bumblebee
+rm -f /usr/local/bin/optirun*
+rm -f /usr/bin/vglclient-service
+rm -f /etc/modprobe.d/nouveau-blacklist.conf
+rm -rf /usr/share/doc/bumblebee
+rm -rf /usr/share/doc/packages/bumblebee
+rm -f /usr/local/bin/bumblebee*
+rm -f /etc/default/bumblebee*
+
+if [ -d /opt/prime-ng ]; then
+    rm -rf /opt/prime-ng
+fi
+
+if [ -d /opt/bumblebee ]; then
+    rm -rf /opt/bumblebee
+fi
+
+if [ -d /usr/lib/bumblebee ]; then
+    rm -rf /usr/lib/bumblebee
+fi
+
+if [ -f /etc/alternatives/xorg_extra_modules-bumblebee ] ; then
+    rm -f /etc/alternatives/xorg_extra_modules-bumblebee
+fi
+if [ "$DISTRO" != "OPENSUSE" ] ; then
+    ln -s /usr/lib/nvidia-current/xorg /etc/alternatives/xorg_extra_modules
+fi
+
+ldconfig
+
+if [ -f $HOME/.kde/Autostart/vglclient-service ]; then
+    rm -f $HOME/.kde/Autostart/vglclient-service
+fi
+
+if [ -f $HOME/.config/autostart/vglclient-service ]; then
+    rm -f $HOME/.config/autostart/vglclient-service
+fi
+
+if [ -f $HOME/.config/autostart/vglclient.desktop ]; then
+    rm $HOME/.config/autostart/vglclient.desktop
+fi
+
+if [ -f $HOME/.bashrc ] ; then
+    grep -Ev 'VGL|optirun' $HOME/.bashrc > $HOME/.oldbashrc
+    mv -f $HOME/.oldbashrc $HOME/.bashrc
+    chown $SUDO_UID:$SUDO_GID $HOME/.bashrc
+fi
+grep -Ev 'bumblebee' /etc/sudoers > /etc/sudoers.optiorig
+mv -f /etc/sudoers.optiorig /etc/sudoers
+chmod 0440 /etc/sudoers
+
+if [ "$DISTRO" != "UBUNTU" ] && [ "$DISTRO" != "OPENSUSE" ] ; then
+    killall -9 vglclient
+fi
+
+rm -rf /etc/bash_completion.d/optirun*
+
+echo
+echo "bumblebee has been uninstalled :("
+echo
+
+rm /etc/bumblebee

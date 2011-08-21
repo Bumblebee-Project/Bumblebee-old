@@ -1,0 +1,39 @@
+while [ "$CONNECTEDMONITOR" = "UNDEFINED" ]; do
+
+    echo
+    echo "Select output device:"
+    echo "0) CRT-0"
+    echo "1) DFP-0"
+    echo "2) Manually Enter Output"
+
+    echo
+    read output
+    echo
+
+    case "$output" in
+
+      0)
+        CONNECTEDMONITOR="CRT-0"
+        ;;
+
+      1)
+        CONNECTEDMONITOR="DFP-0"
+        ;;
+
+      2)
+        echo
+        echo "Enter output device for the nVidia Card"
+        echo
+        read manualoutput
+        CONNECTEDMONITOR="$manualoutput"
+        ;;
+      
+      *)
+        echo
+        echo "Please choose a valid option, Press Enter and try again"
+        read
+        ;;
+      
+    esac
+
+done

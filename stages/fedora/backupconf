@@ -1,0 +1,4 @@
+# Not present on FEDORA (15)
+if [ -f /etc/modules ]; then
+    cp -n /etc/modules /etc/modules.optiorig
+fi
