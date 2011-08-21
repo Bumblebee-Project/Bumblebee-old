@@ -34,15 +34,20 @@ Start an application which may use the nVidia graphics card
 
   -c TYPE
     Sets the compress type for the transport from the nVidia graphics card to
-    the display. Valid values are 'proxy' and 'xv'. This option can be set in
-    the configuration file too. If not set in the configuration file using the
-    'VGL_COMPRESS' option, it defaults to 'proxy'
+    the display. Valid values are proxy, jpeg, rgb, xv and yuv. This option can
+    be set in the configuration file too. If not set in the configuration file
+    using the VGL_COMPRESS option, it defaults to proxy
 
   -d DISPLAY
     Set the display on which the Bumblebee X server is available. If not set in
     the configuration file using the 'VGL_DISPLAY' option, it defaults to ':8'.
     Do not confuse this with the DISPLAY environment variable which specifies
     the display on which an application should be drawn
+
+  --failsafe=Y
+  --failsafe=N
+    If failsafe is enabled, optirun will still start the program if the nVidia
+    card is unavailable. Configuration item:
 
   --silent
     Do not print messages from optirun. Note: fatal errors (invalid command
@@ -74,7 +79,7 @@ EXTRARGS=
 while :; do
     case "$1" in
       -f)
-        ECO_MODE=0
+        ECO_MODE=N
         msg "The application will be run with Bumblebee even if it's not"
         msg "connected to a power supply (e.g. running on battery)"
         ;; #force optirun if on battery
@@ -86,10 +91,10 @@ while :; do
         case "$1" in
           jpeg|proxy|rgb|yuv|xv)
             VGL_COMPRESS=$1
-            msg "Bumblebee will transfer frames using: $VGL_COMPRESS"
+            echo "Bumblebee will transfer frames using: $VGL_COMPRESS"
             ;;
           *)
-            msg "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
+            echo "The frame transfer parameter -c must be followed by jpeg, proxy, rgb, yuv or xv."
             exit 3
             ;;
         esac
@@ -98,9 +103,9 @@ while :; do
         shift
         if ! [[ $1 =~ "^:[0-9]+$" ]]; then
             VGL_DISPLAY=$1
-            msg "Bumblebee will use the $VGL_DISPLAY display for rendering"
+            echo "Bumblebee will use the $VGL_DISPLAY display for rendering"
         else
-            msg "The display parameter -d must be followed by a colon and digits like :8"
+            echo "The display parameter -d must be followed by a colon and digits like :8"
             exit 2
         fi
         ;;
@@ -133,6 +138,15 @@ while :; do
         else
             msg "The parameter -c must be followed by a numeric value"
             exit 4 #Check exit status
+        fi
+        ;;
+      --failsafe|failsafe=*)
+        [[ $1 == --failsafe ]] && shift
+        if [[ $1 == [YyNn]* ]]; then
+            FALLBACK_START="$1"
+        else
+            echo "Invalid value for --failsafe. Valid values are Y and N."
+            exit 255
         fi
         ;;
       --help)
@@ -268,9 +282,15 @@ optirun_launcher() {
         fi
         msg "=================================================="
         # If we cannot use the Bumblebee X server, run the program without it
-        exec "$@"
+        [[ $FALLBACK_START == [Yy]* ]] && exec "$@"
         return
     fi
+
+    # VGL transports needs the vglclient to be started once for the current X
+    # server. Since there can only be one vglclient per display (enforced by
+    # vglclient), we can run it multiple times with vglclient taking care of it
+    [[ $VGL_COMPRESS =~ ^jpeg|rgb|yuv$ ]] && vglclient -detach &>/dev/null
+
     local VGL_DRIVER="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
     # export settings from configuration file
     export VGL_LOG
@@ -285,7 +305,7 @@ RUN=optirun_launcher
 
 # Only check if we're off-line when ecomode is enabled as querying the value
 # may introduce a second of delay
-if [[ $ECO_MODE == 1 ]]; then
+if [[ $ECO_MODE == [Yy]* ]]; then
     POWER_STATE=0
     for state in /sys/class/power_supply/*/online; do
         POWER_STATE=$(cat "$state")
