@@ -1,0 +1,3 @@
+#!/bin/bash
+XORG_MODULEPATH=/usr/lib/nvidia-current/xorg,$XORG_MODULEPATH
+CMD_SVC_REMOVE='update-rc.d -f bumblebee remove'

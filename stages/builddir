@@ -1,0 +1,5 @@
+#!/bin/bash
+# This step creates and cleans the $BUILDDIR directory used for buildfiles
+
+rm -rf "$BUILDDIR/install-files" "$BUILDDIR/stages"
+mkdir -p "$BUILDDIR/install-files" "$BUILDDIR/stages"

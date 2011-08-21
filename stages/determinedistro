@@ -1,40 +1,46 @@
-if grep -iq Fedora /etc/issue; then
-    DISTRO=fedora
-elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
+#!/bin/bash
+# Determine the distro.
+# That part may considerably change in the future.
+
+if grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
     DISTRO=ubuntu
+elif grep -iq "Arch Linux" /etc/issue; then
+    DISTRO=archlinux
+elif grep -iq Fedora /etc/issue; then
+    DISTRO=fedora
+    echo "You are running Fedora, the work is in progress for you distro but not"
+    echo "sufficient. If you would like to help to port the installer to fedora,"
+    echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
 elif grep -iq OpenSUSE /etc/issue; then
     DISTRO=opensuse
+    echo "You are running openSUSE, the work is in progress for you distro but not"
+    echo "sufficient. If you would like to help to port the installer to openSUSE,"
+    echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
 elif grep -iq Debian /etc/issue; then
     DISTRO=debian
     echo "You are running Debian Linux, please see the debumblebee project for support:"
-    echo 
+    echo
     echo "https://github.com/z0rc/debumblebee"
     echo
-    read
-    exit 1
-elif grep -iq "Arch Linux" /etc/issue; then
-    DISTRO=arch
-    echo "You are running Arch Linux, please see the buildscript here for support:"
-    echo
-    echo "http://aur.archlinux.org/packages.php?ID=49469"
-    echo
-    echo "Support Here: https://github.com/Samsagax/bumblebee"
-    echo 
-    read
-    exit 1
+    $UNATTENDED || read
+    exit 3
 elif grep -iq "Gentoo" /etc/issue; then
     DISTRO=gentoo
     echo "You are running Gentoo Linux, please see the ebuild here for support:"
     echo
-    echo "https://github.com/iegor/bumblebee-Gentoo-support"
+    echo "https://github.com/iegor/rainyday/tree/master/x11-misc/bumblebee"
     echo
-    read
-    exit 1
+    $UNATTENDED || read
+    exit 3
 else
-    echo 
+    echo
     echo "Your Distribution could not be determined or is not supported."
     echo "Please report a bug at:"
     echo
-    echo "https://github.com/Bumblebee-Project/bumblebee/issues"
-    exit 1
+    echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
 fi
+
+echo "${DISTRO}-based distribution detected"

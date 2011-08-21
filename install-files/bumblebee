@@ -1,0 +1,377 @@
+#!/bin/bash
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
+
+# Use of file descriptors:
+# 8 - pid file checking, it's closed after use
+# 3 - fifo polling
+# 5 - log file
+# Note: file descriptors are inherited by child programs!
+
+# load common library
+BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
+. "$BUMBLEBEE_LIBDIR/common-paths"
+. "$BUMBLEBEE_LIBDIR/common-functions"
+
+load_settings
+
+# Log a message to our log file while preserving the previous return code
+log_daemon_msg() {
+    local retval=$?
+    local msg="$1"
+
+    # the first number is the uptime in seconds
+    local prepend="$(printf '[%10s] ' "$(cut -d' ' -f1 /proc/uptime)")"
+
+    # Inserts two spaces for lines following the first, prepends the timestamp
+    # ([  123] ) to each line and write it to the open log
+    sed "2~1s,^,  ,;s,^,$prepend,;" <<<"$msg" >&5
+
+    # finally, keep the previous return value
+    return $retval
+}
+
+# Initialize a log file. If present save it to an old one.
+log_init() {
+    # if the log exists and is non-empty...
+    if [ -s "$BUMBLEBEE_LOGFILE" ]; then
+        # start a new file if the file has more than 1000 lines
+        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 1000 ]; then
+            mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
+        fi
+    fi
+    # Open logfile for appending
+    exec 5>> "$BUMBLEBEE_LOGFILE"
+
+    # log initial message
+    log_daemon_msg "Bumblebee log started at $(date -R)"
+}
+
+# Write the a message along with the time and close the logfile
+log_close() {
+    log_daemon_msg "Bumblebee log ended on $(date -R)"
+    exec 5>&-
+}
+
+# Start Bumblebee's X server running on the nvidia card
+# Return values:
+# 0 - X server is available
+# 1 - X server is not available
+start_x() {
+    # is a X server running?
+    log_daemon_msg "Checking for X server availability before starting X..."
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      [05]) # already started
+        log_daemon_msg "X server is already started"
+        return 0
+        ;;
+      1) # not started, see below
+        log_daemon_msg "X server is not started"
+        ;;
+      2) # ignore pidfile, start X
+        log_daemon_msg "Pidfile does already exist and will be removed."
+        rm -rf "$PIDFILE"
+        ;;
+      3) # driver crash
+        log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        log_daemon_msg "  Reboot the machine if you want to use Bumblebee"
+        return 1
+        ;;
+      4) # another X is running
+        log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
+        log_daemon_msg "  Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        return 1
+        ;;
+    esac
+
+    log_daemon_msg "Enabling graphics card (loading driver)..."
+    if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
+        log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+        return 1
+    fi
+
+    log_daemon_msg "Starting X..."
+
+    LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
+        "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
+
+    log_daemon_msg "Waiting for X server to become available..."
+    local retries max_retry_count=$(($X_SERVER_TIMEOUT * 2))
+    # wait until the PIDFILE has become available (X is started)
+    for ((retries=0; retries<$max_retry_count; retries++)); do
+        xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+        case $? in
+          [15]) sleep .5 ;; # not ready
+          *) break;; # no need for polling anymore
+        esac
+    done
+
+    # fail if the X server is not running
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # OK
+        log_daemon_msg "X needed $retries retries to become ready"
+        ;;
+      5)
+        log_daemon_msg "X has not become ready after $max_retry_count retries with delays of 500ms"
+        log_daemon_msg "This could be a bug in X, please check $X_LOGFILE"
+        return 1
+        ;;
+      *)
+        log_daemon_msg "The Bumblebee X server failed to start. Please check $X_LOGFILE"
+        return 1
+        ;;
+    esac
+
+    log_daemon_msg "X has started."
+    # Everything is OK, X has started
+    return 0
+}
+
+# Stop the running X server
+# Return values:
+# 0 - the X server has gone (either it wasn't started or it was stopped)
+# 1 - the X server refused to leave, perhaps a driver crash
+stop_x() {
+    local pid
+    # is a X server running?
+    log_daemon_msg "Checking for X server availability before stopping it..."
+    pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
+    case $? in
+      0) # It's our server, should stop it
+        log_daemon_msg "X is running, initiating shutdown..."
+        kill -TERM "$pid" 2>/dev/null
+
+        log_daemon_msg "Waiting for X server to stop..."
+        # wait for at most five seconds to death
+        local retries=0
+        # wait until pid is no more
+        while kill -0 "$pid" 2>/dev/null && [ $retries -lt 10 ]; do
+            ((retries++))
+            sleep .5
+        done
+
+        # check if still running, if it is KILL it
+        if kill -0 "$pid" 2>/dev/null; then
+            log_daemon_msg "X did not shutdown in time, sending KILL signal"
+            kill -KILL "$pid" 2>/dev/null
+        fi
+
+        # still running? ow, perhaps a driver crash :?
+        if kill -0 "$pid" 2>/dev/null; then
+            log_daemon_msg "X could not be killed, perhaps the driver crashed?"
+            return 1
+        fi
+        ;;
+      1|2) # not started or invalid pidfile
+        log_daemon_msg "The X server has not started or the pidfile is invalid."
+        ;;
+      3) # crashed, should do a cleanup?
+        log_daemon_msg "X could not be stopped because the driver had crashed."
+        return 1
+        ;;
+      4) # Not our server, not our responsibility, don't care.
+        ;;
+    esac
+
+    log_daemon_msg "X is stopped."
+
+    log_daemon_msg "Disabling graphics card (unloading driver)..."
+    if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
+        log_daemon_msg "The card could not be disabled or the drivers failed to unload."
+        log_daemon_msg "Perhaps an other program is utilizing the card."
+    fi
+
+    # Everything OK, We are gone!
+    return 0
+}
+
+# Called on receiving a signal like TERM
+stop_daemon() {
+    stop_x
+    rm -f "$BUMBLEBEE_PIDFILE"
+    rm -f "$BUMBLEBEE_FIFO"
+    log_close
+    exit 0
+}
+
+start_daemon() {
+    if (( EUID != 0 )); then
+        echo "Must be run as root"
+        return 1
+    fi
+
+    # race condition prevention; try to create a new pidfile
+    if ! (set -o noclobber;echo $$ > "$BUMBLEBEE_PIDFILE"); then
+        # file did already exist, make sure that another daemon isn't running
+
+        # open $BUMBLEBEE_PIDFILE for reading
+        exec 8< "$BUMBLEBEE_PIDFILE"
+
+        # prevent other processes from writing
+        if ! flock -x -w 2 8; then
+            echo "Could not acquire a lock, another daemon is likely running"
+            return 1
+        fi
+
+        # does the pidfile contain a program that is running?
+        # XXX: use the binary path to check if bumblebee is running
+        if kill -0 "$(<&8)" 2>/dev/null; then
+            echo "A Bumblebee daemon is already running"
+            return 1
+        fi
+
+        # invalid pid, just write our pid to it
+        echo $$ > "$BUMBLEBEE_PIDFILE"
+        # and close the fd
+        exec 8>&-
+    fi
+
+    # cleanup on exit
+    trap stop_daemon EXIT
+
+    # open the logfile for log_daemon_msg
+    log_init
+
+    # ok, bye old fifo if any
+    rm -f "$BUMBLEBEE_FIFO"
+
+    log_daemon_msg "Creating fifo $BUMBLEBEE_FIFO for communication..."
+    # the group may write only
+    if ! mkfifo --mode=620  "$BUMBLEBEE_FIFO"; then
+        log_daemon_msg "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
+        return 1
+    fi
+    log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
+    chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
+
+    local command
+    local pids
+    while :; do
+        # this is our "sleep" function, it waits for clients to give commands
+        log_daemon_msg "Waiting for orders"
+        exec 3< "$BUMBLEBEE_FIFO"
+        read command <&3
+
+        # space-separated list of optirun instances
+        pids=$(pidof -x "${OPTIRUNS[@]}")
+
+        if [[ ${command:0:5} == start ]]; then
+            # only start if there are actually clients running
+            if [ -n "$pids" ]; then
+                log_daemon_msg "Optirun start request received."
+                start_x
+            fi
+        elif [[ $STOP_SERVICE_ON_EXIT == [Yy]* ]]; then
+            # XXX: protect against flooding
+            log_daemon_msg "Ping received from optirun, configured to stop X if not in use."
+            # allow to quit X if there are no clients running or if the client
+            # does not have child programs running. xlsclients did not work :(
+            if [ -z "$pids" ] || ! ps --ppid "$pids" > /dev/null; then
+                log_daemon_msg "Last optirun client exited."
+                stop_x
+            fi
+        fi
+    done
+}
+
+# Should print a message and exit status:
+# 0 - running and X is running.
+# 1 - daemon started X not available and can start normally
+# 2 - daemon not present or can't find pidfile
+# 3 - daemon started but can't start X server. Reboot required.
+# Should be run as a normal user so it must be granted to read some files
+status_daemon() {
+    # Check for pid file available
+    if [ ! -f "$BUMBLEBEE_PIDFILE" ]; then
+        echo "No pidfile could be found. Bumblebee daemon is not running"
+        return 2
+    fi
+    # Pidfile available but no bumblebee running, we screwed somewhere
+    if ! pidof -x -o $$ "$(readlink -e "$0")" >/dev/null; then
+        echo "No Instance of bumblebee is running. Please check $BUMBLEBEE_PIDFILE"
+        return 2
+    fi
+
+    # Check for X server and return a useful value
+    xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
+    case $? in
+      0) # already started
+        return 0
+        ;;
+      1|2) # not started, but can be started
+        return 1
+        ;;
+      3) # driver crash
+        echo "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        echo "Reboot the machine if you want to use Bumblebee"
+        return 3
+        ;;
+      4) # another X is running, not ours
+        echo "Display $VGL_DISPLAY is already in use by an other program."
+        echo "Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        return 3
+        ;;
+    esac
+}
+
+# Show the versioning info and Project URL.
+show_version_msg() {
+    cat <<EOF
+Bumblebee version ${BUMBLEBEE_VERSION}
+
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Website: https://launchpad.net/~bumblebee
+EOF
+}
+
+# Show help message on usage and arguments.
+show_help_msg() {
+    show_version_msg
+
+    cat <<EOF
+Usage:
+    bumblebee [OPTIONS]
+    OPTIONS
+        -d          start bumblebee service as daemon. To start it
+                    backgrounded use the handler with 'start' argument.
+        --help      show this help message
+        --version   show version number
+EOF
+}
+
+case "$1" in
+  --version)
+    show_version_msg
+    ;;
+  --help)
+    show_help_msg
+    ;;
+  -d)
+    start_daemon
+    ;;
+  --status)
+    status_daemon
+    ;;
+  *)
+    show_help_msg
+    ;;
+esac

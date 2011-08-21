@@ -1,16 +1,17 @@
+#!/bin/bash
 if ! yum -y install wget binutils gcc kernel-devel mesa-libGL mesa-libGLU; then
-    echo
-    echo "Package manager failed to install needed packages."
-    echo
-    exit 21
+    echo "The package manager failed to install dependencies for the nVidia driver"
+    exit 2
 fi
 
-echo "Getting latest NVidia drivers version"
+echo "Getting latest nVidia drivers version"
 
-if [ "$ARCH" = "x86_64" ]; then
+if $IS_64; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86_64/"
+    NVIDIA_LIBDIR="$NVIDIA_LIB64DIR"
 elif [ "$ARCH" = "i686" ]; then
     BASEDIR="ftp://download.nvidia.com/XFree86/Linux-x86/"
+    NVIDIA_LIBDIR="$NVIDIA_LIB32DIR"
 fi
 
 LATEST=`wget -q -O - ${BASEDIR}/latest.txt | cut -f2 -d" " | tr -d '\n\r'`
@@ -26,53 +27,34 @@ NV_DRIVERS_VERSION="${LATEST%%/*}"
 echo "Latest NVidia drivers version is ${NV_DRIVERS_VERSION}"
 
 # Extract the binary
-sh "${TMPDIR}/${NV_DRIVER}" --target="${TMPDIR}/nvidia" -x
+sh "${TMPDIR}/${NV_DRIVER}" --target "${TMPDIR}/nvidia" -x
+
+rm -rf "$NVIDIA_LIB32DIR"
+rm -rf "$NVIDIA_LIB64DIR"
+
+
+NVIDIA_ARGS=( --no-x-check
+             -s
+            --x-prefix="$NVIDIA_LIBDIR"
+            --x-library-path="$NVIDIA_LIBDIR"
+            --installer-prefix="$NVIDIA_LIBDIR"
+            --x-module-path="$NVIDIA_LIBDIR/xorg/modules"
+            --utility-prefix="$NVIDIA_LIBDIR" --utility-libdir=.
+            --opengl-prefix="$NVIDIA_LIBDIR" --opengl-libdir=. )
 
 if [ "$ARCH" = "x86_64" ]; then
-
-    rm -rf /usr/lib64/nvidia-current
-    rm -rf /usr/lib/nvidia-current
-
-    ${MODPROBE} -r nouveau
-    "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
-                        -s\
-                       --x-prefix=/usr/lib64/nvidia-current\
-                       --x-library-path=/usr/lib64/nvidia-current\
-                       --installer-prefix=/usr/lib64/nvidia-current\
-                       --x-module-path=/usr/lib64/nvidia-current/xorg/modules\
-                       --utility-prefix=/usr/lib64/nvidia-current --utility-libdir=.\
-                       --opengl-prefix=/usr/lib64/nvidia-current --opengl-libdir=.\
-                       --compat32-prefix=/usr/lib/nvidia-current --compat32-libdir=.
-    ${MODPROBE} nvidia
-
-    # Make sure we can run the nvidia X-server without all kind of library issues
-    # See also http://us.download.nvidia.com/XFree86/Linux-x86_64/<version>/README/installedcomponents.html
-    rm /usr/lib64/nvidia-current/xorg/modules/libnvidia-wfb.so.${NV_DRIVERS_VERSION}
-    rm /usr/lib64/nvidia-current/xorg/modules/libnvidia-wfb.so.1
-    rm /usr/lib64/nvidia-current/xorg/modules/libwfb.so
-
-elif [ "$ARCH" = "i686" ]; then
-
-    rm -rf /usr/lib/nvidia-current
-
-    ${MODPROBE} -r nouveau
-    "${TMPDIR}/nvidia/nvidia-installer" --no-x-check\
-                        -s\
-                       --x-prefix=/usr/lib/nvidia-current\
-                       --x-library-path=/usr/lib/nvidia-current\
-                       --installer-prefix=/usr/lib/nvidia-current\
-                       --x-module-path=/usr/lib/nvidia-current/xorg/modules\
-                       --utility-prefix=/usr/lib/nvidia-current --utility-libdir=.\
-                       --opengl-prefix=/usr/lib/nvidia-current --opengl-libdir=.
-    ${MODPROBE} nvidia
-
-    # Make sure we can run the nvidia X-server without all kind of library issues
-    # See also http://us.download.nvidia.com/XFree86/Linux-x86/<version>/README/installedcomponents.html
-    rm /usr/lib/nvidia-current/xorg/modules/libnvidia-wfb.so.${NV_DRIVERS_VERSION}
-    rm /usr/lib/nvidia-current/xorg/modules/libnvidia-wfb.so.1
-    rm /usr/lib/nvidia-current/xorg/modules/libwfb.so
-
+    NVIDIA_ARGS[${#NVIDIA_ARGS[@]}]="--compat32-prefix=$NVIDIA_LIB32DIR"
+    NVIDIA_ARGS[${#NVIDIA_ARGS[@]}]=--compat32-libdir=.
 fi
+
+"${TMPDIR}/nvidia/nvidia-installer" "${NVIDIA_ARGS[@]}"
+
+# Make sure we can run the nvidia X-server without all kind of library issues
+# See also http://us.download.nvidia.com/XFree86/Linux-x86/<version>/README/installedcomponents.html
+# or http://us.download.nvidia.com/XFree86/Linux-x86_64/<version>/README/installedcomponents.html
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.${NV_DRIVERS_VERSION}"
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libnvidia-wfb.so.1"
+rm -f "$NVIDIA_LIBDIR/xorg/modules/libwfb.so"
 
 # cleanup
 rm -rf "${TMPDIR}"

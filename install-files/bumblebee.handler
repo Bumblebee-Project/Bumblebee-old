@@ -1,0 +1,72 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          bumblebee
+# Required-Start:    nvidia-kernel
+# Required-Stop:     nvidia-kernel
+# Should-Start:      kdm gdm
+# Should-Stop:       kdm gdm
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Bumblebee supporting nVidia Optimus cards
+# Description:       Bumblebee supporting nVidia Optimus cards
+### END INIT INFO
+
+# Bumblebee daemon handler script. Distro-independent script to start/stop
+# daemon. Should be runnable in any distro but won't give any feedback.
+
+NAME=bumblebee
+BIN="$(which $NAME)"
+PIDFILE=/var/run/$NAME.pid
+
+start() {
+    # Start the daemon only if there is not another instance running
+    "$BIN" --status
+    case $? in
+      0) ;; # already running
+      1) ;; # already running and X is available
+      3) ;; # already running, but X server cannot be started
+      2) # Can be started
+        "$BIN" -d >/dev/null 2>&1 &
+        # Print a per-distro success message
+        echo "Starting daemon..."
+        ;;
+    esac
+}
+
+stop() {
+    # Stop the daemon only if there is an instance running
+    "$BIN" --status
+    case $? in
+      0|1|3) # Alive and running
+        echo "Stopping daemon..."
+        kill -TERM "$(cat $PIDFILE)"
+        ;;
+      2) # Not started
+        ;;
+    esac
+}
+
+restart() {
+  stop
+  sleep 1
+  start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  status)
+    # not implemented
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac

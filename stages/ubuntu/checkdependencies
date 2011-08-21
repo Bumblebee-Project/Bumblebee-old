@@ -1,0 +1,46 @@
+#!/bin/bash
+dependencies=('virtualgl' 'nvidia-current')
+missing_dependencies=()
+failed=false
+
+pkg_is_installed() {
+    local pkg="$1"
+    [[ $(dpkg-query -W -f '${Status}' "$pkg" 2>/dev/null) =~ ^install ]]
+}
+
+for package in "${dependencies[@]}"; do
+    if ! pkg_is_installed "$package"; then
+        missing_dependencies[${#missing_dependencies[@]}]="$package"
+    fi
+done
+
+if [ ${#missing_dependencies[@]} -gt 0 ]; then
+    # bumblebee is unlikely to be installed with missing these dependencies, so
+    # we can skip checks whether we've installed the bumblebee package or not
+    echo "Missing dependencies: ${missing_dependencies[*]}"
+
+    # do not confuse the user by telling them to add our PPA if VirtualGL is
+    # already installed
+    for dependency in "${missing_dependencies[@]}"; do
+        if [[ $dependency == virtualgl ]]; then
+            echo "'$dependency' can be installed from the Bumblebee PPA which can be added by running:"
+            echo "    sudo add-apt-repository ppa:bumblebee/stable"
+            break
+        fi
+    done
+
+    echo "Update your package lists and install the dependencies by running:"
+    echo "    sudo apt-get update"
+    echo "    sudo apt-get install ${missing_dependencies[*]}"
+    failed=true
+fi
+
+if pkg_is_installed bumblebee; then
+    echo "The 'bumblebee' package is already installed (from a PPA?). Before"
+    echo "this version can be installed, that package must be removed. That"
+    echo "can be done by running:"
+    echo "    sudo apt-get remove bumblebee"
+    failed=true
+fi
+
+$failed && exit 4

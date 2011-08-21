@@ -1,161 +1,120 @@
 #!/bin/bash
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
-#
-# ----------------------------------------------------------------------------
-# "THE BEER-WARE LICENSE" (Revision 42):
-# <mj@casalogic.dk> wrote this file. As long as you retain this notice you
-# can do whatever you want with this stuff. If we meet some day, and you think
-# this stuff is worth it, you can buy me a beer in return Martin Juhl
-# ----------------------------------------------------------------------------
-#
-
-#    This file is part of bumblebee.
-#
-#    bumblebee is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    bumblebee is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with bumblebee.  If not, see <http://www.gnu.org/licenses/>.
-#
-
-
-ROOT_UID=0
-
-if grep -iq Fedora /etc/issue; then
-    DISTRO=FEDORA
-elif grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
-    DISTRO=UBUNTU
-elif grep -iq OpenSUSE /etc/issue; then
-    DISTRO=OPENSUSE
-    if [ "$SUDO_USER" != "" ] ; then
-        HOME=`cat /etc/passwd | grep $SUDO_USER | cut -f6 -d':'`
+if (( EUID != 0 )); then
+    echo "Certain system information can only be gathered as root. This"
+    echo "includes the machine manufacturer and model."
+    echo
+    if which sudo &>/dev/null; then
+        echo "Please run: sudo ${0##*/}"
+    else
+        echo "Please run this script as root"
     fi
-elif grep -iq Debian /etc/issue; then
-    DISTRO=DEBIAN
-fi
-
-if (( EUID != ROOT_UID )) ; then
-    echo "You don't have sufficient privileges to run this script."
     echo
-    echo "Please run the script with: sudo bumblebee-bugreport"
     exit 1
-fi
-  
-if [ "$HOME" = "/root" ] && [ "$DISTRO" != OPENSUSE ] ; then
-    echo "Do not run this script as the root user"
-    echo
-    echo "Please run the script with: sudo bumblebee-bugreport"
-    exit 2
 fi
 
 echo
 echo "Bug report is being generated"
 echo
 
-rm -rf /tmp/bug-report
-mkdir -p /tmp/bug-report
+# Can you read Japanese? I don't.
+export LANG=C
 
-cp /var/log/Xorg.* /tmp/bug-report/
-cp /etc/X11/xorg.conf* /tmp/bug-report/
-cp /var/log/bumblebee.* /tmp/bug-report/
-cp /etc/bash.bashrc /tmp/bug-report/
+BUGREPORT_DIR="$(mktemp -d)"
+BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
+BUGREPORT_NAME="bumblebee-bugreport-$(date +%Y%m%d_%H%M%S)"
 
+cp /var/log/Xorg.* "$BUGREPORT_DIR"
+cp -r /etc/bumblebee "$BUGREPORT_DIR"
+cp /var/log/bumblebee.* "$BUGREPORT_DIR"
 
-echo "Bumblebee Bug Report" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+header() {
+    printf '\n=== %s ===\n' "$1"
+}
 
-echo `cat /etc/bumblebee` >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+{ # Start bug report
+header "Bumblebee Bug Report"
+echo "$BUGREPORT_NAME"
+date -R -u
 
-echo `cat /etc/issue` >> /tmp/bug-report/bumblebee-report
+header "dmidecode"
 
-echo "uname -a info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-uname -a >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+for key in baseboard-manufacturer baseboard-product-name baseboard-version \
+    system-manufacturer system-product-name system-version; do
+    printf "%22s : %s\n" "$key" "$(dmidecode --string "$key")"
+done
 
-echo "lspci info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-lspci >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+header "System Information"
+cat /etc/issue
+uname -a
 
-echo "ps aux info" >> /tmp/bug-report/bumblebee-report
-ps aux |grep X >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+header "lspci overview"
+lspci
 
-echo "library info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-echo "/usr/lib32/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
+header "lspci on nvidia devices"
+lspci -d 10de: -vvnn
 
-if [ -d /usr/lib32/nvidia-current ]; then
-    ls -la /usr/lib32/nvidia-current >> /tmp/bug-report/bumblebee-report
+header "Process information info"
+PIDS=$(pidof $(which X Xorg bumblebee optirun optirun32 optirun64 2>/dev/null))
+[ -n "$PIDS" ] && ps uww --pid "$PIDS"
+
+header "Library paths"
+
+for lib in \
+    /usr/lib/nvidia-current \
+    /usr/lib32/nvidia-current \
+    /usr/lib64/nvidia-current
+do
+    if [ -d "$lib" ]; then
+        echo "$lib:"
+        ls --group-directories-first -laR "$lib"
+    fi
+done
+
+header "Modules info"
+lsmod
+
+header "Alternatives info"
+ls -lat /etc/alternatives
+
+DPKG_PACKAGES=(bumblebee nvidia-current virtualgl nvidia-glx)
+if which apt-cache &>/dev/null; then
+    header "Package information (apt-cache)"
+    apt-cache policy "${DPKG_PACKAGES[@]}"
+elif which dpkg-query &>/dev/null; then
+    header "Package information (dpkg-query)"
+    dpkg-query --show "${DPKG_PACKAGES[@]}"
 fi
+# End bug report
+} &>> "$BUGREPORT_FILE"
 
-echo >> /tmp/bug-report/bumblebee-report
-echo "/usr/lib64/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-
-if [ -d /usr/lib64/nvidia-current ]; then
-    ls -la /usr/lib64/nvidia-current >> /tmp/bug-report/bumblebee-report
-fi >> /tmp/bug-report/bumblebee-report
-
-echo "/usr/lib/nvidia-current/" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-
-if [ -d /usr/lib/nvidia-current ]; then
-    ls -la /usr/lib/nvidia-current >> /tmp/bug-report/bumblebee-report
-fi >> /tmp/bug-report/bumblebee-report
- 
-
-echo >> /tmp/bug-report/bumblebee-report
-echo "modules info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-lsmod >> /tmp/bug-report/bumblebee-report
-
-echo >> /tmp/bug-report/bumblebee-report
-echo "alternatives info" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-ls -la /etc/alternatives >> /tmp/bug-report/bumblebee-report
-
-echo >> /tmp/bug-report/bumblebee-report
-echo "/etc/default/bumblebee" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-cat /etc/default/bumblebee >> /tmp/bug-report/bumblebee-report
-
-echo >> /tmp/bug-report/bumblebee-report
-echo "Enable/Disable Scripts" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-
-cat /usr/local/bin/bumblebee-enablecard >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-cat /usr/local/bin/bumblebee-disablecard >> /tmp/bug-report/bumblebee-report
-
-echo >> /tmp/bug-report/bumblebee-report
-echo "dmidecode" >> /tmp/bug-report/bumblebee-report
-echo >> /tmp/bug-report/bumblebee-report
-dmidecode --string baseboard-manufacturer >> /tmp/bug-report/bumblebee-report
-dmidecode --string baseboard-product-name >> /tmp/bug-report/bumblebee-report
-dmidecode --string system-manufacturer >> /tmp/bug-report/bumblebee-report
-dmidecode --string system-product-name >> /tmp/bug-report/bumblebee-report
-
-tar zcf $HOME/bumblebee-bugreport-`date +2%3y%m%d_%H%M%S`.tar.gz /tmp/bug-report/
+tar zcf "${BUGREPORT_NAME}.tar.gz" -C "$BUGREPORT_DIR" .
 
 echo "Bug report generated"
 echo
-echo "The bug report has been saved as "$HOME/bumblebee-bugreport-`date +2%3y%m%d_%H%M%S`.tar.gz
-echo "Please create a bugreport on github and email me the bug report along with the"
-echo "issue number to mj@casalogic.dk"
+echo "The bug report has been saved as '${BUGREPORT_NAME}.tar.gz'"
+echo "Please create an issue on Github and email the bugreport file including"
+echo "the issue number to bumblebee@lists.launchpad.net"
 echo
 echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
-echo 
+echo
 echo "This really makes bugfixing much easier for us and faster for you"
 echo
-echo "Martin Juhl / MrMEEE & The Bumblebee Project Team"
+echo "Thanks for your help!"
+echo "The Bumblebee Project Team"

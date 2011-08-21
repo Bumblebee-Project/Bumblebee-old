@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echo
+echo "===== Installation finished ====="
+echo "You need to add users which are allowed to use Bumblebee to the group:"
+echo "    sudo usermod -a -G bumblebee username-here"
+#echo "After that, please re-login to apply group settings and library paths."
+echo "To ensure that drivers and are loaded correctly, you need to reboot."
+echo
+echo "Programs do not run themselves automatically with Bumblebee. If you would"
+echo "like to run 'glxgears' with Bumblebee, you have to run the below command:"
+echo "    optirun glxgears"
+echo
+echo "There is also a GUI for Bumblebee written in Python: bumblebee-ui"
+echo "It can be downloaded from https://github.com/Bumblebee-Project/bumblebee-ui"
+echo
+echo "If you found a bug, have a suggestion or an issue, please create an issue at"
+echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+echo "You may also run bumblebee-bugreport if needed"
+echo
+echo "If you are not satisfied, you can uninstall Bumblebee by running:"
+echo "    $BINDIR/bumblebee-uninstall"
+echo
+echo "Special thanks to Martin Juhl (MrMEEE) who initiated the project. His website"
+echo "can be found at http://www.martin-juhl.dk/"
+echo
+echo "The Bumblebee Project Team"
+echo "https://github.com/Bumblebee-Project/Bumblebee"

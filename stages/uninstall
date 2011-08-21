@@ -1,0 +1,25 @@
+#!/bin/bash
+
+uninstall_opts=('--upgrade')
+uninstall_opts[${#uninstall_opts[@]}]='--unattended'
+
+uninstaller="$BINDIR/bumblebee-uninstall"
+if [ -x "$uninstaller" ]; then
+    echo "To install the new version, the old installation must be removed."
+    if ! grep -q '^# BEE_UNINSTALLER_NEW' "$uninstaller"; then
+        echo "The uninstaller of the previous version is not compatible with"
+        echo "this installer. You're recommended to run sudo ./cleanup first."
+        if ! $UNATTENDED; then
+            read -p "Continue with uninstalling the old version [y/N]? " yn
+            if [[ $yn != [Yy]* ]]; then
+                echo "Uninstallation of old version failed, installation aborted."
+                exit 5
+            fi
+        fi
+    fi
+    echo "Running $uninstaller..."
+    if ! "$uninstaller" "${uninstall_opts[@]}"; then
+        echo "Uninstallation of old version failed, installation aborted."
+        exit 5
+    fi
+fi
