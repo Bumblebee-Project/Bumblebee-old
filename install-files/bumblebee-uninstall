@@ -113,6 +113,10 @@ uninstall() {
 }
 uninstall_dir() {
     local dir="$1"
+    if $KEEP_CONFFILE && [[ $dir/ == "$CONFDIR/"* ]]; then
+        $VERBOSE && echo "Not removing $dir"
+        return
+    fi
     if $VERBOSE; then
         rmdir -v "$1"
     else
