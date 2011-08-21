@@ -5,9 +5,10 @@ $UNATTENDED && uninstall_opts[${#uninstall_opts[@]}]='--unattended'
 
 uninstaller="$BINDIR/bumblebee-uninstall"
 if [ -x "$uninstaller" ]; then
+    echo "To install the new version, the old installation must be removed."
     echo "Running $uninstaller..."
     if ! "$uninstaller" "${uninstall_opts[@]}"; then
-        echo "Uninstallation failed, installation aborted."
+        echo "Uninstallation of old version failed, installation aborted."
         exit 5
     fi
     break
