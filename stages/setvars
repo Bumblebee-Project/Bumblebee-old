@@ -29,11 +29,10 @@ INITDIR=/etc/init.d
 XORG_MODULEPATH=/usr/lib/xorg/modules
 
 # available drivers, add nouveau in the future
-AVAILABLE_DRIVERS=('nvidia')
-#AVAILABLE_DRIVERS=('nvidia' 'nouveau')
-# the graphics driver to be used, defaults to nvidia 
+AVAILABLE_DRIVERS=('nvidia' 'nouveau')
+# the graphics driver to be used, defaults to nvidia
 # (nouveau should be default)
-DRIVER=nvidia
+DRIVER=nouveau
 
 # The version to be installed
 # Try to determine the hash from the git repo
