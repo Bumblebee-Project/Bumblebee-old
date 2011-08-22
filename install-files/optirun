@@ -197,7 +197,22 @@ optirun_ready() {
     if grep -q "REPLACEWITHCONNECTEDMONITOR" "$BUMBLEBEE_CONFDIR/xorg.conf.nvidia"; then
         if [ `LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH $X_LD_LIBRARY_PATH/bin/nvidia-xconfig --query-gpu-info | grep "Display Devices" | cut -f2 -d":"` -gt 0 ]; then
             CONNECTEDMONITOR=`LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH $X_LD_LIBRARY_PATH/bin/nvidia-xconfig --query-gpu-info | grep "Display Device 0" | cut -f2 -d\( | cut -f1 -d\)`
-            sudo sed -i 's/REPLACEWITHCONNECTEDMONITOR/'$CONNECTEDMONITOR'/g' "$BUMBLEBEE_CONFDIR/xorg.conf.nvidia"
+            echo "Bumblebee needs to be root to set once the ConnectedMonitor Option."
+            echo
+            echo "If you agree, you will be asked for your password."
+            echo "Else, instructions will be given to you to set it manually."
+            echo 
+            read -p "Would you like to continue? (y / n) " answer
+            
+            if [[ $answer != [yY]* ]]; then
+                echo "You have to set ConnectedMonitor option manually once."
+                echo "In order to do that, you have to edit $BUMBLEBEE_CONFDIR/xorg.conf.nvidia"
+                echo "with root permissions and replace REPLACEWITHCONNECTEDMONITOR by:"
+                echo "$CONNECTEDMONITOR"
+                return 3
+            else
+                sudo sed -i 's/REPLACEWITHCONNECTEDMONITOR/'$CONNECTEDMONITOR'/g' "$BUMBLEBEE_CONFDIR/xorg.conf.nvidia"
+            fi
         else
             msg "Bumblebee can not determine whether your monitor is CRT or DFP."
             msg "Please report this bug."

@@ -5,7 +5,7 @@ if ! $UNATTENDED; then
     echo
     echo "This will enable you to utilize both your Intel and nVidia card"
     echo
-    read -p "Would you like to continue? (y / n) " answer
+    read -p "Would you like to continue ? (y / n) " answer
     if [[ $answer != [yY]* ]]; then
         echo "Installation aborted"
         exit 1
