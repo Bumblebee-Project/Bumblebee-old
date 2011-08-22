@@ -3,9 +3,10 @@
 # Repair GL on the intel display
 
 # Multiarch X server on a 32bit Ubuntu does not have a x86_64 mesa ld.so
-$IS_64 && XARCH=x86_64-linux-gnu
+X_ARCH=i386-linux-gnu
+$IS_64 && X_ARCH="$X_ARCH x86_64-linux-gnu"
 
-for arch in $XARCH i386-linux-gnu; do
+for arch in $X_ARCH; do
         # check if the link exist to prevent error messages
         if update-alternatives --list ${arch}_gl_conf >/dev/null 2>&1; then
             update-alternatives --force --set ${arch}_gl_conf /usr/lib/$arch/mesa/ld.so.conf
