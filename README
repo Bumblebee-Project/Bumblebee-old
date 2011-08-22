@@ -18,6 +18,11 @@ There are several ways to get Bumblebee:
 
 ### Using your package manager (recommended if available):
 
+First of all, please do the following:
+1. wget https://raw.github.com/Bumblebee-Project/Bumblebee/master/cleanup
+2. chmod +x cleanup
+2. sudo ./cleanup
+
 Ubuntu:
 1. sudo add-apt-repository ppa:bumblebee/stable
 
