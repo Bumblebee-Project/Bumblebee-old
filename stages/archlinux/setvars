@@ -6,4 +6,3 @@ LIBDIR=/usr/lib/bumblebee
 INITDIR=/etc/rc.d
 XORG_MODULEPATH=/usr/lib/nvidia-bumblebee,$XORG_MODULEPATH
 CMD_SVC_STOP='rc.d stop bumblebee'
-X_LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH-bumblebee

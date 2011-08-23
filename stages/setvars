@@ -2,7 +2,6 @@
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
 LSPCI=$(which lspci)
-MODPROBE=$(which modprobe)
 
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
@@ -28,13 +27,11 @@ CONFDIR=/etc/bumblebee
 LIBDIR=/usr/local/lib/bumblebee
 INITDIR=/etc/init.d
 XORG_MODULEPATH=/usr/lib/xorg/modules
-X_LD_LIBRARY_PATH=/usr/lib/nvidia
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia')
 # the graphics driver to be used, defaults to nvidia
 DRIVER=nvidia
-DRIVER_TO_MODPROBE=nvidia
 
 # The version to be installed
 # Try to determine the hash from the git repo
