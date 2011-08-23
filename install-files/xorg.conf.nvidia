@@ -14,5 +14,5 @@ Section "Device"
     BusID ""
     Option "NoLogo" "true"
     Option "UseEDID" "false"
-    Option "ConnectedMonitor" "CRT,DFP"
+    Option "ConnectedMonitor" "DFP"
 EndSection
