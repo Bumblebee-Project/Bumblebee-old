@@ -24,6 +24,29 @@ for driver in nvidia; do
         -e "s,${re_busid},\1$NVIDIABUSID,"
 done
 
+# Detect the monitor.
+# This is using nvidia-xconfig for now, but we're looking for
+# a better way.
+
+if lsmod | grep -q nouveau; then
+    ${MODPROBE} -r nouveau
+fi
+
+if ! lsmod | grep -q nvidia; then
+    ${MODPROBE} $DRIVER_TO_MODPROBE
+fi
+
+query_info=$(LD_LIBRARY_PATH=$X_LD_LIBRARY_PATH $X_LD_LIBRARY_PATH/bin/nvidia-xconfig --query-gpu-info)
+
+if [ $(grep "Display Devices" <<<"$query_info" | cut -d: -f2) -gt 0 ]; then
+    echo "Setting ConnectedMonitor in xorg.conf.nvidia"
+    CONNECTEDMONITOR=$(grep "Display Device 0" <<< "$query_info " | cut -d\( -f2 | cut -d\) -f1)
+    sed -i 's/REPLACEWITHCONNECTEDMONITOR/'$CONNECTEDMONITOR'/g' "$CONFDIR/xorg.conf.nvidia"
+else
+    echo "Bumblebee wasn't able to determine whether your monitor is CRT or DFP."
+    echo "Please report this bug."
+fi
+
 # add the bumblebee group
 if getent group bumblebee >/dev/null; then
     echo "Group 'bumblebee' does already exist"
