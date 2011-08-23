@@ -176,7 +176,6 @@ show_msg() {
 # 0 - the X server is available
 # 1 - the X server is unavailable
 # 2 - the X server is unavailable, user error
-# 3 - the X server is unavailable, ConnectedMonitor isn't set
 optirun_ready() {
     # Is the current user allowed to use Bumblebee?
     # check if the user is a member of the group in this session
@@ -192,12 +191,6 @@ optirun_ready() {
             msg "    sudo usermod -a -G $BUMBLEBEE_GROUP $(id -u -n)"
         fi
         return 2
-    fi
-
-    if grep -q "REPLACEWITHCONNECTEDMONITOR" "$BUMBLEBEE_CONFDIR/xorg.conf.nvidia"; then
-        msg "Bumblebee wasn't able to determine whether your monitor is CRT or DFP."
-        msg "Please report this bug."
-        return 3
     fi
 
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
