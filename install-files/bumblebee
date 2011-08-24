@@ -42,8 +42,16 @@ log_msg() {
     local prepend="$(printf '[%10s] ' "$(cut -d' ' -f1 /proc/uptime)")"
 
     # Inserts two spaces for lines following the first, prepends the timestamp
-    # ([  123] ) to each line and write it to the open log
-    sed "2~1s,^,  ,;s,^,$prepend,;" <<<"$msg" >&5
+    # ([  123] ) to each line
+    msg=$(sed "2~1s,^,  ,;s,^,$prepend,;" <<<"$msg")
+
+    if [ "$log" = 'daemon' ]; then
+        # Write message with timestamp to the open log
+        echo "$msg" >&5
+    elif [ "$log" = 'local' ]; then
+        # Write message with timestamp to standard output
+        echo "$msg"
+    fi
 
     # finally, keep the previous return value
     return $retval
@@ -374,6 +382,10 @@ case "$1" in
     show_help_msg
     ;;
   -d)
+    if (( EUID != 0 )); then
+        echo "Must be run as root"
+        return 1
+    fi
     start_daemon
     ;;
   --status)
