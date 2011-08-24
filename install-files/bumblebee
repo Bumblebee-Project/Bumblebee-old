@@ -372,10 +372,20 @@ show_help_msg() {
 Usage:
     bumblebee [OPTIONS]
     OPTIONS
-        -d          start bumblebee service as daemon. To start it
-                    backgrounded use the handler with 'start' argument.
-        --help      show this help message
-        --version   show version number
+        -d          Start bumblebee service as daemon. To start it backgrounded
+                    use the handler with 'start' argument.
+
+        --startx    Start the second X server like the daemon does. Used for
+                    debug purposes.
+
+        --stopx     Stop the second X server like the daemon does. Used for
+                    debug purposes.
+
+        --status    Show daemon status with corresponding exit value.
+
+        --help      Show this help message.
+
+        --version   Show version number.
 EOF
 }
 
