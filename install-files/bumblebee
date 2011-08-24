@@ -236,9 +236,8 @@ stop_daemon() {
 }
 
 start_daemon() {
-    if (( EUID != 0 )); then
-        echo "Must be run as root"
-        return 1
+    if [ ! is_root_user ]; then
+        exit $?
     fi
 
     # race condition prevention; try to create a new pidfile
