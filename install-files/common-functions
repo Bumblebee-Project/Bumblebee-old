@@ -225,3 +225,14 @@ load_settings() {
     X_LOGFILE="/var/log/Xorg.${DISPLAY_NUMBER}.log"
 
 }
+
+# Check for root user
+# Return values:
+# 0 - user has root privileges
+# 1 - user hasn't root privileges
+is_root_user() {
+    if (( EUID != 0 )); then
+        echo "Must be run as root"
+        return 1
+    fi
+}
