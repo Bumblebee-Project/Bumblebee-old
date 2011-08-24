@@ -402,11 +402,11 @@ case "$1" in
     ;;
   --startx) # Start xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
-    start_server
+    start_x "local"
     ;;
   --stopx)  # Stop xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
-    stop_server
+    stop_x "local"
     ;;
   *)
     show_help_msg
