@@ -49,25 +49,29 @@ log_msg() {
     return $retval
 }
 
-# Initialize a log file. If present save it to an old one.
+# Initialize a log. If the argument passed is "daemon" then it opens a file for
+# logging. If necessary will save current file to a ".old"
 log_init() {
-    # if the log exists and is non-empty...
-    if [ -s "$BUMBLEBEE_LOGFILE" ]; then
-        # start a new file if the file has more than 1000 lines
-        if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 1000 ]; then
-            mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
+    local log="$1"
+    if [ "$log" = 'daemon' ]; then
+        # if the log exists and is non-empty...
+        if [ -s "$BUMBLEBEE_LOGFILE" ]; then
+            # start a new file if the file has more than 1000 lines
+            if [ $(wc -l "$BUMBLEBEE_LOGFILE" | cut -d' ' -f1) -gt 1000 ]; then
+                mv "$BUMBLEBEE_LOGFILE" "$BUMBLEBEE_LOGFILE".old
+            fi
         fi
-    fi
-    # Open logfile for appending
-    exec 5>> "$BUMBLEBEE_LOGFILE"
+        # Open logfile for appending
+        exec 5>> "$BUMBLEBEE_LOGFILE"
 
-    # log initial message
-    log_msg "daemon" "Bumblebee log started at $(date -R)"
+        # log initial message
+        log_msg "daemon" "Bumblebee log started at $(date -R)"
+     fi
 }
 
-# Write the a message along with the time and close the logfile
+# Write the a message to the specified log along with the time and close the log
 log_close() {
-    log_msg "daemon" "Bumblebee log ended on $(date -R)"
+    log_msg "$1" "Bumblebee log ended on $(date -R)"
     exec 5>&-
 }
 
@@ -210,7 +214,7 @@ stop_daemon() {
     stop_x
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
-    log_close
+    log_close "daemon"
     exit 0
 }
 
@@ -250,7 +254,7 @@ start_daemon() {
     trap stop_daemon EXIT
 
     # open the logfile for log_msg "daemon"
-    log_init
+    log_init "daemon"
 
     # ok, bye old fifo if any
     rm -f "$BUMBLEBEE_FIFO"
