@@ -236,9 +236,6 @@ stop_daemon() {
 }
 
 start_daemon() {
-    if [ ! is_root_user ]; then
-        exit $?
-    fi
 
     # race condition prevention; try to create a new pidfile
     if ! (set -o noclobber;echo $$ > "$BUMBLEBEE_PIDFILE"); then
@@ -390,9 +387,8 @@ case "$1" in
     show_help_msg
     ;;
   -d)
-    if (( EUID != 0 )); then
-        echo "Must be run as root"
-        return 1
+    if [ ! is_root_user ]; then
+        exit $?
     fi
     start_daemon
     ;;
@@ -401,10 +397,16 @@ case "$1" in
     ;;
   --startx) # Start xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
+    if [ ! is_root_user ]; then
+        exit $?
+    fi
     start_x "local"
     ;;
   --stopx)  # Stop xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
+    if [ ! is_root_user ]; then
+        exit $?
+    fi
     stop_x "local"
     ;;
   *)
