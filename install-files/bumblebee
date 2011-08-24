@@ -29,10 +29,14 @@ BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
 
 load_settings
 
-# Log a message to our log file while preserving the previous return code
-log_daemon_msg() {
+# Log a message to our log file while preserving the previous return code.
+# Arguments:
+# $1 - log name (daemon | local)
+# $2 - message
+log_msg() {
     local retval=$?
-    local msg="$1"
+    local log="$1"
+    local msg="$2"
 
     # the first number is the uptime in seconds
     local prepend="$(printf '[%10s] ' "$(cut -d' ' -f1 /proc/uptime)")"
@@ -58,12 +62,12 @@ log_init() {
     exec 5>> "$BUMBLEBEE_LOGFILE"
 
     # log initial message
-    log_daemon_msg "Bumblebee log started at $(date -R)"
+    log_msg "daemon" "Bumblebee log started at $(date -R)"
 }
 
 # Write the a message along with the time and close the logfile
 log_close() {
-    log_daemon_msg "Bumblebee log ended on $(date -R)"
+    log_msg "daemon" "Bumblebee log ended on $(date -R)"
     exec 5>&-
 }
 
@@ -73,44 +77,44 @@ log_close() {
 # 1 - X server is not available
 start_x() {
     # is a X server running?
-    log_daemon_msg "Checking for X server availability before starting X..."
+    log_msg "daemon" "Checking for X server availability before starting X..."
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
       [05]) # already started
-        log_daemon_msg "X server is already started"
+        log_msg "daemon" "X server is already started"
         return 0
         ;;
       1) # not started, see below
-        log_daemon_msg "X server is not started"
+        log_msg "daemon" "X server is not started"
         ;;
       2) # ignore pidfile, start X
-        log_daemon_msg "Pidfile does already exist and will be removed."
+        log_msg "daemon" "Pidfile does already exist and will be removed."
         rm -rf "$PIDFILE"
         ;;
       3) # driver crash
-        log_daemon_msg "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
-        log_daemon_msg "  Reboot the machine if you want to use Bumblebee"
+        log_msg "daemon" "Xorg was previously crashed by the nvidia driver on display $VGL_DISPLAY."
+        log_msg "daemon" "  Reboot the machine if you want to use Bumblebee"
         return 1
         ;;
       4) # another X is running
-        log_daemon_msg "Display $VGL_DISPLAY is already in use by an other program."
-        log_daemon_msg "  Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
+        log_msg "daemon" "Display $VGL_DISPLAY is already in use by an other program."
+        log_msg "daemon" "  Consider changing \$VGL_DISPLAY in $BUMBLEBEE_CONFDIR/bumblebee.conf"
         return 1
         ;;
     esac
 
-    log_daemon_msg "Enabling graphics card (loading driver)..."
-    if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
-        log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+    log_msg "daemon" "Enabling graphics card (loading driver)..."
+    if ! log_msg "daemon" "$(enable_graphics 2>&1)"; then
+        log_msg "daemon" "The graphics card could not be enabled, perhaps the drivers failed to load."
         return 1
     fi
 
-    log_daemon_msg "Starting X..."
+    log_msg "daemon" "Starting X..."
 
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
 
-    log_daemon_msg "Waiting for X server to become available..."
+    log_msg "daemon" "Waiting for X server to become available..."
     local retries max_retry_count=$(($X_SERVER_TIMEOUT * 2))
     # wait until the PIDFILE has become available (X is started)
     for ((retries=0; retries<$max_retry_count; retries++)); do
@@ -125,20 +129,20 @@ start_x() {
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" >/dev/null
     case $? in
       0) # OK
-        log_daemon_msg "X needed $retries retries to become ready"
+        log_msg "daemon" "X needed $retries retries to become ready"
         ;;
       5)
-        log_daemon_msg "X has not become ready after $max_retry_count retries with delays of 500ms"
-        log_daemon_msg "This could be a bug in X, please check $X_LOGFILE"
+        log_msg "daemon" "X has not become ready after $max_retry_count retries with delays of 500ms"
+        log_msg "daemon" "This could be a bug in X, please check $X_LOGFILE"
         return 1
         ;;
       *)
-        log_daemon_msg "The Bumblebee X server failed to start. Please check $X_LOGFILE"
+        log_msg "daemon" "The Bumblebee X server failed to start. Please check $X_LOGFILE"
         return 1
         ;;
     esac
 
-    log_daemon_msg "X has started."
+    log_msg "daemon" "X has started."
     # Everything is OK, X has started
     return 0
 }
@@ -150,14 +154,14 @@ start_x() {
 stop_x() {
     local pid
     # is a X server running?
-    log_daemon_msg "Checking for X server availability before stopping it..."
+    log_msg "daemon" "Checking for X server availability before stopping it..."
     pid=$(xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS")
     case $? in
       0) # It's our server, should stop it
-        log_daemon_msg "X is running, initiating shutdown..."
+        log_msg "daemon" "X is running, initiating shutdown..."
         kill -TERM "$pid" 2>/dev/null
 
-        log_daemon_msg "Waiting for X server to stop..."
+        log_msg "daemon" "Waiting for X server to stop..."
         # wait for at most five seconds to death
         local retries=0
         # wait until pid is no more
@@ -168,33 +172,33 @@ stop_x() {
 
         # check if still running, if it is KILL it
         if kill -0 "$pid" 2>/dev/null; then
-            log_daemon_msg "X did not shutdown in time, sending KILL signal"
+            log_msg "daemon" "X did not shutdown in time, sending KILL signal"
             kill -KILL "$pid" 2>/dev/null
         fi
 
         # still running? ow, perhaps a driver crash :?
         if kill -0 "$pid" 2>/dev/null; then
-            log_daemon_msg "X could not be killed, perhaps the driver crashed?"
+            log_msg "daemon" "X could not be killed, perhaps the driver crashed?"
             return 1
         fi
         ;;
       1|2) # not started or invalid pidfile
-        log_daemon_msg "The X server has not started or the pidfile is invalid."
+        log_msg "daemon" "The X server has not started or the pidfile is invalid."
         ;;
       3) # crashed, should do a cleanup?
-        log_daemon_msg "X could not be stopped because the driver had crashed."
+        log_msg "daemon" "X could not be stopped because the driver had crashed."
         return 1
         ;;
       4) # Not our server, not our responsibility, don't care.
         ;;
     esac
 
-    log_daemon_msg "X is stopped."
+    log_msg "daemon" "X is stopped."
 
-    log_daemon_msg "Disabling graphics card (unloading driver)..."
-    if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
-        log_daemon_msg "The card could not be disabled or the drivers failed to unload."
-        log_daemon_msg "Perhaps an other program is utilizing the card."
+    log_msg "daemon" "Disabling graphics card (unloading driver)..."
+    if ! log_msg "daemon" "$(disable_graphics 2>&1)"; then
+        log_msg "daemon" "The card could not be disabled or the drivers failed to unload."
+        log_msg "daemon" "Perhaps an other program is utilizing the card."
     fi
 
     # Everything OK, We are gone!
@@ -245,26 +249,26 @@ start_daemon() {
     # cleanup on exit
     trap stop_daemon EXIT
 
-    # open the logfile for log_daemon_msg
+    # open the logfile for log_msg "daemon"
     log_init
 
     # ok, bye old fifo if any
     rm -f "$BUMBLEBEE_FIFO"
 
-    log_daemon_msg "Creating fifo $BUMBLEBEE_FIFO for communication..."
+    log_msg "daemon" "Creating fifo $BUMBLEBEE_FIFO for communication..."
     # the group may write only
     if ! mkfifo --mode=620  "$BUMBLEBEE_FIFO"; then
-        log_daemon_msg "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
+        log_msg "daemon" "Error: Cannot create fifo $BUMBLEBEE_FIFO for communication."
         return 1
     fi
-    log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
+    log_msg "daemon" "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
     chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
 
     local command
     local pids
     while :; do
         # this is our "sleep" function, it waits for clients to give commands
-        log_daemon_msg "Waiting for orders"
+        log_msg "daemon" "Waiting for orders"
         exec 3< "$BUMBLEBEE_FIFO"
         read command <&3
 
@@ -274,16 +278,16 @@ start_daemon() {
         if [[ ${command:0:5} == start ]]; then
             # only start if there are actually clients running
             if [ -n "$pids" ]; then
-                log_daemon_msg "Optirun start request received."
+                log_msg "daemon" "Optirun start request received."
                 start_x
             fi
         elif [[ $STOP_SERVICE_ON_EXIT == [Yy]* ]]; then
             # XXX: protect against flooding
-            log_daemon_msg "Ping received from optirun, configured to stop X if not in use."
+            log_msg "daemon" "Ping received from optirun, configured to stop X if not in use."
             # allow to quit X if there are no clients running or if the client
             # does not have child programs running. xlsclients did not work :(
             if [ -z "$pids" ] || ! ps --ppid "$pids" > /dev/null; then
-                log_daemon_msg "Last optirun client exited."
+                log_msg "daemon" "Last optirun client exited."
                 stop_x
             fi
         fi
@@ -371,9 +375,13 @@ case "$1" in
   --status)
     status_daemon
     ;;
-  --startx) # Start xserver on-demand. Should be called with daemon stopped
+  --startx) # Start xserver on-demand. Should be called with daemon stopped.
+            # Should not log to daemon_log
+    start_server
     ;;
-  --stopx)  # Stop xserver on-demand. Should be called with daemon stopped
+  --stopx)  # Stop xserver on-demand. Should be called with daemon stopped.
+            # Should not log to daemon_log
+    stop_server
     ;;
   *)
     show_help_msg
