@@ -43,7 +43,7 @@ get_graphics_driver() {
     local driver
     # currently, it detects which nvidia module can be used. In the future,
     # this function may also use nouveau if it should be used
-    for driver in nvidia-current nvidia; do
+    for driver in nvidia-current nvidia nouveau; do
         # do not use modprobe since it fails if th edriver is already loaded
         if modinfo $driver &>/dev/null; then
             echo $driver
