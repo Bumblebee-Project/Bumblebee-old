@@ -410,6 +410,7 @@ case "$1" in
     if [ ! is_root_user ]; then
         exit $?
     fi
+    load_settings
     start_x "local"
     ;;
   --stopx)  # Stop xserver on-demand. Should be called with daemon stopped.
@@ -417,6 +418,7 @@ case "$1" in
     if [ ! is_root_user ]; then
         exit $?
     fi
+    load_settings
     stop_x "local"
     ;;
   *)
