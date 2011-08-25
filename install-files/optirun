@@ -18,8 +18,8 @@
 
 # load common library
 BUMBLEBEE_LIBDIR=/usr/lib/bumblebee
-source "$BUMBLEBEE_LIBDIR/common-paths"
-source "$BUMBLEBEE_LIBDIR/common-functions"
+. "$BUMBLEBEE_LIBDIR/common-paths"
+. "$BUMBLEBEE_LIBDIR/common-functions"
 
 load_settings
 
@@ -74,8 +74,6 @@ msg() {
 # user to set VGL_LOG= to get default behavior: write to stderr
 : "${VGL_LOG:=/dev/null}"
 
-# Parsing arguments
-EXTRARGS=
 while :; do
     case "$1" in
       -f)
@@ -107,37 +105,6 @@ while :; do
         else
             echo "The display parameter -d must be followed by a colon and digits like :8"
             exit 2
-        fi
-        ;;
-      -fps)
-        shift
-        if ! [[ $1 =~ "^[0-9]*$" ]]; then
-            EXTRAARGS="$EXTRAARGS-fps $1 "
-            msg "Bumblebee will limit the framerate to $1 fps"
-        else
-            msg "The parameter -fps must be followed by a numeric value"
-            exit 4 #Check exit status
-        fi
-        ;;
-      -q)
-        shift
-        if ! [[ $1 =~ "^[0-9]*$" ]]; then
-            EXTRAARGS="$EXTRAARGS-q $1 "
-            msg "Bumblebee will use compression quality: $1"
-        else
-            msg "The parameter -q must be followed by a numeric value"
-            exit 4 #Check exit status
-        fi
-        ;;
-      -np) # Carefull on this one. Should be disabled right now but vglrun can
-           # handle invalid values
-        shift
-        if ! [[ $1 =~ "^[0-9]*$" ]]; then
-            EXTRAARGS="$EXTRAARGS-np $1 "
-            msg "Bumblebee will use $1 CPUs for compression"
-        else
-            msg "The parameter -c must be followed by a numeric value"
-            exit 4 #Check exit status
         fi
         ;;
       --failsafe|failsafe=*)
@@ -185,9 +152,6 @@ while :; do
     # move to the next option in the command
     shift
 done
-
-# Prepare vglrun arguments. For the future use only one variable to do this
-VGLARGS="-c $VGL_COMPRESS -d $VGL_DISPLAY -ld $VGL_DRIVER $EXTRAARGS"
 
 if [[ $0 =~ /optirun(32|64)$ ]]; then
     msg "Running ${0##*/} is deprecated as optirun detects automatically"
@@ -295,8 +259,7 @@ optirun_launcher() {
     # export settings from configuration file
     export VGL_LOG
     export VGL_VERBOSE
-    LD_LIBRARY_PATH="$VGL_DRIVER:$LD_LIBRARY_PATH" \
-    vglrun "$VGLARGS" -- "$@"
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
 
     # notify the daemon that we are done
     echo stop > "$BUMBLEBEE_FIFO"
