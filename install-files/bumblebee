@@ -173,6 +173,9 @@ start_x() {
 # 1 - the X server refused to leave, perhaps a driver crash
 stop_x() {
     local log='daemon'
+    if [ "$1" = 'local' ]; then
+        log='local'
+    fi
     local pid
     # is a X server running?
     log_msg $log "Checking for X server availability before stopping it..."
