@@ -231,8 +231,9 @@ load_settings() {
 # 0 - user has root privileges
 # 1 - user hasn't root privileges
 is_root_user() {
-    if (( EUID != 0 )); then
-        echo "Must be run as root"
-        return 1
+    if [ "$EUID" -eq 0 ]; then
+        return 0
     fi
+    echo "Must be run as root"
+    return 1
 }

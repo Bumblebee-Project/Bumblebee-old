@@ -400,8 +400,8 @@ case "$1" in
     show_help_msg
     ;;
   -d)
-    if [ ! is_root_user ]; then
-        exit $?
+    if ! is_root_user; then
+        exit 1
     fi
     start_daemon
     ;;
@@ -410,16 +410,16 @@ case "$1" in
     ;;
   --startx) # Start xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
-    if [ ! is_root_user ]; then
-        exit $?
+    if ! is_root_user; then
+        exit 1
     fi
     load_settings
     start_x "local"
     ;;
   --stopx)  # Stop xserver on-demand. Should be called with daemon stopped.
             # Should not log to daemon_log
-    if [ ! is_root_user ]; then
-        exit $?
+    if ! is_root_user; then
+        exit 1
     fi
     load_settings
     stop_x "local"
