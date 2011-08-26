@@ -28,6 +28,7 @@
 
 UNATTENDED=false
 KEEP_CONFFILE=false
+VERBOSE=false
 CONFDIR=/etc/bumblebee
 
 while [ $# -gt 0 ]; do
@@ -38,18 +39,29 @@ while [ $# -gt 0 ]; do
       --upgrade)
         KEEP_CONFFILE=true
         ;;
+      -v|--verbose)
+        VERBOSE=true
+        ;;
       --)
         shift
         break
         ;;
       --help)
-        echo "Usage: $0 [options]"
-        echo
-        echo "  --unattended"
-        echo "    Do not confirm, proceed with uninstallation"
-        echo
-        echo "  --upgrade"
-        echo "    Upgrade mode, do not remove configuration files"
+        cat <<EOF
+Usage: $0 [options]
+  --unattended
+    Do not confirm, proceed with uninstallation
+
+  --upgrade
+    Upgrade mode, do not remove configuration files
+
+  --verbose
+  -v
+    Display files being removed
+
+  --help
+    Show this help message
+EOF
         exit 0
         ;;
       *)
@@ -74,7 +86,7 @@ fi
 
 if ! $UNATTENDED; then
     echo "You are about to uninstall Bumblebee."
-    read -p "Continue [y/N]? " yn
+    read -p "Continue ? (y / n) " yn
     if [[ $yn != [Yy]* ]]; then
         echo "Aborted."
         exit 1
@@ -82,25 +94,44 @@ if ! $UNATTENDED; then
 fi
 
 echo "Stopping services..."
-/etc/init.d/bumblebee stop
+# REPLACE WITH STOP SERVICE
+
+echo "Removing services..."
+# REPLACE WITH REMOVE SERVICE
 
 uninstall() {
     local file="$1"
     if $KEEP_CONFFILE && [[ $file == "$CONFDIR/"* ]]; then
-        echo "Not removing $file"
+        $VERBOSE && echo "Not removing $file"
         return
     fi
-    rm -vf "$1"
+    if $VERBOSE; then
+        rm -vf "$1"
+    else
+        rm -f "$1"
+    fi
 }
 uninstall_dir() {
     local dir="$1"
-    rmdir -v "$1"
+    if $KEEP_CONFFILE && [[ $dir/ == "$CONFDIR/"* ]]; then
+        $VERBOSE && echo "Not removing $dir"
+        return
+    fi
+    if $VERBOSE; then
+        rmdir -v "$1"
+    else
+        rmdir "$1"
+    fi
 }
 
 # Begin uninstallation of files
 # REPLACE WITH UNINSTALL COMMANDS
 
 # XXX: check if I am allowed to be removed
-# remove myself. Note: do not source this fill, or /bin/bash will be removed!
-rm -f "$0"
+# remove myself. Note: do not source this file, or /bin/bash will be removed!
+if $VERBOSE; then
+    rm -vf "$0"
+else
+    rm -f "$0"
+fi
 echo "Bumblebee has been uninstalled."

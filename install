@@ -16,14 +16,39 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+unset BASH_VERSINFO 2>/dev/null
+if ! [ $BASH_VERSINFO -ge 4 ] 2>/dev/null; then
+    echo "You're not using bash or have an outdated one. Please run:"
+    echo "    sudo ./install"
+    exit 1
+fi
+
+# Arg 1 (required): filename relative to stage/
+# Arg 2: Header text to be displayed before executing the action
+# Arg 3: space-separated groups for which the stage applies
 install_step() {
-    local stage
+    local stage include_group group
     [ -n "$2" ] && echo "== $2 =="
     for stage in "${SKIP_STAGES[@]}"; do
         if [[ $stage == "$1" ]]; then
             echo "(skipped)"
             return
         fi
+    done
+
+    # check if there is a need to restrict installer to certain groups
+    while [ -n "${INCLUDE_GROUPS[*]}" ]; do
+        # check if the stage is within a group that is allowed to run
+        for include_group in "${INCLUDE_GROUPS[@]}"; do
+            for group in $3; do
+                # the stage should be executed
+                [[ $group == $include_group ]] && break 3
+            done
+        done
+
+        # not allowed to run
+        echo "(skipped)"
+        return
     done
 
     # try a customized step first
@@ -41,31 +66,30 @@ install_step() {
 # access the commandline options, therefore do not use install_step
 . stages/setvars
 
-install_step checkprivileges
+install_step checkprivileges    ""  precheck
 
-install_step builddir
+install_step builddir           ""  build
 
-install_step determinedistro
+install_step determinedistro    "" "precheck build install postconfig"
 
 # optional distro-specific variables, like paths
-install_step "$DISTRO/setvars"
+install_step "$DISTRO/setvars"  "" "precheck build install postconfig"
+
+install_step detectoldversion   ""  precheck
 
 install_step welcome
 
-install_step "$DISTRO/checkdependencies" "Checking dependencies"
+install_step "$DISTRO/checkdependencies" "Checking dependencies" precheck
 
-install_step uninstall "Removing previous version"
+install_step uninstall          "Removing previous version"
 
-install_step detecthardware "Detecting hardware"
+install_step buildfiles         "Building files" build
 
-install_step buildfiles "Building files"
+install_step copyfiles          "Installing Bumblebee" install
 
-install_step copyfiles "Installing Bumblebee"
-install_step "$DISTRO/copyfiles"
+install_step createuninstaller  "Creating uninstaller" installuninst
 
-install_step createuninstaller "Creating uninstaller"
-
-install_step configure "Configuring"
-install_step "$DISTRO/configure"
+install_step configure          "Detecting hardware & Configuring" postconfig
+install_step "$DISTRO/configure" "" postconfig
 
 install_step finish

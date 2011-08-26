@@ -1,15 +1,20 @@
 #!/bin/bash
 
 # Repair GL on the intel display
-for arch in x86_64-linux-gnu i386-linux-gnu; do
+
+# Multiarch X server on a 32bit Ubuntu does not have a x86_64 mesa ld.so
+X_ARCH=i386-linux-gnu
+$IS_64 && X_ARCH="$X_ARCH x86_64-linux-gnu"
+
+for arch in $X_ARCH; do
         # check if the link exist to prevent error messages
-        if update-alternatives --list ${arch}_gl_conf &>/dev/null; then
+        if update-alternatives --list ${arch}_gl_conf >/dev/null 2>&1; then
             update-alternatives --force --set ${arch}_gl_conf /usr/lib/$arch/mesa/ld.so.conf
         fi
 done
 
 # versions before Oneiric without multiarch
-if update-alternatives --list gl_conf &>/dev/null; then
+if update-alternatives --list gl_conf >/dev/null 2>&1; then
     update-alternatives --force --set gl_conf /usr/lib/mesa/ld.so.conf
 fi
 
@@ -17,3 +22,6 @@ ldconfig
 
 # Install the service
 update-rc.d bumblebee defaults
+
+# Start the bumblebee daemon
+/etc/init.d/bumblebee start || true

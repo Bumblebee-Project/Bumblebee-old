@@ -21,8 +21,6 @@ install_file 755 bumblebee-bugreport "$BINDIR/bumblebee-bugreport"
 
 install_file 755 bumblebee.handler "$INITDIR/bumblebee"
 
+# Do not use install_dir as this may mess with permissions and break things
 #install_dir 755 /etc/bash_completion.d
-#install_file 644 optirun.bash_completion /etc/bash_completion.d/optirun
-
-# whenever possible, the below scripts should be integrated in a package manager
-install_file 755 bumblebee-configuration "$BINDIR/bumblebee-configuration"
+install_file 644 optirun.bash_completion /etc/bash_completion.d/optirun
