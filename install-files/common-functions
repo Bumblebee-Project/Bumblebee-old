@@ -70,16 +70,21 @@ get_conflicting_drivers() {
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
-    load_graphics_driver
+    # sanity check on specified driver (only nvidia is supported right now)
+    sanity_check nvidia
 }
 disable_graphics() {
-    unload_graphics_driver
+    : #unload_graphics_driver
 }
 
-# load the driver, return 1 on failure
-load_graphics_driver() {
+# Run a sanity check on the specified driver in $1. It will try to correct if
+# the wrong driver is inserted.
+# Returns
+# 0 - sanity check passed or driver corrected succesfully
+# 1 - could not satisfy driver configuration
+sanity_check() {
     local remove_driver
-    local driver="$(get_graphics_driver)"
+    local driver="$1"
     if ! lsmod | grep -q "^$driver "; then
         for remove_driver in $(get_conflicting_drivers "$driver"); do
             # unload conflicting drivers if loaded, ignore failure
@@ -87,10 +92,12 @@ load_graphics_driver() {
                 "${MODPROBE}" -r "$remove_driver"
             fi
         done
-      "${MODPROBE}" "$driver" || return 1
+        "${MODPROBE}" "$driver" || return 1
     fi
     return 0
 }
+
+# We shouldn't remove the driver unless it is absolutely necessary!!!
 # unload the driver, return 1 on failure. If the driver was already loaded, no
 # action is performed
 unload_graphics_driver() {
