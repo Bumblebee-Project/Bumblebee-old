@@ -70,10 +70,10 @@ get_conflicting_drivers() {
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
-    load_graphics_driver
+    : #load_graphics_driver
 }
 disable_graphics() {
-    unload_graphics_driver
+    : #unload_graphics_driver
 }
 
 # load the driver, return 1 on failure
@@ -194,7 +194,7 @@ set_graphics_driver() {
 # load the settings and sets some other variables
 load_settings() {
     # defaults
-    STOP_SERVICE_ON_EXIT=y
+    STOP_SERVICE_ON_EXIT=N
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
     ECO_MODE=N

@@ -1,8 +1,0 @@
-# Nouveau already blacklisted by nvidia driver package in /etc/modprobe.d/nvidia.conf
-
-mkdir -p /usr/local/bin/
-cp install-files/xorg.conf.nvidia /etc/X11/
-cp install-files/bumblebee-bugreport /usr/local/bin/
-cp install-files/bumblebee-uninstall /usr/local/bin/
-cp install-files/bumblebee-configuration /usr/local/bin/
-

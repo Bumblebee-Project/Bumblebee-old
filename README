@@ -18,6 +18,11 @@ There are several ways to get Bumblebee:
 
 ### Using your package manager (recommended if available):
 
+First of all, please do the following:
+1. wget https://raw.github.com/Bumblebee-Project/Bumblebee/master/cleanup
+2. chmod +x cleanup
+2. sudo ./cleanup
+
 Ubuntu:
 1. sudo add-apt-repository ppa:bumblebee/stable
 
@@ -33,6 +38,8 @@ AUR package: http://aur.archlinux.org/packages.php?ID=49469
 Instructions in the ArchWiki: https://wiki.archlinux.org/index.php/Bumblebee
 
 ### Using the installation script:
+You need to install VirtualGL > 2.2.1 (2.2.90 is advised) and nvidia driver.
+
 Tarballs can be found at https://github.com/Bumblebee-Project/Bumblebee/downloads
 Download the tarball named like bumblebee-VERSION.tar.gz, extract and install it:
 
