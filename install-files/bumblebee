@@ -99,11 +99,21 @@ start_x() {
         ;;
     esac
 
-    log_daemon_msg "Enabling graphics card (loading driver)..."
-    if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
-        log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
-        return 1
-    fi
+    case $ENABLE_ACPI_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Enabling graphics card (loading driver)..."
+        if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
+            log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+            return 1
+        fi
+        ;;
+      *)
+        log_daemon_msg "ACPI is disabled, only loading driver"
+        if ! log_daemon_msg "$(load_graphics_driver() 2>&1)"; then
+            log_daemon_msg "The driver failed to load."
+            return 1
+        ;;
+    esac
 
     log_daemon_msg "Starting X..."
 
@@ -191,11 +201,18 @@ stop_x() {
 
     log_daemon_msg "X is stopped."
 
-    log_daemon_msg "Disabling graphics card (unloading driver)..."
-    if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
-        log_daemon_msg "The card could not be disabled or the drivers failed to unload."
-        log_daemon_msg "Perhaps an other program is utilizing the card."
-    fi
+    case $ENABLE_ACPI_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Disabling graphics card (unloading driver)..."
+        if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
+            log_daemon_msg "The card could not be disabled or the drivers failed to unload."
+            log_daemon_msg "Perhaps an other program is utilizing the card."
+        fi
+        ;;
+      *)
+        log_daemon_msg "ACPI is disabled, not unloading driver"
+        ;;
+      esac
 
     # Everything OK, We are gone!
     return 0
