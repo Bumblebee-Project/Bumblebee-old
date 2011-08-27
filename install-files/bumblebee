@@ -102,7 +102,7 @@ start_x() {
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
         log_daemon_msg "Enabling graphics card..."
-        if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
+        if ! log_daemon_msg "$(enable_card 2>&1)"; then
             log_daemon_msg "The graphics card could not be enabled."
             return 1
         fi
@@ -212,7 +212,7 @@ stop_x() {
             log_daemon_msg "Perhaps an other program is using it."
         fi
         log_daemon_msg "Disabling graphics card..."
-        if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
+        if ! log_daemon_msg "$(disable_card 2>&1)"; then
             log_daemon_msg "The card could not be disabled."
             log_daemon_msg "Perhaps an other program is utilizing the card."
         fi
@@ -229,6 +229,17 @@ stop_x() {
 # Called on receiving a signal like TERM
 stop_daemon() {
     stop_x
+
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Enabling graphics card before stopping daemon..."
+        if ! log_daemon_msg "$(enable_card 2>&1)"; then
+            log_daemon_msg "The graphics card could not be enabled."
+        fi
+      *)
+        log_daemon_msg "Power management is disabled, card already enabled."
+        ;;
+    esac
 
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
@@ -285,6 +296,18 @@ start_daemon() {
     fi
     log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
     chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
+
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Disabling graphics card on start..."
+        if ! log_daemon_msg "$(disable_card 2>&1)"; then
+            log_daemon_msg "The card could not be disabled."
+        fi
+        ;;
+      *)
+        log_daemon_msg "Power management is disabled, not disabling card on start."
+        ;;
+    esac
 
     local command
     local pids

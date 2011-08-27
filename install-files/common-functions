@@ -103,7 +103,7 @@ card_status() {
 
 # Read the /etc/bumblebee/cardo{n,ff} and send
 # the content line by line to acpi_call
-enable_graphics() {
+enable_card() {
     if card_status; then
         while read call; do
             acpi_call "$call";
@@ -115,7 +115,7 @@ enable_graphics() {
     return 0
 }
 
-disable_graphics() {
+disable_card() {
     if ! card_status; then
         while read call; do
             acpi_call "$call";
