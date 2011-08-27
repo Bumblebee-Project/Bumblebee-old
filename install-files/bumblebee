@@ -99,7 +99,7 @@ start_x() {
         ;;
     esac
 
-    case $ENABLE_ACPI_MANAGEMENT in
+    case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
         log_daemon_msg "Enabling graphics card (loading driver)..."
         if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
@@ -108,8 +108,8 @@ start_x() {
         fi
         ;;
       *)
-        log_daemon_msg "ACPI is disabled, only loading driver"
-        if ! log_daemon_msg "$(load_graphics_driver() 2>&1)"; then
+        log_daemon_msg "Power management is disabled, only loading driver"
+        if ! log_daemon_msg "$(load_graphics_driver 2>&1)"; then
             log_daemon_msg "The driver failed to load."
             return 1
         fi
@@ -202,7 +202,7 @@ stop_x() {
 
     log_daemon_msg "X is stopped."
 
-    case $ENABLE_ACPI_MANAGEMENT in
+    case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
         log_daemon_msg "Disabling graphics card (unloading driver)..."
         if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
@@ -211,7 +211,7 @@ stop_x() {
         fi
         ;;
       *)
-        log_daemon_msg "ACPI is disabled, not unloading driver"
+        log_daemon_msg "Power management is disabled, not unloading driver"
         ;;
       esac
 

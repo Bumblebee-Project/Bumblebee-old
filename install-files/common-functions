@@ -92,20 +92,22 @@ acpi_call() {
 }
 
 # Check card status:
-#  - return 0 if disabled
-#  - return 1 is enabled
+#  - return 0 if enabled
+#  - return 1 is disabled
 card_status() {
     if lspci -v -d 10de: | grep -q !; then
-        return 0
+        return 1
     fi
-    return 1
+    return 0
 }
 
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
     if card_status; then
-        $(acpi_call "$ACPI_ON_CALL")
+        while read call; do
+            acpi_call "$call";
+        done < /etc/bumblebee/cardon
         if card_status; then
             return 1
         fi
@@ -115,7 +117,9 @@ enable_graphics() {
 
 disable_graphics() {
     if ! card_status; then
-        $(acpi_call "$ACPI_OFF_CALL")
+        while read call; do
+            acpi_call "$call";
+        done < /etc/bumblebee/cardoff
         if ! card_status; then
             return 1
         fi
