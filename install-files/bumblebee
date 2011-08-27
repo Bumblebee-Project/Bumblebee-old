@@ -101,20 +101,22 @@ start_x() {
 
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
-        log_daemon_msg "Enabling graphics card (loading driver)..."
+        log_daemon_msg "Enabling graphics card..."
         if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
-            log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+            log_daemon_msg "The graphics card could not be enabled."
             return 1
         fi
+        log_daemon_msg "Loading driver..."
         ;;
       *)
         log_daemon_msg "Power management is disabled, only loading driver"
-        if ! log_daemon_msg "$(load_graphics_driver 2>&1)"; then
-            log_daemon_msg "The driver failed to load."
-            return 1
-        fi
         ;;
     esac
+
+    if ! log_daemon_msg "$(load_graphics_driver 2>&1)"; then
+        log_daemon_msg "The driver failed to load."
+        return 1
+    fi
 
     log_daemon_msg "Starting X..."
 
@@ -204,16 +206,21 @@ stop_x() {
 
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
-        log_daemon_msg "Disabling graphics card (unloading driver)..."
+        log_daemon_msg "Unloading driver..."
+        if ! log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
+            log_daemon_msg "The driver could not be unloaded."
+            log_daemon_msg "Perhaps an other program is using it."
+        fi
+        log_daemon_msg "Disabling graphics card..."
         if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
-            log_daemon_msg "The card could not be disabled or the drivers failed to unload."
+            log_daemon_msg "The card could not be disabled."
             log_daemon_msg "Perhaps an other program is utilizing the card."
         fi
         ;;
       *)
         log_daemon_msg "Power management is disabled, not unloading driver"
         ;;
-      esac
+    esac
 
     # Everything OK, We are gone!
     return 0
@@ -222,6 +229,7 @@ stop_x() {
 # Called on receiving a signal like TERM
 stop_daemon() {
     stop_x
+
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
     log_close

@@ -101,8 +101,8 @@ card_status() {
     return 0
 }
 
-# In the future, {en,dis}able_graphics may handle ACPI calls. Only use
-# {,un}load_graphics_driver if the card should not be toggled
+# Read the /etc/bumblebee/cardo{n,ff} and send
+# the content line by line to acpi_call
 enable_graphics() {
     if card_status; then
         while read call; do
@@ -112,7 +112,7 @@ enable_graphics() {
             return 1
         fi
     fi
-    load_graphics_driver
+    return 0
 }
 
 disable_graphics() {
@@ -124,7 +124,7 @@ disable_graphics() {
             return 1
         fi
     fi
-    unload_graphics_driver
+    return 0
 }
 
 # load the driver, return 1 on failure
