@@ -219,7 +219,7 @@ load_settings() {
 
     # Remove colon and everything before it: :1.0 -> 1.0
     DISPLAY_NUMBER=${VGL_DISPLAY##*:}
-    # Remove dot and everything after it: 1.0 -> 0
+    # Remove dot and everything after it: 1.0 -> 1
     DISPLAY_NUMBER=${DISPLAY_NUMBER%%.*}
     PIDFILE="/tmp/.X${DISPLAY_NUMBER}-lock"
     X_LOGFILE="/var/log/Xorg.${DISPLAY_NUMBER}.log"
