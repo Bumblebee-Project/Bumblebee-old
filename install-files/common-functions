@@ -35,34 +35,22 @@ MODPROBE="$(which modprobe)"
 # This version is set at installation time
 BUMBLEBEE_VERSION=DEV
 
-# Retrieve the graphics kernel module specified in $1 to be used by the X server
+# retrieve the graphics kernel module to be used for the X server
 # Return values:
 #   0: a driver is available, the module name is printed
 #   1: no driver is available, nothing is printed
 get_graphics_driver() {
-    local driver="$1"
+    local driver
     # currently, it detects which nvidia module can be used. In the future,
     # this function may also use nouveau if it should be used
-    case $driver in
-      nvidia)
-        for driver in nvidia-current nvidia; do
-            # do not use modprobe since it fails if th edriver is already loaded
-            if modinfo $driver &>/dev/null; then
-                echo $driver
-                return 0
-            fi
-        done
-        return 1
-        ;;
-      nouveau)
+    for driver in nvidia-current nvidia; do
         # do not use modprobe since it fails if th edriver is already loaded
         if modinfo $driver &>/dev/null; then
             echo $driver
             return 0
         fi
-        ;;
-    esac
-    return 1 # should not happen
+    done
+    return 1
 }
 
 # Displays any conflicting drivers that must be unloaded before $driver can be
@@ -83,7 +71,7 @@ get_conflicting_drivers() {
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
     # sanity check on specified driver (only nvidia is supported right now)
-    sanity_check $(get_graphics_drivers nvidia)
+    sanity_check nvidia
 }
 disable_graphics() {
     : #unload_graphics_driver
