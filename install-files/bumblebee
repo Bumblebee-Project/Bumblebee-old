@@ -57,6 +57,14 @@ log_msg() {
     return $retval
 }
 
+# Kept for backward compatibily, all call's to this function should be moved to
+# 'log_msg "daemon"'
+# Log a message to our log file while preserving the previous return code
+log_daemon_msg() {
+    log_msg "daemon" "$1"
+    return $?
+}
+
 # Initialize a log. If the argument passed is "daemon" then it opens a file for
 # logging. If necessary will save current file to a ".old"
 log_init() {
