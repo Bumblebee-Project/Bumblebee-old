@@ -29,6 +29,49 @@ if (( EUID != 0 )); then
     exit 1
 fi
 
+if grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
+    DISTRO=ubuntu
+elif grep -iq "Arch Linux" /etc/issue; then
+    DISTRO=archlinux
+elif grep -iq Fedora /etc/issue; then
+    DISTRO=fedora
+    #echo "You are running Fedora, the work is in progress for you distro but not"
+    #echo "sufficient. If you would like to help to port the installer to fedora,"
+    #echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    #exit 3
+elif grep -iq OpenSUSE /etc/issue; then
+    DISTRO=opensuse
+    #echo "You are running openSUSE, the work is in progress for you distro but not"
+    #echo "sufficient. If you would like to help to port the installer to openSUSE,"
+    #echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
+    #exit 3
+elif grep -iq Debian /etc/issue; then
+    DISTRO=debian
+    #echo "You are running Debian Linux, please see the debumblebee project for support:"
+    #echo
+    #echo "https://github.com/z0rc/debumblebee"
+    #echo
+    #$UNATTENDED || read
+    #exit 3
+elif grep -iq "Gentoo" /etc/issue; then
+    DISTRO=gentoo
+    #echo "You are running Gentoo Linux, please see the ebuild here for support:"
+    #echo
+    #echo "https://github.com/iegor/rainyday/tree/master/x11-misc/bumblebee"
+    #echo
+    #$UNATTENDED || read
+    #exit 3
+else
+    echo
+    echo "Your Distribution could not be determined or is not supported."
+    echo "Please report a bug at:"
+    echo
+    echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
+    exit 3
+fi
+
+echo "${DISTRO}-based distribution detected"
+
 echo
 echo "Bug report is being generated"
 echo
@@ -95,14 +138,35 @@ lsmod
 header "Alternatives info"
 ls -lat /etc/alternatives
 
-DPKG_PACKAGES=(bumblebee nvidia-current virtualgl nvidia-glx)
-if which apt-cache &>/dev/null; then
-    header "Package information (apt-cache)"
-    apt-cache policy "${DPKG_PACKAGES[@]}"
-elif which dpkg-query &>/dev/null; then
-    header "Package information (dpkg-query)"
-    dpkg-query --show "${DPKG_PACKAGES[@]}"
-fi
+
+header "Packages info"
+PKG_QUERY_TOOL=
+PACKAGES=
+case $DISTRO in
+  ubuntu)
+    if which apt-cache &>/dev/null; then
+        PKG_QUERY_TOOL='apt-cache policy'
+    elif which dpkg-query &>/dev/null; then
+        PKG_QUERY_TOOL='dpkg-query --show'
+    fi
+    PACKAGES=(bumblebee nvidia-current virtualgl nvidia-glx)
+    ;;
+  archlinux)
+    PKG_QUERY_TOOL='pacman -Q'
+    PACKAGES=(bumblebee lib32-nvidia-utils-bumblebee nvidia-utils-bumblebee virtualgl-bin virtualgl32-bin)
+    ;;
+  fedora) # XXX To be filled
+    ;;
+  opensuse) # XXX To be filled
+    ;;
+  debian) # XXX To be filled
+    ;;
+  gentoo) # XXX To be filled
+    ;;
+esac
+
+$PKG_QUERY_TOOL "${PACKAGES[@]}"
+
 # End bug report
 } &>> "$BUGREPORT_FILE"
 
