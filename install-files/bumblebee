@@ -113,6 +113,8 @@ start_x() {
         ;;
     esac
 
+    card_status || log_daemon_msg \
+        "The graphics card is disabled, the driver and X will fail to load"
     if ! log_daemon_msg "$(load_graphics_driver 2>&1)"; then
         log_daemon_msg "The driver failed to load."
         return 1
