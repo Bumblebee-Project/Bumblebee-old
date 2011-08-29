@@ -111,14 +111,14 @@ card_status() {
     return 0
 }
 
-# Read the /etc/bumblebee/cardo{n,ff} and send
+# Read the $BUMBLEBEE_CONFDIR/cardo{n,ff} and send
 # the content line by line to acpi_call
 enable_card() {
     local call
     if card_status; then
-        while read call; do
-            acpi_call "$call";
-        done < /etc/bumblebee/cardon
+        while read -r call; do
+            acpi_call "$call"
+        done < "$BUMBLEBEE_CONFDIR/cardon"
         if card_status; then
             return 1
         fi
@@ -129,9 +129,9 @@ enable_card() {
 disable_card() {
     local call
     if ! card_status; then
-        while read call; do
-            acpi_call "$call";
-        done < /etc/bumblebee/cardoff
+        while read -r call; do
+            acpi_call "$call"
+        done < "$BUMBLEBEE_CONFDIR/cardoff"
         if ! card_status; then
             return 1
         fi
