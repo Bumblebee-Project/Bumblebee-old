@@ -101,11 +101,11 @@ acpi_call() {
     esac
 }
 
-# Check card status:
+# Check whether a card is enabled or not
 #  - return 0 if enabled
 #  - return 1 is disabled
 card_status() {
-    if lspci -v -d 10de: | grep -q !; then
+    if lspci -s "$NVIDIA_BUSID" -v -d 10de: | grep -q !; then
         return 1
     fi
     return 0
