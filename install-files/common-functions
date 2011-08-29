@@ -90,7 +90,7 @@ load_acpi_call() {
 acpi_call() {
     load_acpi_call
     echo "$*" > /proc/acpi/call
-    result=$(cat /proc/acpi/call)
+    local result=$(cat /proc/acpi/call)
     case "$result" in
       Error*)
         return 1
@@ -114,6 +114,7 @@ card_status() {
 # Read the /etc/bumblebee/cardo{n,ff} and send
 # the content line by line to acpi_call
 enable_card() {
+    local call
     if card_status; then
         while read call; do
             acpi_call "$call";
@@ -126,6 +127,7 @@ enable_card() {
 }
 
 disable_card() {
+    local call
     if ! card_status; then
         while read call; do
             acpi_call "$call";
