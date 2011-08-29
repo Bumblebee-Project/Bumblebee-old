@@ -58,12 +58,10 @@ elif grep -iq "Gentoo" /etc/issue; then
     echo "https://github.com/iegor/rainyday/tree/master/x11-misc/bumblebee"
     echo "This tool may fail to generate a useful bugreport"
 else
-    echo
     echo "Your Distribution could not be determined or is not supported."
     echo "Please report a bug at:"
-    echo
     echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
-    exit 3
+    echo "This tool may fail to generate a useful bugreport"
 fi
 
 echo "${DISTRO}-based distribution detected"
@@ -72,7 +70,7 @@ PKG_QUERY_TOOL=
 PACKAGES=
 LIB_DIRS=
 case $DISTRO in
-  ubuntu)
+  ubuntu|debian)
     if which apt-cache &>/dev/null; then
         PKG_QUERY_TOOL='apt-cache policy'
     elif which dpkg-query &>/dev/null; then
@@ -89,8 +87,6 @@ case $DISTRO in
   fedora) # XXX To be filled
     ;;
   opensuse) # XXX To be filled
-    ;;
-  debian) # XXX To be filled
     ;;
   gentoo) # XXX To be filled
     ;;
