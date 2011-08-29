@@ -204,17 +204,19 @@ stop_x() {
 
     log_daemon_msg "X is stopped."
 
+    # Failing to disable the card or unloading the drivers is not fatal
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
         log_daemon_msg "Unloading driver..."
         if ! log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
             log_daemon_msg "The driver could not be unloaded."
-            log_daemon_msg "Perhaps an other program is using it."
-        fi
-        log_daemon_msg "Disabling graphics card..."
-        if ! log_daemon_msg "$(disable_card 2>&1)"; then
-            log_daemon_msg "The card could not be disabled."
-            log_daemon_msg "Perhaps an other program is utilizing the card."
+            log_daemon_msg "Perhaps another program is using it."
+        else
+            log_daemon_msg "Disabling graphics card..."
+            if ! log_daemon_msg "$(disable_card 2>&1)"; then
+                log_daemon_msg "The card could not be disabled."
+                log_daemon_msg "Perhaps another program is utilizing the card."
+            fi
         fi
         ;;
       *)
