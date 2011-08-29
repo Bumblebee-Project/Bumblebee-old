@@ -29,9 +29,6 @@ ARCH=$(uname -m)
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
 
-# the modprobe binary
-MODPROBE="$(which modprobe)"
-
 # This version is set at installation time
 BUMBLEBEE_VERSION=DEV
 
@@ -82,10 +79,11 @@ get_graphics_module() {
 # Make sure that acpi_call is loaded when trying to use it.
 # Returns 1 if it isn't.
 load_acpi_call() {
-    if ! lsmod | grep -q "acpi_call"; then
-        "${MODPROBE}" "acpi_call" || return 1
-    fi
-    return 0
+    # modprobe does nothing if a module is already loaded, so checking lsmod is
+    # redundant. It may return values other than 0 and 1 so explicitly return 0
+    # or 1
+    modprobe acpi_call && return 0
+    return 1
 }
 
 # Send a call to acpi_call and get the result
