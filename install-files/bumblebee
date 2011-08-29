@@ -238,6 +238,7 @@ stop_daemon() {
         if ! log_daemon_msg "$(enable_card 2>&1)"; then
             log_daemon_msg "The graphics card could not be enabled."
         fi
+        ;;
       *)
         log_daemon_msg "Power management is disabled, card already enabled."
         ;;
