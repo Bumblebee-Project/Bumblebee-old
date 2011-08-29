@@ -79,7 +79,9 @@ header "Library paths"
 for lib in \
     /usr/lib/nvidia-current \
     /usr/lib32/nvidia-current \
-    /usr/lib64/nvidia-current
+    /usr/lib64/nvidia-current \
+    /usr/lib/nvidia-bumblebee \
+    /usr/lib32/nvidia-bumblebee
 do
     if [ -d "$lib" ]; then
         echo "$lib:"
