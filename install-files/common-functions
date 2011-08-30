@@ -106,9 +106,7 @@ acpi_call() {
 #  - return 0 if enabled
 #  - return 1 is disabled
 card_status() {
-    if lspci -s "$NVIDIA_BUSID" -v -d 10de: | grep -q !; then
-        return 1
-    fi
+    lspci -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
     return 0
 }
 
