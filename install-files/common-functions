@@ -194,7 +194,7 @@ set_graphics_driver() {
 # load the settings and sets some other variables
 load_settings() {
     # defaults
-    STOP_SERVICE_ON_EXIT=y
+    STOP_SERVICE_ON_EXIT=N
     VGL_DISPLAY=:8
     VGL_COMPRESS=proxy
     ECO_MODE=N
