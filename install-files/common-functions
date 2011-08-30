@@ -35,36 +35,48 @@ MODPROBE="$(which modprobe)"
 # This version is set at installation time
 BUMBLEBEE_VERSION=DEV
 
-# retrieve the graphics kernel module to be used for the X server
+# The PCI Bus ID of the nvidia card, useful for lspci -s
+NVIDIA_BUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
+
+# retrieve the graphics driver to be passed to rmmod
 # Return values:
-#   0: a driver is available, the module name is printed
-#   1: no driver is available, nothing is printed
+#   0: a valid driver is set, the driver is printed
+#   1: an invalid driver is set, an error is printed to stderr
 get_graphics_driver() {
     local driver
-    # currently, it detects which nvidia module can be used. In the future,
-    # this function may also use nouveau if it should be used
-    for driver in nvidia-current nvidia; do
+    # validate the driver setting
+    for driver in nouveau nvidia; do
+        if [[ $DRIVER == $driver ]] ; then
+            echo $driver
+            return 0
+        fi
+    done
+    echo "Invalid driver set, valid ones are nvidia and nouveau" >&2
+    return 1
+}
+
+# retrieve the graphics kernel module name based on a driver name (arg 1)
+# Return values:
+#   0: a module is available, the module name is printed
+#   1: no module is available, an error is printed to stderr
+get_graphics_module() {
+    local driver="$1"
+    if [ -n "$driver" ]; then
         # do not use modprobe since it fails if th edriver is already loaded
         if modinfo $driver &>/dev/null; then
             echo $driver
             return 0
         fi
-    done
+        # ugly hack for Ubuntu on which the module nvidia-current.ko loads the
+        # driver nvidia (as shown in /proc/modules). Alternative: set an alias
+        # in /etc/modprobe.d/      alias nvidia nvidia-current
+        if [[ $driver == nvidia ]] && modinfo nvidia-current &>/dev/null; then
+            echo nvidia-current
+            return 0
+        fi
+        echo "Driver '$driver' has no matching kernel module installed" >&2
+    fi
     return 1
-}
-
-# Displays any conflicting drivers that must be unloaded before $driver can be
-# loaded. The first argument is $driver
-get_conflicting_drivers() {
-    local driver="$1"
-    case "$driver" in
-      nvidia|nvidia-current)
-        echo "nouveau"
-        ;;
-      nouveau)
-        echo "nvidia nvidia-current"
-        ;;
-    esac
 }
 
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
@@ -78,25 +90,47 @@ disable_graphics() {
 
 # load the driver, return 1 on failure
 load_graphics_driver() {
-    local remove_driver
-    local driver="$(get_graphics_driver)"
-    if ! lsmod | grep -q "^$driver "; then
-        for remove_driver in $(get_conflicting_drivers "$driver"); do
-            # unload conflicting drivers if loaded, ignore failure
-            if lsmod | grep -q "^$remove_driver "; then
-                "${MODPROBE}" -r "$remove_driver"
-            fi
-        done
-      "${MODPROBE}" "$driver" || return 1
+    local driver module loaded_driver loaded_module
+    # if there is an invalid driver setting, bail out. Ex: nvidia
+    driver="$(get_graphics_driver)" || return 1
+    # if there is no kernel module available, bail out. Ex: nvidia-current
+    module="$(get_graphics_module "$driver")" || return 1
+
+    # Get loaded video drivers for the device. nvidia under Ubuntu is a weird
+    # case, Driver: nvidia, but Module: nvidia-current
+    loaded_driver=$(lspci -s "$NVIDIA_BUSID" -vmk |
+        grep '^Driver:' | cut -d: -f2)
+
+    # unload a conflicting driver if any, do not return immediately on failure
+    if [[ "$loaded_driver" != "$driver" ]]; then
+        # Ex: loaded_module=nvidia-current for loaded_driver=nvidia
+        loaded_module="$(get_graphics_module "$loaded_driver")"
+        # modprobe can only handle cases where driver == module
+        if [[ "$loaded_module" == "$loaded_driver" ]]; then
+            modprobe -r "$loaded_module"
+        else
+            rmmod "$loaded_driver"
+        fi
     fi
+
+    # Load the video driver. Ex: nvidia-current
+    modprobe "$module" || return 1
     return 0
 }
 # unload the driver, return 1 on failure. If the driver was already loaded, no
 # action is performed
 unload_graphics_driver() {
-    local driver="$(get_graphics_driver)"
-    if lsmod | grep -q "^$driver "; then
-      "${MODPROBE}" -r "$driver" || return 1
+    local driver module
+    # if there is an invalid driver setting, bail out. Ex: nvidia
+    driver="$(get_graphics_driver)" || return 1
+    # if there is no kernel module available, bail out. Ex: nvidia-current
+    module="$(get_graphics_module "$driver")" || return 1
+
+    # modprobe can only handle cases where driver == module
+    if [[ "$module" == "$driver" ]]; then
+        modprobe -r "$module" || return 1
+    else
+        rmmod "$driver" || return 1
     fi
     return 0
 }
