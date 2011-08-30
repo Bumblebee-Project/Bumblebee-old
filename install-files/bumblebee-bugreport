@@ -29,6 +29,12 @@ if (( EUID != 0 )); then
     exit 1
 fi
 
+# These tools need to be able to accept multiple packages as arguments
+PKG_QUERY_TOOLS=(
+    'apt-cache policy'
+    'dpkg-query --show'
+    'pacman -Q'
+)
 if grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
     DISTRO=ubuntu
 elif grep -iq "Arch Linux" /etc/issue; then
@@ -69,26 +75,30 @@ echo "${DISTRO}-based distribution detected"
 PKG_QUERY_TOOL=
 PACKAGES=
 LIB_DIRS=
-case $DISTRO in
-  ubuntu|debian)
-    if which apt-cache &>/dev/null; then
-        PKG_QUERY_TOOL='apt-cache policy'
-    elif which dpkg-query &>/dev/null; then
-        PKG_QUERY_TOOL='dpkg-query --show'
+
+# Auto-detect packager tool
+for tool in "${PKG_QUERY_TOOLS[@]}"; do
+    if which "${tool%% *}" &>/dev/null; then
+        PKG_QUERY_TOOL="$tool"
+        break
     fi
-    PACKAGES=(bumblebee nvidia-current virtualgl nvidia-glx)
-    LIB_DIRS=(/usr/lib/nvidia-current /usr/lib32/nvidia-current /usr/lib64/nvidia-current)
+done
+
+# XXX: perhaps LIB_DIRS can be separated from the tools
+case "$PKG_QUERY_TOOL" in
+  apt-cache*|dpkg-query*)
+    PACKAGES=(bumblebee virtualgl nvidia-current nvidia-glx)
+    LIB_DIRS=(
+        /usr/lib/nvidia-current /usr/lib32/nvidia-current /usr/lib/nvidia
+        /usr/lib/nvidia/i386-linux-gnu /usr/lib/nvidia/x86_64-linux-gnu
+    )
     ;;
-  archlinux)
-    PKG_QUERY_TOOL='pacman -Q'
+  pacman*)
     PACKAGES=(bumblebee lib32-nvidia-utils-bumblebee nvidia-utils-bumblebee virtualgl-bin virtualgl32-bin)
     LIB_DIRS=(/usr/lib/nvidia-bumblebee /usr/lib32/nvidia-bumblebee)
     ;;
-  fedora) # XXX To be filled
-    ;;
-  opensuse) # XXX To be filled
-    ;;
-  gentoo) # XXX To be filled
+  *)
+    # unknown package management tool :/
     ;;
 esac
 
