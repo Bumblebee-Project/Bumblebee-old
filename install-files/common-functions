@@ -25,7 +25,7 @@
 # This value depends on the kernel
 ARCH=$(uname -m)
 
-# is the OS 32-bit or 64-bit? Save it to a variable since it's static.
+# Is the OS 32-bit or 64-bit ? Save it to a variable since it's static.
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
 
@@ -35,7 +35,7 @@ BUMBLEBEE_VERSION=DEV
 # The PCI Bus ID of the nvidia card, useful for lspci -s
 NVIDIA_BUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
 
-# retrieve the graphics driver to be passed to rmmod
+# Retrieve the graphics driver to be passed to rmmod
 # Return values:
 #   0: a valid driver is set, the driver is printed
 #   1: an invalid driver is set, an error is printed to stderr
@@ -52,7 +52,7 @@ get_graphics_driver() {
     return 1
 }
 
-# retrieve the graphics kernel module name based on a driver name (arg 1)
+# Retrieve the graphics kernel module name based on a driver name (arg 1)
 # Return values:
 #   0: a module is available, the module name is printed
 #   1: no module is available, an error is printed to stderr
@@ -111,7 +111,10 @@ card_status() {
 }
 
 # Read the $BUMBLEBEE_CONFDIR/cardo{n,ff} and send
-# the content line by line to acpi_call
+# the content line by line to acpi_call in order to
+# get the desired card state
+#  - return 0 if succeed
+#  - return 1 if failed 
 enable_card() {
     local call
     if card_status; then
@@ -167,7 +170,8 @@ load_graphics_driver() {
     modprobe "$module" || return 1
     return 0
 }
-# unload the driver, return 1 on failure. If the driver was already loaded, no
+
+# unload the driver, return 1 on failure. If the driver was not loaded, no
 # action is performed
 unload_graphics_driver() {
     local driver module
