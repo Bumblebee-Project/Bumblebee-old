@@ -35,43 +35,6 @@ PKG_QUERY_TOOLS=(
     'dpkg-query --show'
     'pacman -Q'
 )
-if grep -iqE 'Ubuntu|Linux Mint|Backtrack 5' /etc/issue; then
-    DISTRO=ubuntu
-elif grep -iq "Arch Linux" /etc/issue; then
-    DISTRO=archlinux
-elif grep -iq Fedora /etc/issue; then
-    DISTRO=fedora
-    echo "You are running Fedora, the work is in progress for you distro but not"
-    echo "sufficient."
-    echo "This tool may fail to generate a useful bugreport"
-    #echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
-    #exit 3
-elif grep -iq OpenSUSE /etc/issue; then
-    DISTRO=opensuse
-    echo "You are running openSUSE, the work is in progress for you distro but not"
-    echo "sufficient."
-    echo "This tool may fail to generate a useful bugreport"
-    #echo "please visit https://github.com/Bumblebee-Project/Bumblebee/issues"
-    #exit 3
-elif grep -iq Debian /etc/issue; then
-    DISTRO=debian
-    echo "You are running Debian Linux, please see the debumblebee project for support:"
-    echo "https://github.com/z0rc/debumblebee"
-    echo "This tool may fail to generate a useful bugreport"
-elif grep -iq "Gentoo" /etc/issue; then
-    DISTRO=gentoo
-    echo "You are running Gentoo Linux, please see the ebuild here for support:"
-    echo "https://github.com/iegor/rainyday/tree/master/x11-misc/bumblebee"
-    echo "This tool may fail to generate a useful bugreport"
-else
-    echo "Your Distribution could not be determined or is not supported."
-    echo "Please report a bug at:"
-    echo "https://github.com/Bumblebee-Project/Bumblebee/issues"
-    echo "This tool may fail to generate a useful bugreport"
-fi
-
-echo "${DISTRO}-based distribution detected"
-
 PKG_QUERY_TOOL=
 PACKAGES=
 LIB_DIRS=
