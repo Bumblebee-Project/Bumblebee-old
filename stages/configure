@@ -18,11 +18,11 @@ NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
 re_busid='^( *BusID +")[^"]*'
 
-for driver in nvidia; do
-    echo "Setting Bus ID in xorg.conf.$driver..."
-    sed -E -i "${CONFDIR}/xorg.conf.$driver" \
+if [ -f "${CONFDIR}/xorg.conf.$DRIVER" ]; then
+    echo "Setting Bus ID in xorg.conf.$DRIVER if needed..."
+    sed -E -i "${CONFDIR}/xorg.conf.$DRIVER" \
         -e "s,${re_busid},\1$NVIDIABUSID,"
-done
+fi
 
 # add the bumblebee group
 if getent group bumblebee >/dev/null; then
