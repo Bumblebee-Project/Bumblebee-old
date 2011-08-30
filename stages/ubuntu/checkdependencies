@@ -8,7 +8,7 @@ case "$DRIVER" in
     dependencies[${#dependencies[@]}]=nvidia-current
     ;;
   nouveau)
-    dependencies[${#dependencies[@]}]=nouveau
+    dependencies[${#dependencies[@]}]=xserver-xorg-video-nouveau
     ;;
 esac
 
