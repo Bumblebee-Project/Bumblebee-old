@@ -1,15 +1,12 @@
 #!/bin/bash
 # Beware: this file is processed by stages/buildfiles
+# avoid bashism here so it can be inserted straigh away in packaging scripts
 
-# We don't want nouveau to be blacklisted if we are going to use it (:
-if [ "$DRIVER" == "nvidia" ]; then
-    # check if nouveau is not blacklisted or commented
-    if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
-        # blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
-        # blacklist.conf or nvidia.conf (OpenSUSE)
-        echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
-    fi
-fi
+# We should not mess too much with blacklisting, we unload the drivers anyway.
+blacklist=/etc/modprobe/nouveau-blacklist.conf
+# the md5sum of "blacklist nouveau\n"
+sum=cddff2da6f6e96b8a48943c8ce62a238
+echo "$sum  $blacklist" | md5sum -c --status && rm -f "$blacklist"
 
 # Detect PCI Bus ID of the nVidia card
 # -d 10de: shows devices from nvidia only
