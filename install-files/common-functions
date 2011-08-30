@@ -88,8 +88,9 @@ load_acpi_call() {
 
 # Send a call to acpi_call and get the result
 acpi_call() {
-    load_acpi_call
-    echo "$*" > /proc/acpi/call
+    # try to load the driver and return if it fails
+    load_acpi_call || return 1
+    echo "$1" > /proc/acpi/call
     local result=$(cat /proc/acpi/call)
     case "$result" in
       Error*)
