@@ -107,7 +107,7 @@ echo "Bug report is being generated"
 echo
 
 # Can you read Japanese? I don't.
-export LANG=C
+export LANG=C LC_MESSAGES=C
 
 BUGREPORT_DIR="$(mktemp -d)"
 BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
@@ -134,11 +134,16 @@ for key in baseboard-manufacturer baseboard-product-name baseboard-version \
 done
 
 header "System Information"
-cat /etc/issue
 uname -a
+echo "/etc/issue:"
+cat /etc/issue
+if which lsb_release &>/dev/null; then
+    echo "lsb_release -a:"
+    lsb_release -a
+fi
 
 header "lspci overview"
-lspci
+lspci -nn
 
 header "lspci on nvidia devices"
 lspci -d 10de: -vvnn
@@ -165,6 +170,7 @@ ls -lat /etc/alternatives
 
 
 header "Packages info"
+echo "Using tool: $PKG_QUERY_TOOL"
 $PKG_QUERY_TOOL "${PACKAGES[@]}"
 
 # End bug report
