@@ -82,7 +82,7 @@ get_graphics_module() {
 # In the future, {en,dis}able_graphics may handle ACPI calls. Only use
 # {,un}load_graphics_driver if the card should not be toggled
 enable_graphics() {
-    : #load_graphics_driver
+    load_graphics_driver
 }
 disable_graphics() {
     : #unload_graphics_driver
