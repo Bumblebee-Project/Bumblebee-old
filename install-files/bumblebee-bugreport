@@ -70,7 +70,8 @@ echo "Bug report is being generated"
 echo
 
 # Can you read Japanese? I don't.
-export LANG=C LC_MESSAGES=C
+export LANG=C
+export LC_MESSAGES=C
 
 BUGREPORT_DIR="$(mktemp -d)"
 BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
@@ -133,8 +134,12 @@ ls -lat /etc/alternatives
 
 
 header "Packages info"
-echo "Using tool: $PKG_QUERY_TOOL"
-$PKG_QUERY_TOOL "${PACKAGES[@]}"
+if [ -n "$PKG_QUERY_TOOL" ]; then
+    echo "Using tool: $PKG_QUERY_TOOL"
+    $PKG_QUERY_TOOL "${PACKAGES[@]}"
+else
+    echo "No package query tool is detected, no package report is generated"
+fi
 
 # End bug report
 } &>> "$BUGREPORT_FILE"
