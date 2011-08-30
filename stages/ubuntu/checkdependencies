@@ -1,7 +1,16 @@
 #!/bin/bash
-dependencies=('virtualgl' 'nvidia-current')
+dependencies=('virtualgl')
 missing_dependencies=()
 failed=false
+
+case "$DRIVER" in
+  nvidia)
+    dependencies[${#dependencies[@]}]=nvidia-current
+    ;;
+  nouveau)
+    dependencies[${#dependencies[@]}]=nouveau
+    ;;
+esac
 
 pkg_is_installed() {
     local pkg="$1"
