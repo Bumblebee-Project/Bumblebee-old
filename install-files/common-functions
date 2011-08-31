@@ -168,17 +168,17 @@ get_loaded_driver() {
 #  0: driver was correctly loaded.
 #  1: driver can't be loaded.
 load_graphics_driver() {
-    local driver module actual_driver loaded_module
+    local driver module loaded_driver loaded_module
     # If there is an invalid driver setting, bail out.
     driver="$(get_graphics_driver)" || return 1
     # If there is no kernel module available, bail out.
     module="$(get_graphics_module "$driver")" || return 1
 
     # Get loaded video driver for the device (if any)
-    actual_driver=$(get_loaded_driver)
+    loaded_driver=$(get_loaded_driver)
 
     # Unload a conflicting driver if any, do not return immediately on failure.
-    if [ -n "$actual_driver" ] && [[ "$actual_driver" != "$driver" ]]; then
+    if [ -n "$loaded_driver" ] && [[ "$loaded_driver" != "$driver" ]]; then
         unload_graphics_driver
     fi
 
