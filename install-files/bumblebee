@@ -304,9 +304,15 @@ start_daemon() {
 
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
-        log_daemon_msg "Disabling graphics card on start..."
-        if ! log_daemon_msg "$(disable_card 2>&1)"; then
-            log_daemon_msg "The card could not be disabled."
+        log_daemon_msg "Unloading driver if any before disabling card"
+        if ! log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
+            log_daemon_msg "There is a loaded driver, but it could not be unloaded."
+            log_daemon_msg "That looks very strange."
+        else
+            log_daemon_msg "Disabling graphics card on start..."
+            if ! log_daemon_msg "$(disable_card 2>&1)"; then
+                log_daemon_msg "The card could not be disabled."
+            fi
         fi
         ;;
       *)
