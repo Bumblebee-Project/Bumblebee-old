@@ -319,8 +319,6 @@ load_settings() {
     . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
 
     # Allow the user to specify a custom xorg path, otherwise base on driver
-    # In the future, we should check for the existence of ~/.bumblebee/xorg.conf
-    # and load it instead of default one if it exists.
     [ -z "$X_CONFFILE" ] && X_CONFFILE="$BUMBLEBEE_CONFDIR/xorg.conf.${DRIVER}"
 
     # -config file   use a certain xorg.conf so the nvidia drivers can be used
