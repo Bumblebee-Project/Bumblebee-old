@@ -178,7 +178,7 @@ load_graphics_driver() {
     actual_driver=$(get_loaded_driver)
 
     # Unload a conflicting driver if any, do not return immediately on failure.
-    if [[ "$actual_driver" != "$driver" ]]; then
+    if [ -n "$actual_driver" ] && [[ "$actual_driver" != "$driver" ]]; then
         unload_graphics_driver
     fi
 
