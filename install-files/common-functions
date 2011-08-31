@@ -150,23 +150,32 @@ disable_card() {
     return 0
 }
 
+# Check which driver is loaded. nvidia under Ubuntu is a weird case,
+# Driver: nvidia, but Module: nvidia-current.
+# Return values:
+#  0: a driver is loaded and printed
+#  1: no driver is loaded
+loaded_driver() {
+    # Use the above thing to get it and return
+    lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d: -f2
+}
+
 # Load the requested driver.
 # Return values:
 #  0: driver was correctly loaded.
 #  1: driver can't be loaded.
 load_graphics_driver() {
-    local driver module loaded_driver loaded_module
+    local driver module actual_driver loaded_module
     # If there is an invalid driver setting, bail out.
     driver="$(get_graphics_driver)" || return 1
     # If there is no kernel module available, bail out.
     module="$(get_graphics_module "$driver")" || return 1
 
-    # Get loaded video driver for the device. nvidia under Ubuntu is a weird
-    # case, Driver: nvidia, but Module: nvidia-current.
-    loaded_driver=$(lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d: -f2)
+    # Get loaded video driver for the device. Modifiy the two below paragraph to use the new function Lekensteyn
+    actual_driver=$(lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d: -f2)
 
     # Unload a conflicting driver if any, do not return immediately on failure.
-    if [[ "$loaded_driver" != "$driver" ]]; then
+    if [[ "$actual_driver" != "$driver" ]]; then
         unload_graphics_driver
     fi
 
@@ -182,11 +191,12 @@ load_graphics_driver() {
 #  1: driver can't be unloaded.
 unload_graphics_driver() {
     local driver module
+    # Here too, modifiy the code to use the new function Lekensteyn
     driver=$(lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d: -f2)
-    # if no driver is loaded, return 1
+    # If no driver is loaded, return 0.
     module="$(get_graphics_module "$driver")" || return 0
 
-    # modprobe can only handle cases where driver == module
+    # Modprobe can only handle cases where driver == module.
     if [[ "$module" == "$driver" ]]; then
         modprobe -r "$module" || return 1
     else
