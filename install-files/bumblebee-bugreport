@@ -73,9 +73,12 @@ echo
 export LANG=C
 export LC_MESSAGES=C
 
-BUGREPORT_DIR="$(mktemp -d)"
-BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
+BUGREPORT_TMP="$(mktemp -d)"
 BUGREPORT_NAME="bumblebee-bugreport-$(date +%Y%m%d_%H%M%S)"
+BUGREPORT_DIR="$BUGREPORT_TMP/$BUGREPORT_NAME"
+BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
+
+mkdir "$BUGREPORT_DIR"
 
 cp /var/log/Xorg.* "$BUGREPORT_DIR"
 cp -r /etc/bumblebee "$BUGREPORT_DIR"
@@ -145,6 +148,7 @@ fi
 } &>> "$BUGREPORT_FILE"
 
 tar zcf "${BUGREPORT_NAME}.tar.gz" -C "$BUGREPORT_DIR" .
+rm -rf "$BUGREPORT_TMP"
 
 echo "Bug report generated"
 echo
