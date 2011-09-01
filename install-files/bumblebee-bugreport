@@ -54,6 +54,7 @@ case "$PKG_QUERY_TOOL" in
     LIB_DIRS=(
         /usr/lib/nvidia-current /usr/lib32/nvidia-current /usr/lib/nvidia
         /usr/lib/nvidia/i386-linux-gnu /usr/lib/nvidia/x86_64-linux-gnu
+        /etc/ld.so.conf.d /usr/lib/xorg /usr/lib/xorg/x11-extra-modules
     )
     ;;
   pacman*)
