@@ -37,6 +37,7 @@ PKG_QUERY_TOOLS=(
 )
 PKG_QUERY_TOOL=
 PACKAGES=
+# this directory will recursively be listed, symlinks are not followed
 LIB_DIRS=
 
 # Auto-detect packager tool
@@ -53,8 +54,7 @@ case "$PKG_QUERY_TOOL" in
     PACKAGES=(bumblebee virtualgl nvidia-current nvidia-glx)
     LIB_DIRS=(
         /usr/lib/nvidia-current /usr/lib32/nvidia-current /usr/lib/nvidia
-        /usr/lib/nvidia/i386-linux-gnu /usr/lib/nvidia/x86_64-linux-gnu
-        /etc/ld.so.conf.d /usr/lib/xorg /usr/lib/xorg/x11-extra-modules
+        /etc/ld.so.conf.d /usr/lib/xorg
     )
     ;;
   pacman*)
