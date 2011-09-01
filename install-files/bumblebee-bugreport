@@ -81,9 +81,74 @@ BUGREPORT_FILE="$BUGREPORT_DIR"/bumblebee-report
 
 mkdir "$BUGREPORT_DIR"
 
-cp /var/log/Xorg.* "$BUGREPORT_DIR"
-cp -r /etc/bumblebee "$BUGREPORT_DIR"
+# Copy a logfile if exists, but merge duplicate lines if at least 10% of the
+# messages are duplicates
+copy_log() {
+    local log line skipchars months day hhmmss date hostname msg
+    local stripped_time lines_orig lines_new
+    log="$1"
+    if [ -f "$log" ]; then
+        # use the last line for determining the log format
+        line="$(tail -1 "$log")"
+        skipchars=0
+
+        months='(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'
+        day='[ 123][0-9]'
+        hhmmss='[012][0-9]:[0-5][0-9]:[0-5][0-9]'
+        date="$months $day $hhmmss"
+        # Assume a part looking like 'Jan  1 00:00:00 '
+        if [[ "$line" =~ ^$date ]]; then
+            # skip over the leading date part and space
+            ((skipchars += 16))
+        fi
+
+        hostname="$(hostname)"
+        # Assume a static machine name part
+        if [[ "${line:$skipchars}" == "$hostname "* ]]; then
+            # skip over the hostname and space
+            ((skipchars += ${#hostname} + 1))
+        fi
+
+        # Assume a literal "kernel: " syslog tag part
+        if [[ "${line:$skipchars}" == "kernel: "* ]]; then
+            ((skipchars += 8))
+        fi
+
+        # for the printk timestamp
+        msg="${line:$skipchars}"
+        # strip leading '[ <any whitespace> <digits> . <digits> ] '
+        stripped_time="$(sed -r 's,^\[ *\d+\.\d+\] ,,' <<<"$msg")"
+        if [ ${#stripped_time} -lt ${#msg} ]; then
+            ((skipchars += ${#msg} - ${#stripped_time}))
+        fi
+
+        # Merge duplicate messages
+        uniq -s $skipchars -c "$log" > "$BUGREPORT_DIR/${log##*/}"
+
+        lines_orig=$(wc -l "$log" | cut -d' ' -f1)
+        lines_new=$(wc -l "$BUGREPORT_DIR/${log##*/}" | cut -d' ' -f1)
+
+        # if the new file is just 10% smaller in lines, use the original log
+        if [ $((lines_orig * 9 / 10)) -le $lines_new ]; then
+            cp "$log" "$BUGREPORT_DIR/"
+        fi
+        return 0
+    fi
+    return 1
+}
+
+# Copy configuration, preserving times and permissions
+cp -pr /etc/bumblebee "$BUGREPORT_DIR"
+
+for log in /var/log/Xorg.*; do
+    copy_log "$log"
+done
+
 cp /var/log/bumblebee.* "$BUGREPORT_DIR"
+
+for kernlog in /var/log/kern.log /var/log/kernel.log /var/log/messages; do
+    copy_log "$kernlog" && break
+done
 
 header() {
     printf '\n=== %s ===\n' "$1"
