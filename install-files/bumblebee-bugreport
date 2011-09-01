@@ -147,13 +147,14 @@ fi
 # End bug report
 } &>> "$BUGREPORT_FILE"
 
-tar zcf "${BUGREPORT_NAME}.tar.gz" -C "$BUGREPORT_DIR" .
+tar zcf "${BUGREPORT_NAME}.tar.gz" -C "$BUGREPORT_TMP" "$BUGREPORT_NAME"
 rm -rf "$BUGREPORT_TMP"
 
 echo "Bug report generated"
 echo
 echo "The bug report has been saved as:"
-echo "${PWD%%/}/'${BUGREPORT_NAME}.tar.gz'"
+echo "${PWD%%/}/${BUGREPORT_NAME}.tar.gz"
+echo
 echo "Please create an issue on Github and email the bugreport file including"
 echo "the issue number to bumblebee@lists.launchpad.net"
 echo
