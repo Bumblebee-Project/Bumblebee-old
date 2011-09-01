@@ -120,7 +120,7 @@ start_x() {
         return 1
     fi
 
-    log_daemon_msg "Starting X..."
+    log_daemon_msg "Starting X using $DRIVER..."
 
     LD_LIBRARY_PATH="$X_LD_LIBRARY_PATH:$LD_LIBRARY_PATH" \
         "$X_DAEMON" $X_DAEMON_ARGS $VGL_DISPLAY &
