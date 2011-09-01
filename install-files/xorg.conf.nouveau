@@ -10,4 +10,3 @@ Section "Device"
     # Should be removed as it's not needed
     BusID ""
 EndSection
-

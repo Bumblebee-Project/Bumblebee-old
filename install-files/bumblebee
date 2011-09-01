@@ -99,9 +99,24 @@ start_x() {
         ;;
     esac
 
-    log_daemon_msg "Enabling graphics card (loading driver)..."
-    if ! log_daemon_msg "$(enable_graphics 2>&1)"; then
-        log_daemon_msg "The graphics card could not be enabled, perhaps the drivers failed to load."
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Enabling graphics card..."
+        if ! log_daemon_msg "$(enable_card 2>&1)"; then
+            log_daemon_msg "The graphics card could not be enabled."
+            return 1
+        fi
+        log_daemon_msg "Loading driver..."
+        ;;
+      *)
+        log_daemon_msg "Power management is disabled, only loading driver"
+        ;;
+    esac
+
+    card_status || log_daemon_msg \
+        "The graphics card is disabled, the driver and X will fail to load"
+    if ! log_daemon_msg "$(load_graphics_driver 2>&1)"; then
+        log_daemon_msg "The driver failed to load."
         return 1
     fi
 
@@ -191,11 +206,25 @@ stop_x() {
 
     log_daemon_msg "X is stopped."
 
-    log_daemon_msg "Disabling graphics card (unloading driver)..."
-    if ! log_daemon_msg "$(disable_graphics 2>&1)"; then
-        log_daemon_msg "The card could not be disabled or the drivers failed to unload."
-        log_daemon_msg "Perhaps an other program is utilizing the card."
-    fi
+    # Failing to disable the card or unloading the drivers is not fatal
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Unloading driver..."
+        if ! log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
+            log_daemon_msg "The driver could not be unloaded."
+            log_daemon_msg "Perhaps another program is using it."
+        else
+            log_daemon_msg "Disabling graphics card..."
+            if ! log_daemon_msg "$(disable_card 2>&1)"; then
+                log_daemon_msg "The card could not be disabled."
+                log_daemon_msg "Perhaps another program is utilizing the card."
+            fi
+        fi
+        ;;
+      *)
+        log_daemon_msg "Power management is disabled, not unloading driver"
+        ;;
+    esac
 
     # Everything OK, We are gone!
     return 0
@@ -204,6 +233,19 @@ stop_x() {
 # Called on receiving a signal like TERM
 stop_daemon() {
     stop_x
+
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        log_daemon_msg "Enabling graphics card before stopping daemon..."
+        if ! log_daemon_msg "$(enable_card 2>&1)"; then
+            log_daemon_msg "The graphics card could not be enabled."
+        fi
+        ;;
+      *)
+        log_daemon_msg "Power management is disabled, card already enabled."
+        ;;
+    esac
+
     rm -f "$BUMBLEBEE_PIDFILE"
     rm -f "$BUMBLEBEE_FIFO"
     log_close
@@ -259,6 +301,30 @@ start_daemon() {
     fi
     log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
     chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
+
+    case $ENABLE_POWER_MANAGEMENT in
+      [Yy]*)
+        local loaded_driver
+        if loaded_driver="$(get_loaded_driver)"; then
+            log_daemon_msg "Unloading driver '$loaded_driver' on start..."
+            if log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
+                loaded_driver=
+            else
+                log_daemon_msg "The driver could not be unloaded on start."
+            fi
+        fi
+        # only try to disable a card if there is no driver loaded
+        if [ -z "$loaded_driver" ]; then
+            log_daemon_msg "Disabling graphics card on start..."
+            if ! log_daemon_msg "$(disable_card 2>&1)"; then
+                log_daemon_msg "The card could not be disabled."
+            fi
+        fi
+        ;;
+      *)
+        log_daemon_msg "Power management is disabled, not disabling card on start."
+        ;;
+    esac
 
     local command
     local pids
