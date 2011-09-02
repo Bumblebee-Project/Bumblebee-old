@@ -6,7 +6,9 @@
 blacklist=/etc/modprobe/nouveau-blacklist.conf
 # the md5sum of "blacklist nouveau\n"
 sum=cddff2da6f6e96b8a48943c8ce62a238
-echo "$sum  $blacklist" | md5sum -c --status && rm -f "$blacklist"
+if echo "$sum  $blacklist" | md5sum -c --status 2>/dev/null; then
+    rm -f "$blacklist"
+fi
 
 # Detect PCI Bus ID of the nVidia card
 # -d 10de: shows devices from nvidia only
