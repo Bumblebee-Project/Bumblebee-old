@@ -1,0 +1,12 @@
+Section "ServerLayout"
+    Identifier     "Layout0"
+    Option         "AutoAddDevices" "false"
+EndSection
+
+Section "Device"
+    Identifier     "Device1"
+    Driver         "nouveau"
+    # This is left in the file so the configure stage won't fail.
+    # Should be removed as it's not needed
+    BusID ""
+EndSection
