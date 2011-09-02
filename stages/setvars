@@ -1,7 +1,17 @@
 #!/bin/bash
+
+# setup search paths
+SEARCH_PATHS="/sbin /usr/sbin /bin /usr/bin"
+
+# find lspci
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/lspci ] && LSPCI=$path/lspci && break;
+done
+# if no path is found, try to use the default path
+[[ ! -n "$LSPCI" ]] && LSPCI=lspci
+
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
-LSPCI=$(which lspci)
 
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
