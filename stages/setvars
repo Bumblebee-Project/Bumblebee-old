@@ -32,7 +32,7 @@ XORG_MODULEPATH=/usr/lib/xorg/modules
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
 # A list of drivers to be installed
 DRIVERS=(nouveau)
-# the graphics driver to be used, defaults to nvidia
+# the graphics driver to be used, defaults to the last driver in $DRIVERS
 DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
 
 # The version to be installed
@@ -226,7 +226,7 @@ Usage: $0 [options]
   --driver=DRIVERS
   --driver DRIVERS
     DRIVERS is a comma-separated list of drivers to be installed. The last
-    specified driver will be the default driver. Values values are nvidia and
+    specified driver will be the default driver. Valid values are nvidia and
     nouveau, if not specified, nouveau is assumed.
 
   --bindir=DIR
