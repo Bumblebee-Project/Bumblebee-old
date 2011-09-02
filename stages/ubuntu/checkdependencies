@@ -3,14 +3,16 @@ dependencies=('virtualgl')
 missing_dependencies=()
 failed=false
 
-case "$DRIVER" in
-  nvidia)
-    dependencies[${#dependencies[@]}]=nvidia-current
-    ;;
-  nouveau)
-    dependencies[${#dependencies[@]}]=xserver-xorg-video-nouveau
-    ;;
-esac
+for driver in "${DRIVERS[@]}"; do
+    case "$driver" in
+      nvidia)
+        dependencies[${#dependencies[@]}]=nvidia-current
+        ;;
+      nouveau)
+        dependencies[${#dependencies[@]}]=xserver-xorg-video-nouveau
+        ;;
+    esac
+done
 
 pkg_is_installed() {
     local pkg="$1"
