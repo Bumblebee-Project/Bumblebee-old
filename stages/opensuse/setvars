@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+#
+case "$DRIVER" in
+
+  nvidia)
+    if $IS_64 ; then
+        XORG_MODULEPATH=/usr/lib64/xorg-nvidia/modules/updates,/usr/lib64/xorg-nvidia/modules
+    else
+        XORG_MODULEPATH=/usr/lib/xorg-nvidia/modules/updates,/usr/lib/xorg-nvidia/modules
+    fi
+    ;;
+
+  nouveau)
+    if $IS_64 ; then
+        XORG_MODULEPATH=/usr/lib64/xorg/modules/updates,/usr/lib64/xorg/modules
+    else
+        XORG_MODULEPATH=/usr/lib/xorg/modules/updates,/usr/lib/xorg/modules
+    fi
+    ;;
+
+esac
+
+CMD_SVC_REMOVE='chkconfig bumblebee off'
