@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# setup search paths
+SEARCH_PATHS="/sbin /usr/sbin /bin /usr/bin"
+# find lspci
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/lspci ] && LSPCI=$path/lspci && break;
+done
+# find modprobe
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/modprobe ] && MODPROBE=$path/modprobe && break;
+done
+# find rmmod
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/rmmod ] && RMMOD=$path/rmmod && break;
+done
+# find usermod
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/usermod ] && USERMOD=$path/usermod && break;
+done
+# if no path is found, try to use the default path
+[[ ! -n "$LSPCI" ]] && LSPCI=lspci
+[[ ! -n "$MODPROBE" ]] && MODPROBE=modprobe
+[[ ! -n "$RMMOD" ]] && RMMOD=rmmod
+[[ ! -n "$USERMOD" ]] && USERMOD=usermod
+
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
