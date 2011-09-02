@@ -1,6 +1,11 @@
 #!/bin/bash
 #
 #
+
+# usermod options
+USERMOD_OPTS="-G bumblebee"
+
+# set the module path
 case "$DRIVER" in
 
   nvidia)
@@ -21,4 +26,5 @@ case "$DRIVER" in
 
 esac
 
+# set the service remove command
 CMD_SVC_REMOVE='chkconfig bumblebee off'
