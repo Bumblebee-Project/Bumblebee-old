@@ -33,7 +33,7 @@ IS_64=false
 BUMBLEBEE_VERSION=DEV
 
 # The PCI Bus ID of the nvidia card, useful for lspci -s
-NVIDIA_BUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
+NVIDIA_BUSID=$($LSPCI -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
 
 # Retrieve the graphics driver to be passed to rmmod.
 # Return values:
@@ -82,7 +82,7 @@ load_acpi_call() {
     # Modprobe does nothing if a module is already loaded, so checking lsmod is
     # redundant. It may return values other than 0 and 1 so explicitly return 0
     # or 1.
-    modprobe -v acpi_call || return 1
+    $MODPROBE -v acpi_call || return 1
     return 0
 }
 
@@ -110,7 +110,7 @@ acpi_call() {
 #  0: card is enabled.
 #  1: card is disabled.
 card_status() {
-    lspci -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
+     -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
     return 0
 }
 
@@ -159,7 +159,7 @@ disable_card() {
 get_loaded_driver() {
     # display the driver for the nvidia card if any. Explicitly set the return
     # value as it may be values higher than 1
-    lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2 &&
+    $LSPCI -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2 &&
         return 0 || return 1
 }
 
@@ -183,7 +183,7 @@ load_graphics_driver() {
     fi
 
     # Load the video driver.
-    modprobe -v "$module" || return 1
+    $MODPROBE -v "$module" || return 1
     return 0
 }
 
@@ -203,9 +203,9 @@ unload_graphics_driver() {
 
     # Modprobe can only handle cases where driver == module.
     if [[ "$module" == "$driver" ]]; then
-        modprobe -r -v "$module" || return 1
+        $MODPROBE -r -v "$module" || return 1
     else
-        rmmod -v "$driver" || return 1
+        $RMMOD -v "$driver" || return 1
     fi
     return 0
 }
