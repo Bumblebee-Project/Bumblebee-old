@@ -3,7 +3,7 @@
 #
 
 # usermod options
-USERMOD_OPTS="-G bumblebee"
+USERMOD_OPTS="-G"
 
 # options for the INIT INFO block of the bumblebee.handler
 REQUIRED_START="\$remote_fs"
