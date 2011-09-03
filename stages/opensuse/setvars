@@ -5,6 +5,12 @@
 # usermod options
 USERMOD_OPTS="-G bumblebee"
 
+# options for the INIT INFO block of the bumblebee.handler
+REQUIRED_START="\$remote_fs"
+REQUIRED_STOP="\$remote_fs"
+DEFAULT_START="3 5"
+DEFAULT_STOP="0 1 2 6"
+
 # set the module path
 case "$DRIVER" in
 
