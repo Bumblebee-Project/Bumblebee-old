@@ -94,6 +94,10 @@ subst_var CONFDIR
 
 set_file install-files/bumblebee.handler
 def_var BIN "$SBINDIR/bumblebee"
+[[ -n "$REQUIRED_START" ]] && sreplace '# Required-Start:.*' '# Required-Start:    %s' "$REQUIRED_START"
+[[ -n "$REQUIRED_STOP" ]]  && sreplace '# Required-Stop:.*'  '# Required-Stop:     %s' "$REQUIRED_STOP"
+[[ -n "$DEFAULT_START" ]]  && sreplace '# Default-Start:.*'  '# Default-Start:     %s' "$DEFAULT_START"
+[[ -n "$DEFAULT_STOP" ]]   && sreplace '# Default-Stop:.*'   '# Default-Stop:      %s' "$DEFAULT_STOP"
 
 set_file install-files/optirun
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
