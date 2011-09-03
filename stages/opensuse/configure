@@ -68,10 +68,16 @@ if [[ ! -n "$DESTDIR" ]] ; then
     #
     # Start the bumblebee service on boot
     #
-    chkconfig bumblebee on
+    if [[ ! -n "$INITDIR" ]] ; then
+        chkconfig bumblebee on
+    fi
 
     #
     # Start the bumblebee daemon
     #
-    /etc/init.d/bumblebee start || true
+    if [[ -n "$INITDIR" ]] ; then
+        "$INITDIR"/bumblebee start || true
+    else
+        /etc/init.d/bumblebee start || true
+    fi
 fi
