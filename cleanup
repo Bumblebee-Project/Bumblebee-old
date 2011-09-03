@@ -84,6 +84,11 @@ dpkg_installed() {
     [[ $(dpkg-query -W -f '${Status}' "$1" 2>/dev/null) == install* ]]
 }
 
+# Test if a rpm package is installed
+rpm_installed() {
+    [[ -n $(rpm -qa $1) ]]
+}
+
 # Distro-specific cleanups
 if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
     echo "Detected distributon: Ubuntu-based"
@@ -149,6 +154,29 @@ elif grep -iq fedora /etc/issue; then
     echo "Detected distribution: Fedora-based"
 elif grep -iq opensuse /etc/issue; then
     echo "Detected distribution: OpenSUSE-based"
+
+    # remove start up
+    chkconfig bumblebee off 
+
+    echo "Removing VirtualGL package"
+    echo
+    zypper --no-refresh --non-interactive remove VirtualGL
+
+    if rpm_installed bumblebee; then
+        echo "Old Bumblebee package installation detected, removing..."
+        if ! rpm -e bumblebee; then
+            echo "The old Bumblebee package could not be removed."
+            echo "Installation aborted."
+            exit 1
+        fi
+    fi
+
+    echo "Removing junkfiles if any..."
+    for junk in \
+        /etc/bash_completion.d/optirun*
+    do
+        [ -L "$junk" -o -f "$junk" ] && rm -vf "$junk"
+    done
 elif grep -iq 'arch linux' /etc/issue; then
     echo "Detected distribution: Arch Linux-based"
 elif grep -iq debian /etc/issue; then
@@ -196,5 +224,5 @@ for junk_dirs in \
     [ -d "$junk_dirs" ] && rm -rvf "$junk_dirs"
 done
 
-rm -f /etc/bumblebee
+rm -rf /etc/bumblebee
 echo "Done"
