@@ -64,12 +64,14 @@ case "$DRIVER" in
 
 esac
 
-#
-# Start the bumblebee service on boot
-#
-chkconfig bumblebee on
+if [[ ! -n "$DESTDIR" ]] ; then
+    #
+    # Start the bumblebee service on boot
+    #
+    chkconfig bumblebee on
 
-#
-# Start the bumblebee daemon
-#
-/etc/init.d/bumblebee start || true
+    #
+    # Start the bumblebee daemon
+    #
+    /etc/init.d/bumblebee start || true
+fi
