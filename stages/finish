@@ -3,7 +3,7 @@
 echo
 echo "===== Installation finished ====="
 echo "You need to add users which are allowed to use Bumblebee to the group:"
-echo "    sudo $USERMOD $USERMOD_OPTS username-here"
+echo "    sudo $USERMOD $USERMOD_OPTS $BUMBLEBEE_GROUP username-here"
 #echo "After that, please re-login to apply group settings and library paths."
 echo "To ensure that drivers and are loaded correctly, you need to reboot."
 echo
