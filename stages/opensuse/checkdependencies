@@ -33,7 +33,7 @@ esac
 # Check for conflicts
 #
 for package in "${conflictingpackages[@]}" ; do
-    if ! pkg_is_installed "$package" ; then
+    if pkg_is_installed "$package" ; then
         conflicts[${#conflicts[@]}]="$package"
     fi
 done
@@ -48,7 +48,13 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
     echo "Please remove them by running:"
 
     for conflict in "${conflicts[@]}" ; do
-        echo "    sudo rpm -e $conflict"
+        if [[ "$conflict" == "nvidia-gfxG02-kmp" ]] ; then
+            echo "    sudo rpm -e x11-video-nvidiaG02"
+            echo "    sudo rpm -e nvidia-computeG02"
+            echo "    sudo rpm -e nvidia-gfxG02-kmp-desktop"
+        else
+            echo "    sudo rpm -e $conflict"
+        fi
     done
 
     exit 4
@@ -75,7 +81,7 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
     #
    for dependency in "${missing_dependencies[@]}" ; do
         if [[ "$dependency" == "VirtualGL" ]] ; then
-            if [[ "$(zypper info $dependency | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+            if [[ "$(zypper --no-refresh info $dependency | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
                 if [[ ! -n $(zypper lr "Bumblebee" 2>/dev/null | grep Cache) ]] ; then
                     echo "'$dependency' can be installed from the Bumblebee repository which can be added by running:"
                     echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_$suse_version \"Bumblebee\""
@@ -85,7 +91,7 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
         fi
 
         if [[ "$dependency" == "nvidia-gfxG02-kmp" ]] ; then
-            if [[ "$(zypper info nvidia-gfxG02-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-gfxG02-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
                 if [[ ! -n $(zypper lr "nVidia Graphics Drivers" 2>/dev/null | grep Cache) ]] ; then
                     echo "nVidia drivers can be installed from the nVidia repository which can be added by running:"
                     echo "    sudo zypper ar -f ftp://download.nvidia.com/opensuse/$suse_version \"nVidia Graphics Drivers\""
