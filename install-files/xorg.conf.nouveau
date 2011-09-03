@@ -1,6 +1,6 @@
 Section "ServerLayout"
     Identifier     "Layout0"
-    Screen          "Screen0"
+    Screen         "Screen0"
     Option         "AutoAddDevices" "false"
 EndSection
 
