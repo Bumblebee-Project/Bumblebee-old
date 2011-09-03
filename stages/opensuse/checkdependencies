@@ -29,7 +29,7 @@ case "$DRIVER" in
 esac
 
 #
-# Check for conflicts
+# Check for conflicting packages
 #
 for package in "${conflictingpackages[@]}" ; do
     if pkg_is_installed "$package" ; then
@@ -81,9 +81,9 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
    for dependency in "${missing_dependencies[@]}" ; do
         if [[ "$dependency" == "VirtualGL" ]] ; then
             if [[ "$(zypper --no-refresh info $dependency | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
-                if [[ ! -n $(zypper lr "Bumblebee" 2>/dev/null | grep Cache) ]] ; then
-                    echo "'$dependency' can be installed from the Bumblebee repository which can be added by running:"
-                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_$suse_version \"Bumblebee\""
+                if [[ ! -n $(zypper lr "Bumblebee Unstable" 2>/dev/null | grep Cache) ]] ; then
+                    echo "'$dependency' can be installed from the Bumblebee Unstable repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_$suse_version \"Bumblebee Unstable\""
                     echo
                 fi
             fi
