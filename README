@@ -8,8 +8,9 @@ Note that you cannot disable the Intel GPU even with Bumblebee installed.
 
 Support for enabling and disabling the the nVidia card is in development.
 
-Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
-#bumblebee on Freenode if you wish to help testing and creating the installer.
+Currently, Bumblebee has only been tested on Ubuntu, Arch Linux and openSuSE.
+Please join #bumblebee on Freenode if you wish to help testing and creating
+the installer.
 
 
 ## Installation
@@ -36,6 +37,23 @@ If you want newer drivers than the one available in the official repos, run:
 Arch Linux:
 AUR package: http://aur.archlinux.org/packages.php?ID=49469
 Instructions in the ArchWiki: https://wiki.archlinux.org/index.php/Bumblebee
+
+openSuSE:
+Add the repository:
+1a. sudo zypper ar -f http://download.opensuse.org/repositories/
+        home:/Bumblebee-Project:/Bumblebee/
+        openSUSE_<11.3|11.4|Factory|Tumbleweed> "Bumblebee"
+or ( build with the latest cvs VirtualGL ) :
+1b. sudo zypper ar -f http://download.opensuse.org/repositories/
+        home:/Bumblebee-Project:/Bumblebee-unstable/
+        openSUSE_<11.3|11.4|Factory|Tumbleweed> "Bumblebee"
+
+Install the package:
+2. sudo zypper refresh
+3. sudo zypper install bumblebee
+
+or just use Yast to add the repositories and packages.
+
 
 ### Using the installation script:
 You need to install VirtualGL > 2.2.1 (2.2.90 is advised) and nvidia driver.
@@ -64,11 +82,17 @@ Users who want to test the development code should run:
     sudo ./cleanup
     sudo ./install
 
+
 ## Usage
 After the initial bumblebee installation, you need to add yourself to the
 'bumblebee' group:
 
+Ubuntu, Arch Linux:
     sudo usermod -a -G bumblebee YOURUSERNAME
+
+openSuse:
+    sudo /usr/sbin/usermod -G bumblebee YOURUSERNAME
+
 Replace YOURUSERNAME accordingly and please double check the command, if you
 forget the '-a' option, you remove yourself from other groups. After adding
 yourself to the group, you need to re-login for the changes to apply.
@@ -78,13 +102,14 @@ example, starting Firefox can be done with:
 
     optirun firefox
 
+
 ## Uninstall
 If you're unsatisfied with Bumblebee, you can remove it by running:
 
     sudo bumblebee-uninstall
 
-## Reporting bugs/problems
 
+## Reporting bugs/problems
 First of all: If you have any problem, please read this article:
 https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
 
@@ -98,8 +123,10 @@ The current developers for Bumblebee are:
 - Lekensteyn
 - Samsagax
 - paulvriens
+- Ximi1970
 Check the https://github.com/Bumblebee-Project/Bumblebee/wiki/Developers page
 for developer information.
+
 
 ## Links
 Status updates can be found here on twitter: https://twitter.com/Team_Bumblebee
