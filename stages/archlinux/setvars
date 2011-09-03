@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # usermod options
-USERMOD_OPTS="-a -G bumblebee"
+USERMOD_OPTS="-a -G"
 
 BINDIR=/usr/bin
 SBINDIR=/usr/sbin
