@@ -188,7 +188,7 @@ optirun_ready() {
         else
             msg "You've no permission to start the Bumblebee X server. Add"
             msg "yourself to the '$BUMBLEBEE_GROUP' group by running:"
-            msg "    sudo usermod -a -G $BUMBLEBEE_GROUP $(id -u -n)"
+            msg "    sudo $USERMOD $USERMOD_OPTS $BUMBLEBEE_GROUP $(id -u -n)"
         fi
         return 2
     fi
