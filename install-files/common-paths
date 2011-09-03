@@ -32,6 +32,9 @@ done
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
+# usermod options
+USERMOD_OPTS="-a -G $BUMBLEBEE_GROUP"
+
 # Full paths to possible optirun binaries
 OPTIRUNS=()
 OPTIRUNS[0]=$(which optirun)
