@@ -59,7 +59,7 @@ get_graphics_driver() {
 get_graphics_module() {
     local driver="$1"
     if [ -n "$driver" ]; then
-        if modinfo $driver &>/dev/null; then
+        if $MODINFO $driver &>/dev/null; then
             echo $driver
             return 0
         fi

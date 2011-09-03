@@ -14,6 +14,10 @@ done
 for path in $SEARCH_PATHS ; do 
     [ -f $path/rmmod ] && RMMOD=$path/rmmod && break;
 done
+# find modinfo
+for path in $SEARCH_PATHS ; do 
+    [ -f $path/modinfo ] && MODINFO=$path/modinfo && break;
+done
 # find usermod
 for path in $SEARCH_PATHS ; do 
     [ -f $path/usermod ] && USERMOD=$path/usermod && break;
@@ -22,6 +26,7 @@ done
 [[ ! -n "$LSPCI" ]] && LSPCI=lspci
 [[ ! -n "$MODPROBE" ]] && MODPROBE=modprobe
 [[ ! -n "$RMMOD" ]] && RMMOD=rmmod
+[[ ! -n "$MODINFO" ]] && MODINFO=modinfo
 [[ ! -n "$USERMOD" ]] && USERMOD=usermod
 
 # Some common configuration files
