@@ -11,26 +11,12 @@ REQUIRED_STOP="\$remote_fs"
 DEFAULT_START="3 5"
 DEFAULT_STOP="0 1 2 6"
 
-# set the module path
-case "$DRIVER" in
-
-  nvidia)
-    if $IS_64 ; then
-        XORG_MODULEPATH=/usr/lib64/xorg-nvidia/modules/updates,/usr/lib64/xorg-nvidia/modules
-    else
-        XORG_MODULEPATH=/usr/lib/xorg-nvidia/modules/updates,/usr/lib/xorg-nvidia/modules
-    fi
-    ;;
-
-  nouveau)
-    if $IS_64 ; then
-        XORG_MODULEPATH=/usr/lib64/xorg/modules/updates,/usr/lib64/xorg/modules
-    else
-        XORG_MODULEPATH=/usr/lib/xorg/modules/updates,/usr/lib/xorg/modules
-    fi
-    ;;
-
-esac
+# set the module path (only used by xorg.conf.nvidia)
+if $IS_64 ; then
+    XORG_MODULEPATH=/usr/lib64/xorg-nvidia/modules/updates,/usr/lib64/xorg-nvidia/modules
+else
+    XORG_MODULEPATH=/usr/lib/xorg-nvidia/modules/updates,/usr/lib/xorg-nvidia/modules
+fi
 
 # set the service remove command
 CMD_SVC_REMOVE='chkconfig bumblebee off'
