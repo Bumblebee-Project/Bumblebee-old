@@ -11,8 +11,7 @@ kernel_type=$(uname -r | cut -f3 -d"-")
 
 
 pkg_is_installed() {
-    local pkg="$1"
-    [[ -n $(rpm -qa $pkg*) ]]
+    [[ -n $(rpm -qa $1*) ]]
 }
 
 #
