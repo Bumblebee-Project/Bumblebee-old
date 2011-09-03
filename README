@@ -93,9 +93,10 @@ Ubuntu, Arch Linux:
 openSuse:
     sudo /usr/sbin/usermod -G bumblebee YOURUSERNAME
 
-Replace YOURUSERNAME accordingly and please double check the command, if you
-forget the '-a' option, you remove yourself from other groups. After adding
-yourself to the group, you need to re-login for the changes to apply.
+Replace YOURUSERNAME accordingly and in case of Ubuntu or Arch Linux please
+double check the command, if you forget the '-a' option, you remove yourself
+from other groups. After adding yourself to the group, you need to re-login
+for the changes to apply.
 
 Applications can be started using bumblebee by prefixing it with optirun. For
 example, starting Firefox can be done with:
