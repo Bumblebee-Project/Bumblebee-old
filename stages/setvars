@@ -44,11 +44,13 @@ XORG_MODULEPATH=/usr/lib/xorg/modules
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
+
 # the graphics driver to be used, defaults to nvidia
 # (nouveau should be default)
-# use the config file to set the DRIVER var and
-# the BUMBLEBEE_GROUP var
-. install-files/bumblebee.conf
+DRIVER=nvidia
+
+# the bumblebee group
+BUMBLEBEE_GROUP=bumblebee
 
 # The version to be installed
 # Try to determine the hash from the git repo
