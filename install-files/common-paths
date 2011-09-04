@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# setup search paths
-SEARCH_PATHS="/sbin /usr/sbin /bin /usr/bin"
-# find lspci
-for path in $SEARCH_PATHS ; do 
-    [ -f $path/lspci ] && LSPCI=$path/lspci && break;
-done
-# if no path is found, try to use the default path
-[[ ! -n "$LSPCI" ]] && LSPCI=lspci
-
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
