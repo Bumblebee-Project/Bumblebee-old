@@ -137,6 +137,9 @@ copy_log() {
     return 1
 }
 
+# Remove non-matching wildcards
+shopt -s nullglob
+
 # Copy configuration, preserving times and permissions
 cp -pr /etc/bumblebee "$BUGREPORT_DIR"
 
@@ -198,9 +201,16 @@ done
 header "Modules info"
 lsmod
 
-header "Alternatives info"
-ls -lat /etc/alternatives
+if [ -d /etc/alternatives ]; then
+    header "Alternatives links"
+    ls -l /etc/alternatives/*gl_conf* /etc/alternatives/*xorg*
 
+    header "Alternatives info"
+    for alt in /var/lib/dpkg/alternatives/*gl_conf* \
+        /var/lib/dpkg/alternatives/*xorg*; do
+        update-alternatives --display "${alt##*/}"
+    done
+fi
 
 header "Packages info"
 if [ -n "$PKG_QUERY_TOOL" ]; then
