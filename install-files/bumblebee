@@ -302,6 +302,9 @@ start_daemon() {
     log_daemon_msg "Making FIFO writable for members of group $BUMBLEBEE_GROUP"
     chgrp "$BUMBLEBEE_GROUP" "$BUMBLEBEE_FIFO"
 
+    # define the busid
+    set_busid
+
     case $ENABLE_POWER_MANAGEMENT in
       [Yy]*)
         local loaded_driver
