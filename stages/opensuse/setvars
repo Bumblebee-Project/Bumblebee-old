@@ -3,6 +3,9 @@
 #
 
 # usermod options
+SUDO_OPTS="-s"
+
+# usermod options
 USERMOD_OPTS="-G"
 
 # options for the INIT INFO block of the bumblebee.handler
