@@ -18,16 +18,11 @@ done
 for path in $SEARCH_PATHS ; do 
     [ -f $path/modinfo ] && MODINFO=$path/modinfo && break;
 done
-# find usermod
-for path in $SEARCH_PATHS ; do 
-    [ -f $path/usermod ] && USERMOD=$path/usermod && break;
-done
 # if no path is found, try to use the default path
 [[ ! -n "$LSPCI" ]] && LSPCI=lspci
 [[ ! -n "$MODPROBE" ]] && MODPROBE=modprobe
 [[ ! -n "$RMMOD" ]] && RMMOD=rmmod
 [[ ! -n "$MODINFO" ]] && MODINFO=modinfo
-[[ ! -n "$USERMOD" ]] && USERMOD=usermod
 
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
