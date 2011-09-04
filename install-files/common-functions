@@ -32,8 +32,10 @@ IS_64=false
 # This version is set at installation time.
 BUMBLEBEE_VERSION=DEV
 
-# The PCI Bus ID of the nvidia card, useful for lspci -s
-NVIDIA_BUSID=$($LSPCI -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
+set_busid() {
+    # The PCI Bus ID of the nvidia card, useful for lspci -s
+    NVIDIA_BUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1)
+}
 
 # Retrieve the graphics driver to be passed to rmmod.
 # Return values:
@@ -110,7 +112,7 @@ acpi_call() {
 #  0: card is enabled.
 #  1: card is disabled.
 card_status() {
-    $LSPCI -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
+    lspci -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
     return 0
 }
 
@@ -159,7 +161,7 @@ disable_card() {
 get_loaded_driver() {
     # display the driver for the nvidia card if any. Explicitly set the return
     # value as it may be values higher than 1
-    $LSPCI -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2 &&
+    lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2 &&
         return 0 || return 1
 }
 
