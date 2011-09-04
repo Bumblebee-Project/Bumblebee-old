@@ -115,6 +115,7 @@ def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
 
 set_file install-files/bumblebee.conf
 def_var DRIVER "$DRIVER"
+def_var BUMBLEBEE_GROUP "$BUMBLEBEE_GROUP"
 
 set_file "install-files/drivers/$DRIVER.options.$DISTRO" \
     "install-files/drivers/$DRIVER.options"
