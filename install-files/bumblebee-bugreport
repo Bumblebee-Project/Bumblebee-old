@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+BUMBLEBEE_VERSION=dev
+
 if (( EUID != 0 )); then
     echo "Certain system information can only be gathered as root. This"
     echo "includes the machine manufacturer and model."
@@ -161,6 +163,7 @@ header() {
 header "Bumblebee Bug Report"
 echo "$BUGREPORT_NAME"
 date -R -u
+echo "Bumblebee version: $BUMBLEBEE_VERSION"
 
 header "dmidecode"
 
