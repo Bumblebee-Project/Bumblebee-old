@@ -107,8 +107,9 @@ def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 
 set_file install-files/common-paths
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
-def_var USERMOD_OPTS "$USERMOD_OPTS"
 def_var 'OPTIRUNS[0]' "$BINDIR/optirun"
+[[ -n "$USERMOD_OPTS" ]] && def_var USERMOD_OPTS "$USERMOD_OPTS"
+[[ -n "$SUDO_OPTS" ]] && def_var SUDO_OPTS "$USERMOD_OPTS"
 
 set_file install-files/common-functions
 def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
