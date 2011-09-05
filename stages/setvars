@@ -28,10 +28,10 @@ LIBDIR=/usr/local/lib/bumblebee
 INITDIR=/etc/init.d
 XORG_MODULEPATH=/usr/lib/xorg/modules
 
-# available drivers, add nouveau in the future
+# available drivers
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
 # A list of drivers to be installed
-DRIVERS=(nouveau)
+DRIVERS=(nvidia)
 # the graphics driver to be used, defaults to the last driver in $DRIVERS
 DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
 
