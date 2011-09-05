@@ -57,7 +57,7 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
 
     for conflict in "${conflicts[@]}" ; do
         if [[ "$conflict" == "/usr/bin/nvidia-uninstall" ]] ; then
-            echo "    sudo /usr/bin/nvidia-uninstall"
+            echo "    sudo /usr/bin/nvidia-uninstall -s"
             echo "And reboot the computer."
         fi
     done
