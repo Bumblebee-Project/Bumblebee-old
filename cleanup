@@ -165,23 +165,25 @@ elif grep -iq opensuse /etc/issue; then
     if [ -f /usr/bin/nvidia-uninstall ] ; then
         echo "Uninstalling nVidia package."
 
-        #
-        # Cleanup 3D hack for the nVidia package part 1
-        #
-        ARCH=`uname -m`
-        if [ "$ARCH" == "x64_64" ] ; then
-            rm -f /usr/lib/libGL.so.*
-            rm -f /usr/lib64/libGL.so.*
-            mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
-            pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
-            ln -sf libnvidia-wfb.so.1 libwfb.so
-            popd > /dev/null
-        else
-            rm -f /usr/lib/libGL.so.*
-            mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
-            pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
-            ln -sf libnvidia-wfb.so.1 libwfb.so
-            popd > /dev/null
+        if [ -d /usr/X11R6/nvidia ] ; then
+            #
+            # Cleanup 3D hack for the nVidia package part 1
+            #
+            ARCH=`uname -m`
+            if [ "$ARCH" == "x64_64" ] ; then
+                rm -f /usr/lib/libGL.so.*
+                rm -f /usr/lib64/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
+                pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            else
+                rm -f /usr/lib/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
+                pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            fi
         fi
 
         #
@@ -189,15 +191,17 @@ elif grep -iq opensuse /etc/issue; then
         #
         /usr/bin/nvidia-uninstall -s
 
-        #
-        # Cleanup 3D hack part 2
-        #
-        rm -rf /usr/X11R6/lib-nvidia
-        rm -rf /usr/X11R6/lib64-nvidia
-        rm -rf /usr/lib/xorg-nvidia
-        rm -rf /usr/lib64/xorg-nvidia
+        if [ -d /usr/X11R6/nvidia ] ; then
+            #
+            # Cleanup 3D hack part 2
+            #
+            rm -rf /usr/X11R6/lib-nvidia
+            rm -rf /usr/X11R6/lib64-nvidia
+            rm -rf /usr/lib/xorg-nvidia
+            rm -rf /usr/lib64/xorg-nvidia
 
-        rm -rf /usr/X11R6/nvidia
+            rm -rf /usr/X11R6/nvidia
+        fi
     fi
 
     if rpm_installed bumblebee; then
