@@ -40,7 +40,7 @@ PKG_QUERY_TOOLS=(
 PKG_QUERY_TOOL=
 PACKAGES=
 # this directory will recursively be listed, symlinks are not followed
-LIB_DIRS=
+LIST_DIRS_RECURSIVE=
 
 # Auto-detect packager tool
 for tool in "${PKG_QUERY_TOOLS[@]}"; do
@@ -50,18 +50,18 @@ for tool in "${PKG_QUERY_TOOLS[@]}"; do
     fi
 done
 
-# XXX: perhaps LIB_DIRS can be separated from the tools
+# XXX: perhaps LIST_DIRS_RECURSIVE can be separated from the tools
 case "$PKG_QUERY_TOOL" in
   apt-cache*|dpkg-query*)
     PACKAGES=(bumblebee virtualgl nvidia-current nvidia-glx libgl1-mesa-glx)
-    LIB_DIRS=(
+    LIST_DIRS_RECURSIVE=(
         /usr/lib/nvidia-current /usr/lib32/nvidia-current /usr/lib/nvidia
         /etc/ld.so.conf.d /usr/lib/xorg
     )
     ;;
   pacman*)
     PACKAGES=(bumblebee lib32-nvidia-utils-bumblebee nvidia-utils-bumblebee virtualgl-bin virtualgl32-bin)
-    LIB_DIRS=(/usr/lib/nvidia-bumblebee /usr/lib32/nvidia-bumblebee)
+    LIST_DIRS_RECURSIVE=(/usr/lib/nvidia-bumblebee /usr/lib32/nvidia-bumblebee)
     ;;
   *)
     # unknown package management tool :/
@@ -191,13 +191,11 @@ header "Process information info"
 PIDS=$(pidof $(which X Xorg bumblebee optirun optirun32 optirun64 2>/dev/null))
 [ -n "$PIDS" ] && ps uww --pid "$PIDS"
 
-header "Library paths"
+header "Directory contents"
 
-for lib in "${LIB_DIRS[@]}"
-do
-    if [ -d "$lib" ]; then
-        echo "$lib:"
-        ls --group-directories-first -laR "$lib"
+for dir in "${LIST_DIRS_RECURSIVE[@]}"; do
+    if [ -d "$dir" ]; then
+        ls --group-directories-first -laR "$dir"
     fi
 done
 
