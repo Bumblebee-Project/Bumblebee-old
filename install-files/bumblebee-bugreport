@@ -213,6 +213,9 @@ if [ -d /etc/alternatives ]; then
         /var/lib/dpkg/alternatives/*xorg*; do
         update-alternatives --display "${alt##*/}"
     done
+
+    header "Alternative links (all)"
+    ls -lAtr /etc/alternatives
 fi
 
 header "Packages info"
