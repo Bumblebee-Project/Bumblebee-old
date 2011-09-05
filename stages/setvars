@@ -30,10 +30,10 @@ XORG_MODULEPATH=/usr/lib/xorg/modules
 
 # available drivers, add nouveau in the future
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
-
-# the graphics driver to be used, defaults to nvidia
-# (nouveau should be default)
-DRIVER=nvidia
+# A list of drivers to be installed
+DRIVERS=(nouveau)
+# the graphics driver to be used, defaults to the last driver in $DRIVERS
+DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
 
 # the bumblebee group
 BUMBLEBEE_GROUP=bumblebee
@@ -68,15 +68,44 @@ while [ $# -gt 0 ]; do
         else
             arg_driver="${1#--driver=}"
         fi
-        DRIVER=
-        for driver in "${AVAILABLE_DRIVERS[@]}"; do
-            if [[ $driver == "$arg_driver" ]]; then
-                DRIVER="$driver"
-                break
-            fi
+        DRIVERS=()
+
+        IFS=','
+        parse_drivers=( ${arg_driver[*]} )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_drivers=()
+        # reverse loop since order matters: the final driver is the default one
+        for ((i=${#parse_drivers[@]}-1; i>=0; i--)); do
+            driver="${parse_drivers[i]}"
+            for current_driver in "${DRIVERS[@]}"; do
+                # skip duplicates
+                [[ $current_driver == "$driver" ]] && continue 2
+            done
+
+            for avail_driver in "${AVAILABLE_DRIVERS[@]}"; do
+                if [[ $avail_driver == "$driver" ]]; then
+                    DRIVERS=("$driver" "${DRIVERS[@]}")
+                    continue 2
+                fi
+            done
+
+            invalid_drivers[${#invalid_drivers[@]}]="$driver"
         done
-        if [ -z "$DRIVER" ]; then
-            echo "Unrecognized driver: $arg_driver"
+
+        if [ ${#invalid_drivers[@]} -gt 0 ]; then
+            echo "Invalid drivers: ${invalid_drivers[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+
+        if [ ${#DRIVERS[@]} -gt 0 ]; then
+            # the last driver in the list is the default one
+            DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
+        else
+            echo "No driver specified"
+            echo "Try '$0 --help' for more information."
             exit 255
         fi
         ;;
@@ -203,10 +232,11 @@ Usage: $0 [options]
   --32
     Force 32-bit architecture.
 
-  --driver=DRIVER
-  --driver DRIVER
-    Use DRIVER as graphics driver. Currently, the only valid driver is nvidia.
-    If not specified, nvidia is assumed
+  --driver=DRIVERS
+  --driver DRIVERS
+    DRIVERS is a comma-separated list of drivers to be installed. The last
+    specified driver will be the default driver. Valid values are nvidia and
+    nouveau, if not specified, nouveau is assumed.
 
   --bindir=DIR
   --bindir DIR
