@@ -48,7 +48,7 @@ done
 
 if [ ${#conflicts[@]} -gt 0 ] ; then
     #
-    # Bumblebee is unlikely to work with these conflicting scripts
+    # Bumblebee is unlikely to work with these conflicting files
     #
     echo "Conflicting files ${conflicts[*]}"
 
