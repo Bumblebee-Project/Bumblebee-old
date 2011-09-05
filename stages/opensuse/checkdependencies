@@ -2,21 +2,7 @@
 #
 #
 dependencies=('VirtualGL')
-missing_dependencies=()
 conflictingpackages=()
-conflicts=()
-failed=false
-suse_version=$(cat /etc/SuSE-release | grep VERSION | cut -f3 -d" ")
-kernel_type=$(uname -r | cut -f3 -d"-")
-
-
-pkg_is_installed() {
-    [[ -n $(rpm -qa $1*) ]]
-}
-
-#
-# Get the right dependency for each driver
-#
 case "$DRIVER" in
   nvidia)
     dependencies[ ${#dependencies[@]} ]=nvidia-gfxG02-kmp
@@ -28,9 +14,61 @@ case "$DRIVER" in
     ;;
 esac
 
+conflictingfiles=('/usr/bin/nvidia-uninstall')
+
+
+
+#
+# vars
+#
+failed=false
+suse_version=$(cat /etc/SuSE-release | grep VERSION | cut -f3 -d" ")
+kernel_type=$(uname -r | cut -f3 -d"-")
+
+#
+# funcs
+#
+pkg_is_installed() {
+    [[ -n $(rpm -qa $1*) ]]
+}
+
+#
+# main
+#
+
+#
+# Check for conflicting files
+#
+conflicts=()
+for filename in "${conflictingfiles[@]}" ; do
+    if [ -f "$filename" ] ; then
+        conflicts[${#conflicts[@]}]="$filename"
+    fi
+done
+
+if [ ${#conflicts[@]} -gt 0 ] ; then
+    #
+    # Bumblebee is unlikely to work with these conflicting scripts
+    #
+    echo "Conflicting files ${conflicts[*]}"
+
+    echo "These files need to be removed before installing this version."
+    echo "Please remove them by running:"
+
+    for conflict in "${conflicts[@]}" ; do
+        if [[ "$conflict" == "/usr/bin/nvidia-uninstall" ]] ; then
+            echo "    sudo /usr/bin/nvidia-uninstall"
+            echo "And reboot the computer."
+        fi
+    done
+
+    exit 4
+fi
+
 #
 # Check for conflicting packages
 #
+conflicts=()
 for package in "${conflictingpackages[@]}" ; do
     if pkg_is_installed "$package" ; then
         conflicts[${#conflicts[@]}]="$package"
@@ -51,6 +89,7 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
             echo "    sudo rpm -e x11-video-nvidiaG02"
             echo "    sudo rpm -e nvidia-computeG02"
             echo "    sudo rpm -e nvidia-gfxG02-kmp-desktop"
+            echo "And reboot the computer."
         else
             echo "    sudo rpm -e $conflict"
         fi
@@ -62,6 +101,7 @@ fi
 #
 # Check the dependencies
 #
+missing_dependencies=()
 for package in "${dependencies[@]}" ; do
     if ! pkg_is_installed "$package" ; then
         missing_dependencies[${#missing_dependencies[@]}]="$package"
@@ -114,6 +154,7 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
         if [[ "$dependency" == "nvidia-gfxG02-kmp" ]] ; then
             echo "    sudo zypper install nvidia-gfxG02-kmp-$kernel_type"
             echo "    sudo zypper install x11-video-nvidiaG02"
+            echo "And reboot the computer."
         fi
     done
     failed=true
