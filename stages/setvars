@@ -38,6 +38,12 @@ DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
 # the bumblebee group
 BUMBLEBEE_GROUP=bumblebee
 
+# sudo options (options for Ubuntu / Arch Linux as default)
+SUDO_OPTS=
+
+# usermod options (options for Ubuntu / Arch Linux as default)
+USERMOD_OPTS="-a -G"
+
 # The version to be installed
 # Try to determine the hash from the git repo
 GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null)"
