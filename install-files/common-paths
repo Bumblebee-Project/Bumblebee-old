@@ -3,11 +3,11 @@
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
-# usermod options (options for Ubuntu / Arch Linux as default)
+# sudo options (options for Ubuntu / Arch Linux as default)
 SUDO_OPTS=
 
 # usermod options (options for Ubuntu / Arch Linux as default)
-USERMOD_OPTS="-a -G $BUMBLEBEE_GROUP"
+USERMOD_OPTS="-a -G"
 
 # Full paths to possible optirun binaries
 OPTIRUNS=()
