@@ -60,7 +60,7 @@ case "$PKG_QUERY_TOOL" in
     )
     ;;
   pacman*)
-    PACKAGES=(bumblebee lib32-nvidia-utils-bumblebee nvidia-utils-bumblebee virtualgl-bin virtualgl32-bin)
+    PACKAGES=(bumblebee bumblebee-git xf86-video-nouveau nouveau-dri mesa libgl lib32-nvidia-utils-bumblebee nvidia-utils-bumblebee virtualgl-bin virtualgl32-bin)
     LIST_DIRS_RECURSIVE=(/usr/lib/nvidia-bumblebee /usr/lib32/nvidia-bumblebee)
     ;;
   *)
