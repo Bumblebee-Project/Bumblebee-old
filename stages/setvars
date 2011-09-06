@@ -227,7 +227,7 @@ Usage: $0 [options]
   --driver DRIVERS
     DRIVERS is a comma-separated list of drivers to be installed. The last
     specified driver will be the default driver. Valid values are nvidia and
-    nouveau, if not specified, nouveau is assumed.
+    nouveau; if not specified, nvidia is assumed, for now.
 
   --bindir=DIR
   --bindir DIR
