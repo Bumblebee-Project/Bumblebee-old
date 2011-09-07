@@ -7,8 +7,6 @@ EndSection
 Section "Device"
     Identifier     "Device0"
     Driver         "nouveau"
-    # This is left in the file so the configure stage won't fail.
-    # Should be removed as it's not needed
     BusID ""
 EndSection
 

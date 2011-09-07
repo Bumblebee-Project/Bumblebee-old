@@ -20,10 +20,16 @@ NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
 re_busid='^( *BusID +")[^"]*'
 
-# Currently, only the nvidia conffile needs the PCI Bus ID set
+# Currently, only the nvidia conffile needs the PCI Bus ID set for Ubuntu and Arch Linux
+# Currently, both the nvidia and nouveau conffile need the PCI Bus ID set for openSuSE
 if [ -f "${CONFDIR}/xorg.conf.nvidia" ]; then
     echo "Setting Bus ID in xorg.conf.nvidia..."
     sed -E -i "${CONFDIR}/xorg.conf.nvidia" \
+        -e "s,${re_busid},\1$NVIDIABUSID,"
+fi
+if [ -f "${CONFDIR}/xorg.conf.nouveau" ]; then
+    echo "Setting Bus ID in xorg.conf.nouveau..."
+    sed -E -i "${CONFDIR}/xorg.conf.nouveau" \
         -e "s,${re_busid},\1$NVIDIABUSID,"
 fi
 
