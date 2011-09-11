@@ -13,20 +13,22 @@ for i in "${conflictingpackages[@]}"; do
     fi
 done
 
-case "$DRIVER" in
-  nvidia)
-    for i in dkms-nvidia nvidia-utils-bumblebee
-    do
-        dependencies[${#dependencies[@]}]="$i"
-    done
-    ;;
-  nouveau)
-    for i in nouveau-dri xf86-video-nouveau mesa libgl
-    do
-        dependencies[${#dependencies[@]}]="$i"
-    done
-    ;;
-esac
+for driver in "${DRIVERS[@]}"; do
+    case "$driver" in
+      nvidia)
+        for i in dkms-nvidia nvidia-utils-bumblebee
+        do
+            dependencies[${#dependencies[@]}]="$i"
+        done
+        ;;
+      nouveau)
+        for i in nouveau-dri xf86-video-nouveau mesa libgl
+        do
+            dependencies[${#dependencies[@]}]="$i"
+        done
+        ;;
+    esac
+done
 
 for package in "${dependencies[@]}"; do
     if ! "$PACMAN" -Qq "$package" &>/dev/null; then
