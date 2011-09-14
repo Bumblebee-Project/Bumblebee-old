@@ -4,7 +4,6 @@
 
 install_dir 755 "$CONFDIR"
 install_file 644 bumblebee.conf "$CONFDIR/bumblebee.conf"
-install_file 644 optirun.conf "$CONFDIR/optirun.conf"
 for driver in "${DRIVERS[@]}"; do
     install_file 644 "xorg.conf.$driver" "$CONFDIR/xorg.conf.$driver"
 done
