@@ -124,8 +124,9 @@ You should also set STOP_SERVICE_ON_EXIT to Y:
     ENABLE_POWER_MANAGEMENT=Y
     STOP_SERVICE_ON_EXIT=Y
 
-Then, in the bumblebee conf dir, add to script called 'cardon' and 'cardoff'
-containing only the call you use to respectively enable and disable the card.
+Then, in the bumblebee conf dir, create the textfiles 'cardon' and 'cardoff'
+which should just contain the calls to respectively enable and disable the card.
+Each line should contain a call, comments are not allowed.
 Check 'bumblebee.conf' file comments on Power Management for more informations.
 
 After that, reboot (or restart daemon) to apply changes.
