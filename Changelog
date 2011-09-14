@@ -1,21 +1,29 @@
+-----------------------------------------
 Release version 2.4.0 (stable) changelog
+-----------------------------------------
 
     - Added nouveau support backend:
         * Removed nouveau blacklist
         * Install both drivers, with nvidia as default.
     - Added ACPI framework (backend support for ACPI).
 
+-----------------------------------------
 Release version 2.3.2 (stable) changelog
+-----------------------------------------
 
     - Bugfix: Do not fail on invalid alternative links in
       "stages/ubuntu/configure"
 
+-----------------------------------------
 Release version 2.3.1 (stable) changelog
+-----------------------------------------
 
     - Fixed bug preventing Ubuntu package to be installed (GH-#34)
     - Workaround to DFP only laptops not starting bumblebee X server (GH-#24)
 
+-----------------------------------------
 Release version 2.3.0 (stable) changelog
+-----------------------------------------
 
     - Complete rewrite of Bumblebee:
         - Automatically detect the right settings without bumblebee-configuration
