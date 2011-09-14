@@ -14,6 +14,8 @@
 # Bumblebee daemon handler script. Distro-independent script to start/stop
 # daemon. Should be runnable in any distro but won't give any feedback.
 
+# Avoid bashism since this script runs using /bin/sh, not /bin/bash!
+
 NAME=bumblebee
 BIN="$(which $NAME)"
 PIDFILE=/var/run/$NAME.pid
@@ -39,7 +41,26 @@ stop() {
     case $? in
       0|1|3) # Alive and running
         echo "Stopping daemon..."
-        kill -TERM "$(cat $PIDFILE)"
+        local pid=$(cat $PIDFILE)
+        kill -TERM $pid
+        # give it time to end gracefully...
+        local retries=10
+        while [ $retries -gt 0 ]; do
+            retries=$(expr $retries - 1)
+            "$BIN" --status >/dev/null
+            case $? in
+              0|1|3) sleep .5 ;; # not ready
+                *) break;; # no need for polling anymore
+            esac
+        done
+        # ... otherwhise just terminate it.
+        "$BIN" --status >/dev/null
+        case $? in
+          0|1|3) # still alive > Kill
+            kill -KILL $pid >/dev/null
+            ;;
+          *) ;;
+        esac
         ;;
       2) # Not started
         ;;

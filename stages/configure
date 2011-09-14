@@ -1,11 +1,13 @@
 #!/bin/bash
 # Beware: this file is processed by stages/buildfiles
+# avoid bashism here so it can be inserted straigh away in packaging scripts
 
-# check if nouveau is not blacklisted or commented
-if ! grep -rqE "^ *blacklist +nouveau\b" /etc/modprobe.d; then
-    # blacklisted is blacklisted, whether it's done in nouveau-blacklist.conf,
-    # blacklist.conf or nvidia.conf (OpenSUSE)
-    echo "blacklist nouveau" >> /etc/modprobe.d/nouveau-blacklist.conf
+# We should not mess too much with blacklisting, we unload the drivers anyway.
+blacklist=/etc/modprobe/nouveau-blacklist.conf
+# the md5sum of "blacklist nouveau\n"
+sum=cddff2da6f6e96b8a48943c8ce62a238
+if echo "$sum  $blacklist" | md5sum -c --status 2>/dev/null; then
+    rm -f "$blacklist"
 fi
 
 # Detect PCI Bus ID of the nVidia card
@@ -18,10 +20,14 @@ NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 
 re_busid='^( *BusID +")[^"]*'
 
-for driver in nvidia; do
-    echo "Setting Bus ID in xorg.conf.$driver..."
-    sed -E -i "${CONFDIR}/xorg.conf.$driver" \
+# Currently, only the nvidia conffile needs the PCI Bus ID set. Nouveau doesn't
+# need it but setting it is needed in some cards.
+for driver in "${DRIVERS[@]}"; do
+    if [ -f "${CONFDIR}/xorg.conf.$driver" ]; then
+        echo "Setting Bus ID in xorg.conf.$driver..."
+        sed -E -i "${CONFDIR}/xorg.conf.$driver" \
         -e "s,${re_busid},\1$NVIDIABUSID,"
+    fi
 done
 
 # add the bumblebee group
