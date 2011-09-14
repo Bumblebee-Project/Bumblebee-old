@@ -83,7 +83,7 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
         apt-get install --reinstall -y libgl1-mesa-glx
     fi
 
-    for package in acpi-call-dkms bumblebee-ui nvidia-current virtualgl do
+    for package in acpi-call-dkms bumblebee-ui nvidia-current virtualgl; do
         if dpkg_installed "$package"; then
             # Rather uninstall than some clean here, we used custom versions not really clean
             apt-get purge -y "$package"
