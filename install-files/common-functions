@@ -305,8 +305,9 @@ set_graphics_driver() {
 }
 
 # Load the settings and sets some other variables.
-# In the future, $BUMBLEBEE_CONFDIR/bumblebee.conf would be the default file
-# and users should overwrite with a custom bumblebee.conf in ~/.bumblebee.
+# In the future, $BUMBLEBEE_CONFDIR/{bumblebee,optirun}.conf would be the
+# default file and users should overwrite with a custom optirun.conf in
+# ~/.bumblebee.
 load_settings() {
     # defaults
     STOP_SERVICE_ON_EXIT=N
@@ -319,6 +320,7 @@ load_settings() {
     BUMBLEBEE_GROUP=bumblebee
     BUMBLEBEE_LOGFILE=/var/log/bumblebee.log
     . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
+    . "$BUMBLEBEE_CONFDIR/optirun.conf"
 
     # Allow the user to specify a custom xorg path, otherwise base on driver
     [ -z "$X_CONFFILE" ] && X_CONFFILE="$BUMBLEBEE_CONFDIR/xorg.conf.${DRIVER}"
