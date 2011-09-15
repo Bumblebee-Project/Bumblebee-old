@@ -1,4 +1,11 @@
 -----------------------------------------
+Release version 2.4.1 (stable) changelog
+-----------------------------------------
+
+    - Added new bugreport tool (was forgotten in the previous release).
+    - Fix an error in cleanup script.
+
+-----------------------------------------
 Release version 2.4.0 (stable) changelog
 -----------------------------------------
 
