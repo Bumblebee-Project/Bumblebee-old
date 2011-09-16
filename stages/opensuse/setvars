@@ -16,9 +16,9 @@ DEFAULT_STOP="0 1 2 6"
 
 # set the module path (only used by xorg.conf.nvidia)
 if $IS_64 ; then
-    XORG_MODULEPATH=/usr/lib64/xorg-nvidia/modules/updates,/usr/lib64/xorg-nvidia/modules
+    XORG_MODULEPATH=/usr/lib64/nvidia/xorg/modules/updates,/usr/lib64/xorg/modules/updates,/usr/lib64/xorg/modules
 else
-    XORG_MODULEPATH=/usr/lib/xorg-nvidia/modules/updates,/usr/lib/xorg-nvidia/modules
+    XORG_MODULEPATH=/usr/lib/nvidia/xorg/modules/updates,/usr/lib/xorg/modules/updates,/usr/lib/xorg/modules
 fi
 
 # set the service remove command
