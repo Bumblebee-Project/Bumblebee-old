@@ -320,7 +320,6 @@ load_settings() {
     BUMBLEBEE_GROUP=bumblebee
     BUMBLEBEE_LOGFILE=/var/log/bumblebee.log
     . "$BUMBLEBEE_CONFDIR/bumblebee.conf"
-    . "$BUMBLEBEE_CONFDIR/optirun.conf"
 
     # Allow the user to specify a custom xorg path, otherwise base on driver
     [ -z "$X_CONFFILE" ] && X_CONFFILE="$BUMBLEBEE_CONFDIR/xorg.conf.${DRIVER}"
