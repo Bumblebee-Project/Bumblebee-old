@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Bumblebee daemon handler script. Archlinux script to start/stop
-# daemon.
+# Bumblebee daemon handler script. ArchLinux script to start/stop daemon.
 
 NAME=bumblebee
 BIN="$(which $NAME)"
@@ -10,28 +9,55 @@ PIDFILE=/var/run/$NAME.pid
 start() {
     # Start the daemon only if there is not another instance running
     stat_busy "Checking daemon status"
-    "$BIN" --status &>/dev/null
+    "$BIN" --status >/dev/null
     case $? in
       0) ;; # already running
       1) ;; # already running and X is available
       3) ;; # already running, but X server cannot be started
       2) # Can be started
-        "$BIN" -d &>/dev/null &
-        # Print a per-distro success message
         stat_busy "Starting Bumblebee daemon"
+        "$BIN" -d >/dev/null 2>&1 &
+        add_daemon $NAME
         ;;
     esac
 }
 
 stop() {
     # Stop the daemon only if there is an instance running
-    "$BIN" --status
+    stat_busy "Stopping daemon"
+    "$BIN" --status >/dev/null
     case $? in
       0|1|3) # Alive and running
-        echo "Stopping daemon..."
-        kill -TERM "$(cat $PIDFILE)"
+        local pid=$(cat $PIDFILE)
+        kill -TERM $pid >/dev/null
+        # give it time to end gracefully...
+        local retries=10
+        while [ $retries -gt 0 ]; do
+            retries=$(expr $retries - 1)
+            "$BIN" --status >/dev/null
+            case $? in
+              0|1|3) # not ready
+                sleep .5
+                ;;
+              *) # no need for polling anymore
+                break
+                ;;
+            esac
+        done
+        # ... otherwhise just terminate it.
+        "$BIN" --status >/dev/null
+        case $? in
+          0|1|3) # still alive > Kill
+            kill -KILL $pid >/dev/null
+            ;;
+          *)
+            ;;
+        esac
+        rm_daemon $NAME
+        stat_done
         ;;
       2) # Not started
+        stat_fail
         ;;
     esac
 }
