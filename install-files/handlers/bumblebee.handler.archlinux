@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Bumblebee daemon handler script. ArchLinux script to start/stop daemon.
+. /etc/rc.conf
+. /etc/rc.d/functions
 
 NAME=bumblebee
 BIN="$(which $NAME)"
@@ -8,23 +10,25 @@ PIDFILE=/var/run/$NAME.pid
 
 start() {
     # Start the daemon only if there is not another instance running
-    stat_busy "Checking daemon status"
+    stat_busy "Starting Bumblebee"
     "$BIN" --status >/dev/null
     case $? in
       0) ;; # already running
       1) ;; # already running and X is available
       3) ;; # already running, but X server cannot be started
       2) # Can be started
-        stat_busy "Starting Bumblebee daemon"
         "$BIN" -d >/dev/null 2>&1 &
         add_daemon $NAME
+        stat_done
+        return
         ;;
     esac
+    stat_fail
 }
 
 stop() {
     # Stop the daemon only if there is an instance running
-    stat_busy "Stopping daemon"
+    stat_busy "Stopping Bumblebee"
     "$BIN" --status >/dev/null
     case $? in
       0|1|3) # Alive and running
