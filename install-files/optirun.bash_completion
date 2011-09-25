@@ -1,4 +1,62 @@
+#!/bin/bash
 # bash completion for bumblebee
 
-have optirun   && complete -F _command optirun
+# XXX: support --failsafe= and --debug-log=
+_optirun() {
+    local i prev cur last_optirun_offset compress_types in_option
+
+    in_option=false
+    # the position of the last optirun arguments part
+    last_optirun_offset=0
+    compress_types='proxy jpeg rgb xv yuv'
+
+    for (( i=1; i<=COMP_CWORD; i++ )); do
+        prev="${COMP_WORDS[i-1]}"
+        cur="${COMP_WORDS[i]}"
+
+        if $in_option; then
+            in_option=false
+        else
+            case "$prev" in
+              -c|-d|--failsafe|--debug-log)
+                in_option=true
+                ;;
+              --)
+                break
+                ;;
+            esac
+        fi
+
+        if ! $in_option; then
+            [[ "$cur" != -* ]] && break
+        fi
+
+        last_optirun_offset=$i
+    done
+
+    if [ $last_optirun_offset -eq $COMP_CWORD ]; then
+        case "$prev" in
+          -c)
+            COMPREPLY=( $(compgen -W "$compress_types" -- "$cur") )
+            ;;
+          -d)
+            # XXX: find active bumblebee X servers and suggest these
+            ;;
+          --failsafe)
+            COMPREPLY=( $(compgen -W "Y N" -- "${cur^^}") )
+            ;;
+          --debug-log)
+            _filedir
+            ;;
+          *)
+            COMPREPLY=( $(compgen -W "-f -c -d --failsafe --silent --debug-log --help --" -- "$cur") )
+            ;;
+        esac
+        return 0
+    fi
+
+    # after the options, auto-complete command
+    _command_offset $i
+}
+have optirun && complete -F _optirun optirun
 

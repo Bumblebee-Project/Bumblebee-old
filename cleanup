@@ -16,40 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
-OVERRIDEAUTODETECT=false
-while [ $# -gt 0 ]; do
-    case "$1" in
-      --force)
-        OVERRIDEAUTODETECT=true
-        ;;
-      --)
-        shift
-        break
-        ;;
-      --help)
-        echo "This cleaner can be used to correct failures from previous Bumblebee versions."
-        echo "Usage: ${0##*/} [options]"
-        echo "  --force"
-        echo "    Proceed with cleaning up even if the installation does not look ancient"
-        echo "  --help"
-        echo "    Print this help message"
-        ;;
-      *)
-        echo "Unknown option: $1"
-        exit 255
-        ;;
-    esac
-    shift
-done
-if ! $OVERRIDEAUTODETECT; then
-    if [ ! -f "/etc/bumblebee" ]; then
-        echo "There is no ancient version to cleanup, to override this, run"
-        echo "this program with the --force option. Note: this cleaner can"
-        echo "only cleanup versions after 1.4.13 (released March 17th, 2011)."
-        exit 1
-    fi
-fi
-
 if (( UID != 0 )); then
     echo "You must run this cleanup program as root."
     if which sudo &>/dev/null; then
@@ -99,7 +65,7 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
     # Bumblebee fails to clean up /etc/rc?.d, we'll do it if necessary
     update-rc.d -f bumblebee remove
 
-    echo "Disabling conflicting PPAs if any..."
+    echo "Removing conflicting PPAs if any..."
     # Remove PPA if found to avoid conflicts
     for ppalist in /etc/apt/sources.list.d/mj-casalogic-bumblebee-*.list; do
         rm -vf "$ppalist"
@@ -113,27 +79,16 @@ if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/alt_ld.so.conf
         update-alternatives --remove i386-linux-gnu_gl_conf /usr/lib/nvidia-current/ld.so.conf
 
-        if dpkg_installed nvidia-current; then
-            # upgrade or downgrade to the most recent version from the repos
-            if grep -q '^ *--install /etc/ld.so.conf.d/x86_64-linux-gnu_GL.conf ' \
-                /var/lib/dpkg/info/nvidia-current.postinst; then
-                nvidia_version=$(LANG=C apt-cache policy nvidia-current | awk '
-                    /^     [^ ]/{version = $1}
-                    /^ \*\*\* [^ ]/{version = $2}
-                    /^        [^ ]/{server = $2
-                        if (server !~ /^\//) {print version;exit}
-                    }')
-                if [ -n "$nvidia_version" ]; then
-                    apt-get install -y "nvidia-current=$nvidia_version"
-                else # no version found, perhaps the restricted repo is disabled
-                    apt-get remove -y nvidia-current
-                fi
-            fi
-        fi
-
         # fix alternatives links and restore /usr/lib/mesa/ld.so.conf
         apt-get install --reinstall -y libgl1-mesa-glx
     fi
+
+    for package in acpi-call-dkms bumblebee-ui nvidia-current virtualgl; do
+        if dpkg_installed "$package"; then
+            # Rather uninstall than some clean here, we used custom versions not really clean
+            apt-get purge -y "$package"
+        fi
+    done    
 
     echo "Removing junkfiles if any..."
     for junk in \
@@ -177,11 +132,7 @@ echo "Remove distro-independent files if any..."
 for junk in \
     /etc/X11/xorg.conf.nvidia \
     /etc/init.d/bumblebee \
-    /usr/local/bin/optirun \
-    /usr/local/bin/optirun32 \
-    /usr/local/bin/optirun64 \
-    /usr/local/bin/ecoptirun \
-    /usr/local/bin/bumblebee-disablecard-on-powerup \
+    /usr/local/bin/*optirun* \
     /usr/local/bin/bumblebee* \
     /etc/default/bumblebee*
     do
