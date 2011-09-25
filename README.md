@@ -1,175 +1,215 @@
--------------------
-## About Bumblebee
--------------------
+About Bumblebee
+===============
 
-Bumblebee aims to provide support for nVidia Optimus laptops for GNU/Linux
-distributions. Using Bumblebee, you can use your nVidia card for rendering
-graphics which will be displayed using the Intel card.
+Bumblebee aims to provide support for [nVidia Optimus][optimus] laptops for
+GNU/Linux distributions. Using Bumblebee, you can use your nVidia card for
+rendering graphics which will be displayed using the Intel card.
 
 Note that you cannot disable the Intel GPU even with Bumblebee installed.
 
-Support for enabling and disabling the the nVidia card is in development.
-Please refer to section 'Power Management' below.
+Support for enabling and disabling the nVidia card is in development. Please
+refer to section **Power Management** below.
 
-Currently, Bumblebee has only been tested on Ubuntu and Arch Linux. Please join
-#bumblebee channel on Freenode if you wish to help testing and creating the
-installer.
+Bumblebee has been tested on Ubuntu and Arch Linux only at present. Please
+join the [`#bumblebee`][irc] channel on `irc.freenode.net` if you wish to
+help testing and creating the installer.
 
-----------------
-## Installation
-----------------
+  [optimus]: http://en.wikipedia.org/wiki/Nvidia_Optimus
+  [irc]:     http://webchat.freenode.net/?channels=#bumblebee
+
+Installation
+------------
+
+### Prerequisites
+
+If you were using an old version of Bumblebee (`<2.3` non-Arch distribution),
+please run the `cleanup` script first:
+
+```shell
+wget https://raw.github.com/Bumblebee-Project/Bumblebee/master/cleanup
+chmod +x cleanup
+sudo ./cleanup
+```
 
 There are several ways to get Bumblebee:
 
-### Using your package manager (recommended if available):
+### Using your Package Manager (stable, recommended if available)
 
-If you were using an old version of Bumblebee (<2.3 non-Arch distribution),
-please run this the first time before switching to a newer version:
-1. wget https://raw.github.com/Bumblebee-Project/Bumblebee/master/cleanup
-2. chmod +x cleanup
-2. sudo ./cleanup
+#### Ubuntu
 
-Ubuntu:
-1. sudo add-apt-repository ppa:bumblebee/stable
+If you are on Ubuntu prior to 11.10 you may want [newer drivers][x-updates]
+than the ones available in the official repositories (recommended):
 
-1bis. If you are on Ubuntu prior to 11.10 and want newer drivers (recommended)
-than the ones available in the official repos, run:
+```shell
+sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+```
 
-    sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+To install Bumblebee:
 
-2. sudo apt-get update
-3. sudo apt-get install bumblebee
+```shell
+sudo add-apt-repository ppa:bumblebee/stable
+sudo apt-get update
+sudo apt-get install bumblebee
+```
 
-Arch Linux:
-AUR package: http://aur.archlinux.org/packages.php?ID=49469
-Instructions in the ArchWiki: https://wiki.archlinux.org/index.php/Bumblebee
+  [x-updates]: https://edge.launchpad.net/~ubuntu-x-swat/+archive/x-updates
 
-### Using the installation script:
+#### Arch Linux
 
-If you were using an old version of Bumblebee (<2.3), please run this the first
-time before switching to a newer version:
-1. wget https://raw.github.com/Bumblebee-Project/Bumblebee/master/cleanup
-2. chmod +x cleanup
-2. sudo ./cleanup
+[AUR package is available][arch-aur]. Instructions are published on the
+[ArchWiki][arch-wiki].
 
-Then, you need to install VirtualGL > 2.2.1 (2.2.90 is advised) and nvidia driver.
+  [arch-aur]:  http://aur.archlinux.org/packages.php?ID=49469
+  [arch-wiki]: https://wiki.archlinux.org/index.php/Bumblebee
 
-Tarballs can be found at https://github.com/Bumblebee-Project/Bumblebee/downloads
-Download the tarball named like bumblebee-VERSION.tar.gz, extract and install it:
+### Using the Installation Script
 
-1. Download
-2. Extract:
-    $ tar xf bumbleee-VERSION.tar.gz
-3. Change your directory to the extracted folder:
-    $ cd bumblebee-VERSION
-4. (if you've previously installed Bumblebee < 2.3:)
-    $ sudo ./cleanup
-5. Run the installer:
-    $ sudo ./install
+You need to install [VirtualGL][virtgl] `>2.2.1` (`2.2.90` is advised) and
+the nVidia driver before you can install Bumblebee.
 
-Installation instructions for getting the code from git:
+#### Tarballs (stable)
 
-    $ git clone git://github.com/Bumblebee-Project/Bumblebee.git
+Tarballs can be found at [Github][tarballs]. Download the file named like
+`bumblebee-VERSION.tar.gz`, extract and install it as shown below:
 
-Users who want to test the development code should run:
+```shell
+wget https://github.com/downloads/Bumblebee-Project/Bumblebee/bumblebee-VERSION.tar.gz
+tar xf bumblebee-VERSION.tar.gz
+cd bumblebee-VERSION
+sudo ./cleanup
+sudo ./install
+```
 
-    $ git clone git://github.com/Bumblebee-Project/Bumblebee.git -b develop --depth 1
+#### Git (stable, branch: master)
 
-Then in order to install:
+```shell
+git clone git://github.com/Bumblebee-Project/Bumblebee.git
+cd Bumblebee
+sudo ./cleanup
+sudo ./install
+```
 
-    $ cd Bumblebee
-    $ sudo ./install
+#### Git (unstable, branch: develop)
 
----------
-## Usage
----------
+```shell
+git clone git://github.com/Bumblebee-Project/Bumblebee.git -b develop --depth 1
+cd Bumblebee
+sudo ./cleanup
+sudo ./install
+```
 
-After the initial bumblebee installation, you need to add yourself to the
-'bumblebee' group:
+  [virtgl]:   http://www.virtualgl.org/
+  [tarballs]: https://github.com/Bumblebee-Project/Bumblebee/downloads
 
-    $ sudo usermod -a -G bumblebee YOURUSERNAME
+Usage
+-----
 
-Replace YOURUSERNAME accordingly and please double check the command, if you
-forget the '-a' option, you remove yourself from other groups. After adding
-yourself to the group, you need to re-login for the changes to apply.
+After the initial Bumblebee installation, you need to add yourself to the
+`bumblebee` group:
 
-Applications can be started using bumblebee by prefixing it with optirun. For
-example, starting Firefox can be done with:
+```shell
+sudo usermod -a -G bumblebee YOUR_USERNAME
+```
 
-    optirun firefox
+Replace `YOUR_USERNAME` accordingly and **please double check the command**.
+If you accidentally forget the `-a` option, you remove yourself from any
+other groups.  
+After adding yourself to the `bumblebee` group, you need to re-login for the
+changes to apply.
 
---------------------
-## Power Management
---------------------
+Applications can be started using Bumblebee by prefixing them with `optirun`.
+For example, starting Firefox can be done with:
 
-Since 2.4, we added backend support for enabling/disabling the card.
+```shell
+optirun firefox
+```
 
-You should first read the following page:
-https://github.com/Bumblebee-Project/Bumblebee/wiki/ACPI-Removed
+Power Management
+----------------
 
-It will help you understand the current situation about Power Management. If you
-understand what that does mean, then, here is how to enable it.
+Since version 2.4, we added back-end support for enabling/disabling the card.
+Please read [why ACPI was initially removed][acpi-removed], it will help you
+understand the current situation about power management. If you understand
+what it all means and wish to proceed, here is how to enable it:
 
-You need to install acpi_call module for your system.
+1. You need to install the `acpi_call` module for your system.
 
-Ubuntu: available on the PPA. To install it, run:
-sudo apt-get install acpi-call-tools
+  - **Ubuntu**: available on the PPA:
 
-Arch Linux:
-AUR package: https://aur.archlinux.org/packages.php?ID=39470
+        ```shell
+        sudo apt-get install acpi-call-tools
+        ```
 
-First, edit the 'bumblebee.conf' file and set power management to Y.
-You should also set STOP_SERVICE_ON_EXIT to Y:
+  - **Arch Linux**: [AUR package][arch-acpi-aur]
 
+2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.
+   You should also set `STOP_SERVICE_ON_EXIT` to `Y`:
+
+    ```
     ENABLE_POWER_MANAGEMENT=Y
     STOP_SERVICE_ON_EXIT=Y
+    ```
 
-Then, in the bumblebee conf dir, create the textfiles 'cardon' and 'cardoff'
-which should just contain the calls to respectively enable and disable the card.
-Each line should contain a call, comments are not allowed.
-Check 'bumblebee.conf' file comments on Power Management for more informations.
+3. In Bumblebee configuration directory (`/etc/bumblebee`), create two text
+   files `cardon` and `cardoff` which should just contain the calls to
+   respectively enable and disable the card. Each line should contain a call,
+   comments are not allowed.
 
-After that, reboot (or restart daemon) to apply changes.
+4. Reboot (or restart Bumblebee daemon) to apply changes.
 
--------------
-## Uninstall
--------------
+Check [`bumblebee.conf`][bumblebee-conf] for additional information.
 
-If you're unsatisfied with Bumblebee, you can remove it by running:
+  [acpi-removed]:   https://github.com/Bumblebee-Project/Bumblebee/wiki/ACPI-Removed
+  [arch-acpi-aur]:  https://aur.archlinux.org/packages.php?ID=39470
+  [bumblebee-conf]: https://github.com/Bumblebee-Project/Bumblebee/blob/master/install-files/bumblebee.conf
 
-    $ sudo bumblebee-uninstall
+Uninstall
+---------
 
-If you used a package version of Bumblebee, then use your package manager to
-uninstall.
+If you used your package manager to install Bumblebee, you can use it to
+uninstall it as well (recommended).
 
----------------------------
-## Reporting bugs/problems
----------------------------
+Otherwise, you can uninstall Bumblebee by running:
 
-First of all: If you have any problem, please read this article:
-https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
+```shell
+sudo bumblebee-uninstall
+```
 
-Then create a bug report package with the bumblebee-bugreport tool and open an
-issue on GitHub at https://github.com/Bumblebee-Project/Bumblebee/issues
+Reporting Bugs/Problems
+-----------------------
 
---------------
-## Developers
---------------
+If you have any problem, please read the
+[wiki page on reporting issues][wiki-reporting-issues] before submitting a
+report.
 
-The current developers for Bumblebee are:
+If a solution to your problem does not exist, create a bug report package
+with the `bumblebee-bugreport` tool and
+[open an issue on Github][github-issues].
+
+  [wiki-reporting-issues]: https://github.com/Bumblebee-Project/Bumblebee/wiki/Reporting-Issues
+  [github-issues]:         https://github.com/Bumblebee-Project/Bumblebee/issues
+
+Developers
+----------
+
+The current Bumblebee developers are (in alphabetical order):
+
 - ArchangeGabriel
 - Lekensteyn
-- Samsagax
 - paulvriens
+- Samsagax
 - Ximi1970
-Check the https://github.com/Bumblebee-Project/Bumblebee/wiki/Developers page
-for developer information.
 
-----------------
-## Useful Links
-----------------
+Check the [wiki page on Developers][wiki-developers] for more information.  
+Various people have also contributed patches and are listed on
+[Github][github-contribs].
 
-Status updates can be found here on twitter: https://twitter.com/Team_Bumblebee
-Commits are flooded here:               https://twitter.com/Bumblebee_Git
-You may also join the facebook group:   http://tinyurl.com/bumblebeefacebook
-Launchpad Team page:                    https://launchpad.net/~bumblebee
+  [wiki-developers]: https://github.com/Bumblebee-Project/Bumblebee/wiki/Developers
+  [github-contribs]: https://github.com/Bumblebee-Project/Bumblebee/contributors
+
+### Useful Links
+
+- [Status updates on Twitter](https://twitter.com/Team_Bumblebee)
+- [Repository commits on Twitter](https://twitter.com/Bumblebee_Git)
+- [Join the Facebook group](http://tinyurl.com/bumblebeefacebook)
+- [Launchpad team page](https://launchpad.net/~bumblebee)
