@@ -119,3 +119,6 @@ for driver in "${DRIVERS[@]}"; do
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
     fi
 done
+
+set_file "install-files/bumblebee-bugreport"
+def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
