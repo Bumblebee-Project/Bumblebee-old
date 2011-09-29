@@ -28,7 +28,8 @@ echo_variables() {
 
 #Should check for sanity in the variables
 sanity_check() {
-    :
+    echo "Sanity check is a stub, exiting"
+    exit 1
 }
 
 show_help_msg() {
