@@ -44,6 +44,13 @@ install_file() {
     fi
 }
 
+# Check for the buildfiles stage to exist and source it. If not, exit.
+if [ -f stages/buildfiles.new ]; then
+    . stages/buildfiles.new
+else
+    exit 1;
+fi
+
 if (( EUID != 0 )); then
     echo "You do not have sufficient privileges to install Bumblebee"
     echo
