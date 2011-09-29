@@ -29,6 +29,14 @@ echo_variables() {
 
 #Should check for sanity in the variables
 sanity_check() {
+    # Check for variable DESTDIR being set
+    if [ -z $DESTDIR ]; then
+        # If set it should be an existing, empty directory
+        if ! [[ -d $DESTDIR && -z $(ls "$DESTDIR/") ]]; then
+            echo "Error in $DESTDIR : DESTDIR should be an empty, existent directory"
+            return 1
+        fi
+    fi
     echo "Sanity check is a stub, exiting"
     return 1
 }
