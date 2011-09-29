@@ -30,7 +30,7 @@ echo_variables() {
 #Should check for sanity in the variables
 sanity_check() {
     echo "Sanity check is a stub, exiting"
-    exit 1
+    return 1
 }
 
 # Detect PCI Bus ID of the nVidia card
@@ -274,5 +274,9 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+detect_busid
+
 echo_variables
-sanity_check
+if ! sanity_check; then
+    echo "Install can't be performed with current variables"
+fi
