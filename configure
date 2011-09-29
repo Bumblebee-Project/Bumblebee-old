@@ -26,6 +26,11 @@ echo_variables() {
     echo "INITDIR=$INITDIR"
 }
 
+#Should check for sanity in the variables
+sanity_check() {
+    :
+}
+
 show_help_msg() {
         cat <<EOF
 Usage: $0 [options]
@@ -253,3 +258,4 @@ while [ $# -gt 0 ]; do
 done
 
 echo_variables
+sanity_check
