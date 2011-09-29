@@ -16,6 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+# Check for a file containing the configured variables. If not present, print a
+# message and exit.
+if [ -f .configure ]; then
+    . .configure
+else
+    echo "Install is not configured, pelase run ./configure"
+    echo "script with appropriate variables"
+fi
+
 # files installed by the installer, useful for uninstalling
 INSTALLED_FILES=()
 INSTALLED_DIRS=()
