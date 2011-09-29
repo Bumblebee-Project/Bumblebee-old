@@ -1,0 +1,45 @@
+#!/bin/bash
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
+
+# files installed by the installer, useful for uninstalling
+INSTALLED_FILES=()
+INSTALLED_DIRS=()
+
+# Creates a directory on the target system
+install_dir() {
+    local mode=$1
+    local target="$2"
+    install -d -m$mode "$DESTDIR$target"
+    INSTALLED_DIRS[${#INSTALLED_DIRS[@]}]="$target"
+}
+
+# Copies a file to the target system, using a configured file if needed. This
+# configured file can be created in stages/build
+install_file() {
+    local mode=$1
+    local source="$2"
+    local target="$3"
+    local prefix="$BUILDDIR/install-files"
+    [ ! -f "$prefix/$source" ] && prefix=install-files
+    if [ -f "$prefix/$source" ]; then
+        install -D -m$mode "$prefix/$source" "$DESTDIR$target"
+        INSTALLED_FILES[${#INSTALLED_FILES[@]}]="$target"
+    else
+        echo "'$source' did not exist, ignoring"
+    fi
+}

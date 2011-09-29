@@ -1,0 +1,323 @@
+#!/bin/bash
+# Copyright (C) 2011 Bumblebee Project
+#
+# This file is part of Bumblebee.
+#
+# Bumblebee is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bumblebee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Check automatically for needed variables, then override them with command
+# line arguments.
+
+# Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
+ARCH=$(uname -m)
+LSPCI=$(which lspci)
+IS_64=false
+[[ $ARCH == x86_64 ]] && IS_64=true
+
+# this directory is used for outputting installer files
+BUILDDIR=.build
+
+# installation output directory, useful for chroot builds
+DESTDIR=
+
+# Local install locations, to make this system-wide they should be overriden by
+# command line arguments
+BINDIR=/usr/local/bin
+SBINDIR=/usr/local/sbin
+CONFDIR=/usr/local/lib/bumblebee
+LIBDIR=/usr/local/lib/bumblebee
+
+# Unset this variable, should be checked, if not found in a list of known ones,
+# then warn about it and set it in the command line.
+INITDIR=
+
+# Unset this variable, should be set if 'nouveau' driver is enabled, if 'nvidia'
+# is set as only driver, this should throw an error
+XORG_MODULEPATH=
+
+# available drivers
+AVAILABLE_DRIVERS=('nvidia' 'nouveau')
+# A list of drivers to be installed
+DRIVERS=(nvidia)
+# the graphics driver to be used, defaults to the last driver in $DRIVERS
+DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
+
+# The version to be installed
+# Try to determine the hash from the git repo
+GIT_HASH="$(git rev-parse --short HEAD 2>/dev/null)"
+# if not a git dir, try using the dirname (e.g. tarball)
+if [ -z "$GIT_HASH" ] && [[ $PWD =~ -Bumblebee-[0-9a-f]{7}$ ]]; then
+    GIT_HASH="${PWD##*-Bumblebee-}"
+fi
+# Perhaps exported by git archive? Requires export-subst be set for this file
+if [ -z "$GIT_HASH" ]; then
+    GIT_HASH='$Format:%h$'
+    # If not substituted, clear it
+    [ ${#GIT_HASH} -ne 7 ] && GIT_HASH=
+fi
+BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
+
+# Big fat command line parser.
+while [ $# -gt 0 ]; do
+    case "$1" in
+      --unattended)
+        UNATTENDED=true
+        ;;
+      --driver=*|--driver)
+        if [[ $1 == --driver ]]; then
+            shift
+            arg_driver="$1"
+        else
+            arg_driver="${1#--driver=}"
+        fi
+        DRIVERS=()
+
+        IFS=','
+        parse_drivers=( ${arg_driver[*]} )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_drivers=()
+        # reverse loop since order matters: the final driver is the default one
+        for ((i=${#parse_drivers[@]}-1; i>=0; i--)); do
+            driver="${parse_drivers[i]}"
+            for current_driver in "${DRIVERS[@]}"; do
+                # skip duplicates
+                [[ $current_driver == "$driver" ]] && continue 2
+            done
+
+            for avail_driver in "${AVAILABLE_DRIVERS[@]}"; do
+                if [[ $avail_driver == "$driver" ]]; then
+                    DRIVERS=("$driver" "${DRIVERS[@]}")
+                    continue 2
+                fi
+            done
+
+            invalid_drivers[${#invalid_drivers[@]}]="$driver"
+        done
+
+        if [ ${#invalid_drivers[@]} -gt 0 ]; then
+            echo "Invalid drivers: ${invalid_drivers[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+
+        if [ ${#DRIVERS[@]} -gt 0 ]; then
+            # the last driver in the list is the default one
+            DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
+        else
+            echo "No driver specified"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+        ;;
+      --bindir=*|--bindir)
+        if [[ $1 == --bindir ]]; then
+            shift
+            BINDIR="$1"
+        else
+            BINDIR="${1#--bindir=}"
+        fi
+        ;;
+      --sbindir=*|--sbindir)
+        if [[ $1 == --sbindir ]]; then
+            shift
+            SBINDIR="$1"
+        else
+            SBINDIR="${1#--sbindir=}"
+        fi
+        ;;
+      --libdir=*|--libdir)
+        if [[ $1 == --libdir ]]; then
+            shift
+            LIBDIR="$1"
+        else
+            LIBDIR="${1#--libdir=}"
+        fi
+        ;;
+      --initdir=*|--initdir)
+        if [[ $1 == --initdir ]]; then
+            shift
+            INITDIR="$1"
+        else
+            INITDIR="${1#--initdir=}"
+        fi
+        ;;
+      --dest-dir=*|--dest-dir)
+        if [[ $1 == --dest-dir ]]; then
+            shift
+            DESTDIR="$1"
+        else
+            DESTDIR="${1#--dest-dir=}"
+        fi
+        # Empty values are allowed which means "do not use a different root"
+        if [ -n "$DESTDIR" -a ! -d "$DESTDIR" ]; then
+            echo "The destination directory '$DESTDIR' must exist."
+            exit 255
+        fi
+        ;;
+      --build-dir=*|--build-dir)
+        if [[ $1 == --build-dir ]]; then
+            shift
+            BUILDDIR="$1"
+        else
+            BUILDDIR="${1#--build-dir=}"
+        fi
+        if [ ! -d "$BUILDDIR" ]; then
+            echo "The build directory '$BUILDDIR' must exist."
+            exit 255
+        fi
+        ;;
+      --actions=*|--actions)
+        if [[ $1 == --actions ]]; then
+            shift
+            INCLUDE_GROUPS="$1"
+        else
+            INCLUDE_GROUPS="${1##--actions=}"
+        fi
+
+        # strip out duplicates and put in an array
+        IFS=$'\n'
+        INCLUDE_GROUPS=( $(tr ',' '\n' <<<"$INCLUDE_GROUPS" | sort -u) )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_actions=()
+        for action in "${INCLUDE_GROUPS[@]}"; do
+            case "$action" in
+              precheck|build|install|installuninst|postconfig) ;;
+              *) invalid_actions[${#invalid_actions[@]}]="$action" ;;
+            esac
+        done
+
+        if [ ${#invalid_actions[@]} -gt 0 ]; then
+            echo "Invalid installer actions: ${invalid_actions[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+        ;;
+      --skip-stages=*|--skip-stages)
+        if [[ $1 == --skip-stages ]]; then
+            shift
+            SKIP_STAGES="$1"
+        else
+            SKIP_STAGES="${1##--skip-stages=}"
+        fi
+
+        # strip out duplicates and put in an array
+        IFS=$'\n'
+        SKIP_STAGES=( $(tr ',' '\n' <<<"$SKIP_STAGES" | sort -u) )
+        # Restore input field separator
+        IFS=$' \t\n'
+
+        invalid_stages=()
+        for stage in "${SKIP_STAGES[@]}"; do
+            if [ ! -f "stages/$stage" ]; then
+                invalid_stages[${#invalid_stages[@]}]="$stage"
+            fi
+        done
+
+        if [ ${#invalid_stages[@]} -gt 0 ]; then
+            echo "Invalid stages: ${invalid_stages[*]}"
+            echo "Try '$0 --help' for more information."
+            exit 255
+        fi
+        ;;
+      --help)
+        show_help_msg
+        exit 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "Unrecognized option '$1'"
+        echo "Try '$0 --help' for more information."
+        exit 255
+        ;;
+    esac
+    shift
+done
+
+show_help_msg() {
+        cat <<EOF
+Usage: $0 [options]
+
+  --unattended
+    Do not pause with informational messages, proceed with the installation
+    without confirming
+
+  --driver=DRIVERS
+  --driver DRIVERS
+    DRIVERS is a comma-separated list of drivers to be installed. The last
+    specified driver will be the default driver. Valid values are nvidia and
+    nouveau; if not specified, nvidia is assumed, for now.
+
+  --bindir=DIR
+  --bindir DIR
+    Install binary files to this directory. Defaults to /usr/local/bin
+
+  --sbindir=DIR
+  --sbindir DIR
+    Install system binary files to this directory. Defaults to /usr/local/sbin
+
+  --libdir=DIR
+  --libdir DIR
+    Install library files to this directory. Defaults to
+    /usr/local/lib/bumblebee
+
+  --initdir=DIR
+  --initdir DIR
+    Install handler file to this directory. Defaults to
+    /etc/init.d
+
+  --dest-dir=DESTDIR
+  --dest-dir DESTDIR
+    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
+    to an empty value if you do not want to use a different root directory. The
+    contents of this directory are not cleared before use.
+
+  --build-dir=PATH
+  --build-dir PATH
+    Use PATH instead of '.build' for storing files built by the installer. PATH
+    must exist to avoid accidentally overwritting directories. The entries
+    PATH/stages and PATH/install-files are removed.
+
+  --actions=ACTIONS
+  --actions ACTIONS
+    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-
+    separated list of installer types, valid values are:
+      precheck - check if the installer can be run (dependencies)
+      build - Generate files to be installed
+      install - Copy files
+      installuninst - Generate and install uninstaller
+      postconfig - Configure the X server, installs services, blacklists drivers
+    Note that build, install and postconfig must be run in the stated order.
+    installuninst can only be run after install.
+    Disabling stages using --skip-stages takes precedence over --actions
+
+  --skip-stages=stage1,stage2,...,stageN
+  --skip-stages stage1,stage2,...,stageN
+    Warning: this is an expert option, only use it if you know what you are
+    doing! This option accepts a comma-separated list of stages to be disabled.
+    A stage is a file in the stages/ directory at the root of the installer.
+    Examples: ubuntu/setvars,welcome,fedora/dependencies
+    When using this option repeatedly, the previous list is cleared.
+
+  --help
+    Show this help message
+EOF
+}
