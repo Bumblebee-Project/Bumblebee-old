@@ -1,0 +1,29 @@
+#!/bin/bash
+# When adding a target, you'll need to provide the *full* path to the target,
+# otherwise the uninstaller will get confused
+
+install_dir 755 "$CONFDIR"
+install_file 644 bumblebee.conf "$CONFDIR/bumblebee.conf"
+for driver in "${DRIVERS[@]}"; do
+    install_file 644 "xorg.conf.$driver" "$CONFDIR/xorg.conf.$driver"
+done
+
+install_dir 755 "$LIBDIR"
+install_file 644 common-paths "$LIBDIR/common-paths"
+install_file 644 common-functions "$LIBDIR/common-functions"
+
+install_dir 755 "$LIBDIR/drivers"
+for driver in "${DRIVERS[@]}"; do
+    install_file 644 "drivers/$driver.options.$DISTRO" \
+        "$LIBDIR/drivers/$driver.options"
+done
+
+# Do not use install_dir "$SBINDIR" as this may mess with permissions.
+install_file 755 bumblebee "$SBINDIR/bumblebee"
+
+install_file 755 optirun "$BINDIR/optirun"
+install_file 755 bumblebee-bugreport "$BINDIR/bumblebee-bugreport"
+
+install_file 755 bumblebee.handler "$INITDIR/bumblebee"
+
+install_file 644 optirun.bash_completion /etc/bash_completion.d/optirun
