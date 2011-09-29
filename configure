@@ -16,6 +16,64 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+echo_variables() {
+    echo "Set variables:"
+    echo "DESTDIR=$DESTDIR"
+    echo "BINDIR=$BINDIR"
+    echo "SBINDIR=$SBINDIR"
+    echo "CONFDIR=$CONFDIR"
+    echo "LIBDIR=$LIBDIR"
+    echo "INITDIR=$INITDIR"
+}
+
+show_help_msg() {
+        cat <<EOF
+Usage: $0 [options]
+
+  --unattended
+    Do not pause with informational messages, proceed with the installation
+    without confirming
+
+  --driver=DRIVERS
+  --driver DRIVERS
+    DRIVERS is a comma-separated list of drivers to be installed. The last
+    specified driver will be the default driver. Valid values are nvidia and
+    nouveau; if not specified, nvidia is assumed, for now.
+
+  --bindir=DIR
+  --bindir DIR
+    Install binary files to this directory. Defaults to /usr/local/bin
+
+  --sbindir=DIR
+  --sbindir DIR
+    Install system binary files to this directory. Defaults to /usr/local/sbin
+
+  --libdir=DIR
+  --libdir DIR
+    Install library files to this directory. Defaults to
+    /usr/local/lib/bumblebee
+
+  --initdir=DIR
+  --initdir DIR
+    Install handler file to this directory. Defaults to
+    /etc/init.d
+
+  --dest-dir=DESTDIR
+  --dest-dir DESTDIR
+    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
+    to an empty value if you do not want to use a different root directory. The
+    contents of this directory are not cleared before use.
+
+  --build-dir=PATH
+  --build-dir PATH
+    Use PATH instead of '.build' for storing files built by the installer. PATH
+    must exist to avoid accidentally overwritting directories. The entries
+    PATH/stages and PATH/install-files are removed.
+
+  --help
+    Show this help message
+EOF
+}
 
 # Check automatically for needed variables, then override them with command
 # line arguments.
@@ -195,62 +253,3 @@ while [ $# -gt 0 ]; do
 done
 
 echo_variables
-
-echo_variables() {
-    echo "Set variables:"
-    echo "DESTDIR=$DESTDIR"
-    echo "BINDIR=$BINDIR"
-    echo "SBINDIR=$SBINDIR"
-    echo "CONFDIR=$CONFDIR"
-    echo "LIBDIR=$LIBDIR"
-    echo "INITDIR=$INITDIR"
-}
-
-show_help_msg() {
-        cat <<EOF
-Usage: $0 [options]
-
-  --unattended
-    Do not pause with informational messages, proceed with the installation
-    without confirming
-
-  --driver=DRIVERS
-  --driver DRIVERS
-    DRIVERS is a comma-separated list of drivers to be installed. The last
-    specified driver will be the default driver. Valid values are nvidia and
-    nouveau; if not specified, nvidia is assumed, for now.
-
-  --bindir=DIR
-  --bindir DIR
-    Install binary files to this directory. Defaults to /usr/local/bin
-
-  --sbindir=DIR
-  --sbindir DIR
-    Install system binary files to this directory. Defaults to /usr/local/sbin
-
-  --libdir=DIR
-  --libdir DIR
-    Install library files to this directory. Defaults to
-    /usr/local/lib/bumblebee
-
-  --initdir=DIR
-  --initdir DIR
-    Install handler file to this directory. Defaults to
-    /etc/init.d
-
-  --dest-dir=DESTDIR
-  --dest-dir DESTDIR
-    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
-    to an empty value if you do not want to use a different root directory. The
-    contents of this directory are not cleared before use.
-
-  --build-dir=PATH
-  --build-dir PATH
-    Use PATH instead of '.build' for storing files built by the installer. PATH
-    must exist to avoid accidentally overwritting directories. The entries
-    PATH/stages and PATH/install-files are removed.
-
-  --help
-    Show this help message
-EOF
-}
