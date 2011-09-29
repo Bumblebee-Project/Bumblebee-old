@@ -62,3 +62,12 @@ if (( EUID != 0 )); then
     echo
     exit 1
 fi
+
+# Check for copyfiles stage to exist and run it. If not exit, uninstaller is
+# run only if copyfiles succeded (will need a safer aproach)
+if [[ -f stages/copyfiles.new && -f stages/createuninstaller.new ]]; then
+    . stages/copyfiles.new
+    . stages/createuninstaller.new
+else
+    exit 1;
+fi
