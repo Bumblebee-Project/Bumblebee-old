@@ -24,12 +24,27 @@ echo_variables() {
     echo "CONFDIR=$CONFDIR"
     echo "LIBDIR=$LIBDIR"
     echo "INITDIR=$INITDIR"
+    echo "NVIDIABUSID=$NVIDIABUSID"
 }
 
 #Should check for sanity in the variables
 sanity_check() {
     echo "Sanity check is a stub, exiting"
     exit 1
+}
+
+# Detect PCI Bus ID of the nVidia card
+# -d 10de: shows devices from nvidia only
+# 03 is the Display controller class
+# 0300 is a VGA compatible controller
+# 0302 is a 3D controller
+# (information from /usr/share/misc/pci.ids and the manpage of lspci)
+detect_busid(){
+    NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
+    if [ -z $NVIDIABUSID ]; then
+        echo "Could not determine the PCI Bus ID of your Nvidia card."
+        echo "You will need to set it manually in the configuration file"
+    fi
 }
 
 show_help_msg() {
@@ -110,6 +125,7 @@ INITDIR=
 # Unset this variable, should be set if 'nouveau' driver is enabled, if 'nvidia'
 # is set as only driver, this should throw an error
 XORG_MODULEPATH=
+NVIDIABUSID=
 
 # available drivers
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')

@@ -126,6 +126,12 @@ for driver in "${DRIVERS[@]}"; do
         set_file "install-files/xorg.conf.$driver"
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
     fi
+    re_busid='^( *BusID +")[^"]*'
+    if [ -f "${CONFDIR}/xorg.conf.$driver" ]; then
+        echo "Setting Bus ID in xorg.conf.$driver..."
+        sed -E -i "${CONFDIR}/xorg.conf.$driver" \
+        -e "s,${re_busid},\1$NVIDIABUSID,"
+    fi
 done
 
 set_file "install-files/bumblebee-bugreport"
