@@ -33,11 +33,11 @@ BUILDDIR=.build
 DESTDIR=
 
 # Local install locations, to make this system-wide they should be overriden by
-# command line arguments
-BINDIR=/usr/local/bin
-SBINDIR=/usr/local/sbin
-CONFDIR=/usr/local/lib/bumblebee
-LIBDIR=/usr/local/lib/bumblebee
+# command line arguments. Leaving empty so we can detect them as errors
+BINDIR=
+SBINDIR=
+CONFDIR=
+LIBDIR=
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
@@ -72,9 +72,6 @@ BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
 # Big fat command line parser.
 while [ $# -gt 0 ]; do
     case "$1" in
-      --unattended)
-        UNATTENDED=true
-        ;;
       --driver=*|--driver)
         if [[ $1 == --driver ]]; then
             shift
@@ -177,61 +174,6 @@ while [ $# -gt 0 ]; do
         fi
         if [ ! -d "$BUILDDIR" ]; then
             echo "The build directory '$BUILDDIR' must exist."
-            exit 255
-        fi
-        ;;
-      --actions=*|--actions)
-        if [[ $1 == --actions ]]; then
-            shift
-            INCLUDE_GROUPS="$1"
-        else
-            INCLUDE_GROUPS="${1##--actions=}"
-        fi
-
-        # strip out duplicates and put in an array
-        IFS=$'\n'
-        INCLUDE_GROUPS=( $(tr ',' '\n' <<<"$INCLUDE_GROUPS" | sort -u) )
-        # Restore input field separator
-        IFS=$' \t\n'
-
-        invalid_actions=()
-        for action in "${INCLUDE_GROUPS[@]}"; do
-            case "$action" in
-              precheck|build|install|installuninst|postconfig) ;;
-              *) invalid_actions[${#invalid_actions[@]}]="$action" ;;
-            esac
-        done
-
-        if [ ${#invalid_actions[@]} -gt 0 ]; then
-            echo "Invalid installer actions: ${invalid_actions[*]}"
-            echo "Try '$0 --help' for more information."
-            exit 255
-        fi
-        ;;
-      --skip-stages=*|--skip-stages)
-        if [[ $1 == --skip-stages ]]; then
-            shift
-            SKIP_STAGES="$1"
-        else
-            SKIP_STAGES="${1##--skip-stages=}"
-        fi
-
-        # strip out duplicates and put in an array
-        IFS=$'\n'
-        SKIP_STAGES=( $(tr ',' '\n' <<<"$SKIP_STAGES" | sort -u) )
-        # Restore input field separator
-        IFS=$' \t\n'
-
-        invalid_stages=()
-        for stage in "${SKIP_STAGES[@]}"; do
-            if [ ! -f "stages/$stage" ]; then
-                invalid_stages[${#invalid_stages[@]}]="$stage"
-            fi
-        done
-
-        if [ ${#invalid_stages[@]} -gt 0 ]; then
-            echo "Invalid stages: ${invalid_stages[*]}"
-            echo "Try '$0 --help' for more information."
             exit 255
         fi
         ;;
