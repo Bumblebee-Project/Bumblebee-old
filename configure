@@ -238,27 +238,6 @@ Usage: $0 [options]
     must exist to avoid accidentally overwritting directories. The entries
     PATH/stages and PATH/install-files are removed.
 
-  --actions=ACTIONS
-  --actions ACTIONS
-    Restrict the installer to run a predefined set of stages. ACTIONS is a comma-
-    separated list of installer types, valid values are:
-      precheck - check if the installer can be run (dependencies)
-      build - Generate files to be installed
-      install - Copy files
-      installuninst - Generate and install uninstaller
-      postconfig - Configure the X server, installs services, blacklists drivers
-    Note that build, install and postconfig must be run in the stated order.
-    installuninst can only be run after install.
-    Disabling stages using --skip-stages takes precedence over --actions
-
-  --skip-stages=stage1,stage2,...,stageN
-  --skip-stages stage1,stage2,...,stageN
-    Warning: this is an expert option, only use it if you know what you are
-    doing! This option accepts a comma-separated list of stages to be disabled.
-    A stage is a file in the stages/ directory at the root of the installer.
-    Examples: ubuntu/setvars,welcome,fedora/dependencies
-    When using this option repeatedly, the previous list is cleared.
-
   --help
     Show this help message
 EOF
