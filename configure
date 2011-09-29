@@ -194,6 +194,18 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+echo_variables
+
+echo_variables() {
+    echo "Set variables:"
+    echo "DESTDIR=$DESTDIR"
+    echo "BINDIR=$BINDIR"
+    echo "SBINDIR=$SBINDIR"
+    echo "CONFDIR=$CONFDIR"
+    echo "LIBDIR=$LIBDIR"
+    echo "INITDIR=$INITDIR"
+}
+
 show_help_msg() {
         cat <<EOF
 Usage: $0 [options]
