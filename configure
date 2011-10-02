@@ -28,6 +28,7 @@ echo_variables() {
 
 #Should check for sanity in the variables
 sanity_check() {
+
     # Check for variable DESTDIR being set
     if [ -z "$DESTDIR" ]; then
         # If set it should be an existing, empty directory
@@ -36,6 +37,13 @@ sanity_check() {
             return 1
         fi
     fi
+
+    # Check for NVIDIABUSID to be set, otherwhise warn about it, not fatal.
+    if [ -z "$NVIDIABUSID" ]; then
+        echo "Could not determine the PCI Bus ID of your Nvidia card."
+        echo "You will need to set it manually in the configuration file"
+    fi
+
     echo "Sanity check is a stub, exiting"
     return 1
 }
@@ -48,10 +56,6 @@ sanity_check() {
 # (information from /usr/share/misc/pci.ids and the manpage of lspci)
 detect_busid(){
     NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
-    if [ -z "$NVIDIABUSID" ]; then
-        echo "Could not determine the PCI Bus ID of your Nvidia card."
-        echo "You will need to set it manually in the configuration file"
-    fi
 }
 
 show_help_msg() {
