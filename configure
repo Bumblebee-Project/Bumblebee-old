@@ -129,11 +129,11 @@ PREFIX="/usr/local/"
 
 # Local install locations, to make this system-wide they should be overriden by
 # prefix command line arguments.
-BINDIR="bin"
-SBINDIR="sbin"
-LIBDIR="lib/bumblebee"
+BIND="bin"
+SBIND="sbin"
+LIBD="lib/bumblebee"
 
-CONFDIR="/etc/bumblebee"
+CONFD="/etc/bumblebee"
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
@@ -147,7 +147,7 @@ NVIDIABUSID=
 # available drivers
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
 # A list of drivers to be installed
-DRIVERS=(nvidia)
+DRIVERS=('nvidia' 'nouveau')
 # the graphics driver to be used, defaults to the last driver in $DRIVERS
 DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
 
@@ -220,25 +220,33 @@ while [ $# -gt 0 ]; do
       --bindir=*|--bindir)
         if [[ $1 == --bindir ]]; then
             shift
-            BINDIR="$1"
+            BIND="$1"
         else
-            BINDIR="${1#--bindir=}"
+            BIND="${1#--bindir=}"
         fi
         ;;
       --sbindir=*|--sbindir)
         if [[ $1 == --sbindir ]]; then
             shift
-            SBINDIR="$1"
+            SBIND="$1"
         else
-            SBINDIR="${1#--sbindir=}"
+            SBIND="${1#--sbindir=}"
         fi
         ;;
       --libdir=*|--libdir)
         if [[ $1 == --libdir ]]; then
             shift
-            LIBDIR="$1"
+            LIBD="$1"
         else
-            LIBDIR="${1#--libdir=}"
+            LIBD="${1#--libdir=}"
+        fi
+        ;;
+      --confdir=*|--confdir)
+        if [[ $1 == --confdir ]]; then
+            shift
+            CONFD="$1"
+        else
+            CONFD="${1#--confdir=}"
         fi
         ;;
       --initdir=*|--initdir)
@@ -292,6 +300,11 @@ while [ $# -gt 0 ]; do
 done
 
 detect_busid
+
+BINDIR="$PREFIX/$BIND"
+SBINDIR="$PREFIX/$SBIND"
+LIBDIR="$PREFIX/$LIBD"
+CONFDIR="$PREFIX/$CONFD"
 
 echo "Set variables:"
 echo_variables
