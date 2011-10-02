@@ -17,7 +17,6 @@
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
 echo_variables() {
-    echo "Set variables:"
     echo "DESTDIR=$DESTDIR"
     echo "BINDIR=$BINDIR"
     echo "SBINDIR=$SBINDIR"
@@ -289,6 +288,7 @@ done
 
 detect_busid
 
+echo "Set variables:"
 echo_variables
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
