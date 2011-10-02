@@ -119,12 +119,17 @@ BUILDDIR=.build
 # installation output directory, useful for chroot builds
 DESTDIR=
 
+# Prefix of the installation. All directories should be relative tho this one
+# except configuration and init directories
+PREFIX="/usr/local/"
+
 # Local install locations, to make this system-wide they should be overriden by
-# command line arguments. Leaving empty so we can detect them as errors
-BINDIR=
-SBINDIR=
-CONFDIR=
-LIBDIR=
+# prefix command line arguments.
+BINDIR="bin"
+SBINDIR="sbin"
+LIBDIR="lib/bumblebee"
+
+CONFDIR="/etc/bumblebee"
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
