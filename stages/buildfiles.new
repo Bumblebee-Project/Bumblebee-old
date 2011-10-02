@@ -97,9 +97,6 @@ sreplace() {
 rm -rf "$BUILDDIR/install-files" "$BUILDDIR/stages"
 mkdir -p "$BUILDDIR/install-files" "$BUILDDIR/stages"
 
-set_file stages/configure
-subst_var CONFDIR
-
 set_file install-files/bumblebee.handler
 def_var BIN "$SBINDIR/bumblebee"
 
