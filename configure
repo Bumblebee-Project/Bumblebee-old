@@ -58,6 +58,7 @@ detect_busid(){
     NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 }
 
+# Help message with information on usage (XXX:HIGHLY OUTDATED)
 show_help_msg() {
         cat <<EOF
 Usage: $0 [options]
