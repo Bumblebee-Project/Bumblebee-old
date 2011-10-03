@@ -17,7 +17,6 @@
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
 echo_variables() {
-    echo "DESTDIR=$DESTDIR"
     echo "BINDIR=$BINDIR"
     echo "SBINDIR=$SBINDIR"
     echo "CONFDIR=$CONFDIR"
@@ -38,17 +37,9 @@ validate_module_path() {
     fi
 }
 
-#Should check for sanity in the variables
+# Should check for sanity in the variables. If any isn't sane then should throw
+# an error message and exit.
 sanity_check() {
-
-    # Check for variable DESTDIR being set
-    if [ ! -z "$DESTDIR" ]; then
-        # If set it should be an existing, empty directory
-        if [ ! -d "$DESTDIR" -o -n "$(ls -A "$DESTDIR/")" ]; then
-            echo "Error in $DESTDIR : DESTDIR should be an empty, existent directory"
-            return 1
-        fi
-    fi
 
     # Check for NVIDIABUSID to be set, otherwhise warn about it, not fatal.
     if [ -z "$NVIDIABUSID" ]; then
@@ -143,28 +134,26 @@ EOF
 # this directory is used for outputting installer files
 BUILDDIR=.build
 
-# installation output directory, useful for chroot builds
-DESTDIR=
-
 # Prefix of the installation. All directories should be relative tho this one
-# except configuration and init directories
-PREFIX="/usr/local/"
+PREFIX=
+USRDIR="usr/local"
 
 # Local install locations, to make this system-wide they should be overriden by
 # prefix command line arguments.
 BIND="bin"
 SBIND="sbin"
-LIBD="lib/bumblebee"
-
-CONFDIR="/etc/bumblebee"
+LIBD="lib"
+CONFD="etc"
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
-INITDIR=
+INITD=
 
-# Unset this variable, should be set if 'nouveau' driver is enabled, if 'nvidia'
-# is set as only driver, this should throw an error
+# Unset this variable, if 'nvidia' is set, this should throw an error
 XORG_MODULEPATH=
+
+# If not set, the installation can continue but won't be funtional until the
+# PCI bus ID of the Nvidia card is set. Warn about that.
 NVIDIABUSID=
 
 # available drivers
@@ -253,6 +242,14 @@ while [ $# -gt 0 ]; do
             XORG_MODULEPATH="${1#--xorg-module-path=}"
         fi
         ;;
+      --usrdir=*|--usrdir)
+        if [[ $1 == --usrdir ]]; then
+            shift
+            USRDIR="$1"
+        else
+            USRDIR="${1#--usrdir=}"
+        fi
+        ;;
       --bindir=*|--bindir)
         if [[ $1 == --bindir ]]; then
             shift
@@ -288,22 +285,9 @@ while [ $# -gt 0 ]; do
       --initdir=*|--initdir)
         if [[ $1 == --initdir ]]; then
             shift
-            INITDIR="$1"
+            INITD="$1"
         else
-            INITDIR="${1#--initdir=}"
-        fi
-        ;;
-      --dest-dir=*|--dest-dir)
-        if [[ $1 == --dest-dir ]]; then
-            shift
-            DESTDIR="$1"
-        else
-            DESTDIR="${1#--dest-dir=}"
-        fi
-        # Empty values are allowed which means "do not use a different root"
-        if [ -n "$DESTDIR" -a ! -d "$DESTDIR" ]; then
-            echo "The destination directory '$DESTDIR' must exist."
-            exit 255
+            INITD="${1#--initdir=}"
         fi
         ;;
       --build-dir=*|--build-dir)
@@ -335,14 +319,20 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-BINDIR="$PREFIX$BIND"
-SBINDIR="$PREFIX$SBIND"
-LIBDIR="$PREFIX$LIBD"
+DESTDIR="$PREFIX/"
 
-echo "Set variables:"
-echo_variables
+BINDIR="$DESTDIR$USRDIR/$BIND"
+SBINDIR="$DESTDIR$USRDIR/$SBIND"
+LIBDIR="$DESTDIR$USRDIR/$LIBD/bumblebee"
+CONFDIR="$DESTDIR$CONFD/bumblebee"
+INITDIR="$DESTDIR$INITD"
+
+
+
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
 else
+    echo "Set installation variables:"
+    echo_variables
     create_conf_file
 fi
