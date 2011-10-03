@@ -78,5 +78,6 @@ if [[ -f stages/copyfiles.new && -f stages/createuninstaller.new ]]; then
     . stages/copyfiles.new
     . stages/createuninstaller.new
 else
-    exit 1;
+    echo "Installer incomplete."
+    exit 1
 fi

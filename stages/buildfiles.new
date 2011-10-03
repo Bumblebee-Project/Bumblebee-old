@@ -118,7 +118,6 @@ def_var DRIVER "$DRIVER"
 
 for driver in "${DRIVERS[@]}"; do
     # This change is only meaningful to the nvidia driver
-    # XXX: make XORG_MODULEPATH driver-independent
     if [ "$driver" == "nvidia" ]; then
         set_file "install-files/xorg.conf.$driver"
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
