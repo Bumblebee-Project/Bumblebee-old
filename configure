@@ -257,6 +257,14 @@ while [ $# -gt 0 ]; do
             XORG_MODULEPATH="${1#--xorg-module-path=}"
         fi
         ;;
+      --prefix=*|--prefix)
+        if [[ $1 == --prefix ]]; then
+            shift
+            PREFIX="$1"
+        else
+            PREFIX="${1#--prefix=}"
+        fi
+        ;;
       --usrdir=*|--usrdir)
         if [[ $1 == --usrdir ]]; then
             shift
