@@ -17,13 +17,13 @@
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
 echo_variables() {
-    echo "BINDIR=$BINDIR"
-    echo "SBINDIR=$SBINDIR"
-    echo "CONFDIR=$CONFDIR"
-    echo "LIBDIR=$LIBDIR"
-    echo "INITDIR=$INITDIR"
-    echo "NVIDIABUSID=$NVIDIABUSID"
-    echo "BUILDDIR=$BUILDDIR"
+    echo "BINDIR='$BINDIR'"
+    echo "SBINDIR='$SBINDIR'"
+    echo "CONFDIR='$CONFDIR'"
+    echo "LIBDIR='$LIBDIR'"
+    echo "INITDIR='$INITDIR'"
+    echo "NVIDIABUSID='$NVIDIABUSID'"
+    echo "BUILDDIR='$BUILDDIR'"
 }
 
 # Checks for the nvidia Xorg module to be present if nvidia driver is set,
