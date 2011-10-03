@@ -26,6 +26,18 @@ echo_variables() {
     echo "NVIDIABUSID=$NVIDIABUSID"
 }
 
+validate_module_path() {
+    local path="$XORG_MODULEPATH/xorg/modules/drivers/nvidia_drv.so"
+    if [ -f "$path" ]; then
+        # is valid
+        return 0
+    else
+        echo "$path does not exist."
+        echo "Error: wrong path to the nvidia Xorg module"
+        return 1
+    fi
+}
+
 #Should check for sanity in the variables
 sanity_check() {
 
@@ -44,8 +56,28 @@ sanity_check() {
         echo "You will need to set it manually in the configuration file"
     fi
 
+    # Check for XORG_MODULEPATH to be set valid if the nvidia driver is set
+    local nvidiapresent=false
+    for driver in "${DRIVERS[@]}"; do
+        if [ "$driver" = "nvidia" ]; then
+            nvidiapresent=true
+        fi
+    done
+    if [ "$nvidiapresent" ]; then
+        if ! validate_module_path ; then
+            echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
+            echo "--xorg-module-path option to a valid value"
+            exit 1
+        fi
+    fi
     echo "Sanity check is a stub, exiting"
     return 1
+}
+
+# Create configuration file with current variables. Is a simple bash file with
+# 'variable = value' pairs. Should only be created if the script succeeded
+create_conf_file() {
+    :
 }
 
 # Detect PCI Bus ID of the nVidia card
@@ -209,6 +241,14 @@ while [ $# -gt 0 ]; do
             echo "No driver specified"
             echo "Try '$0 --help' for more information."
             exit 255
+        fi
+        ;;
+      --xorg-module-path=*|--xorg-module-path)
+        if [[ $1 == --xorg-module-path ]]; then
+            shift
+            XORG_MODULEPATH="$1"
+        else
+            XORG_MODULEPATH="${1#--xorg-module-path=}"
         fi
         ;;
       --bindir=*|--bindir)
