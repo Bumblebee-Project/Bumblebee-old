@@ -67,8 +67,6 @@ sanity_check() {
         echo "--xorg-module-path option to a valid value or disable nvidia driver"
         exit 1
     fi
-    echo "Sanity check is a stub, exiting"
-    return 1
 
     # Check for INITDIR to be valid
     if [ -z "$INITD" ]; then
@@ -78,12 +76,14 @@ sanity_check() {
         exit 1
     fi
 
+    #echo "Sanity check is a stub, exiting"
+    #return 1
 }
 
 # Create configuration file with current variables. Is a simple bash file with
 # 'variable = value' pairs. Should only be created if the script succeeded
 create_conf_file() {
-    :
+    echo_variables > '.configure'
 }
 
 # Detect PCI Bus ID of the nVidia card
