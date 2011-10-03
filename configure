@@ -66,7 +66,7 @@ sanity_check() {
     if [ "$nvidiapresent" ]; then
         if ! validate_module_path ; then
             echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
-            echo "--xorg-module-path option to a valid value"
+            echo "--xorg-module-path option to a valid value or disable nvidia driver"
             exit 1
         fi
     fi
@@ -140,9 +140,6 @@ Usage: $0 [options]
 EOF
 }
 
-# Check automatically for needed variables, then override them with command
-# line arguments.
-
 # this directory is used for outputting installer files
 BUILDDIR=.build
 
@@ -159,7 +156,7 @@ BIND="bin"
 SBIND="sbin"
 LIBD="lib/bumblebee"
 
-CONFD="/etc/bumblebee"
+CONFDIR="/etc/bumblebee"
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
@@ -191,6 +188,11 @@ if [ -z "$GIT_HASH" ]; then
     [ ${#GIT_HASH} -ne 7 ] && GIT_HASH=
 fi
 BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
+
+
+# Try to automatically check needed variables, then override them with command
+# line arguments.
+detect_busid
 
 # Big fat command line parser.
 while [ $# -gt 0 ]; do
@@ -333,15 +335,14 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-detect_busid
-
-BINDIR="$PREFIX/$BIND"
-SBINDIR="$PREFIX/$SBIND"
-LIBDIR="$PREFIX/$LIBD"
-CONFDIR="$PREFIX/$CONFD"
+BINDIR="$PREFIX$BIND"
+SBINDIR="$PREFIX$SBIND"
+LIBDIR="$PREFIX$LIBD"
 
 echo "Set variables:"
 echo_variables
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
+else
+    create_conf_file
 fi
