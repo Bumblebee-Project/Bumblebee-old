@@ -25,15 +25,27 @@ echo_variables() {
     echo "NVIDIABUSID=$NVIDIABUSID"
 }
 
+# Checks for the nvidia Xorg module to be present if nvidia driver is set,
+# otherwhise will warn and throw an error.
 validate_module_path() {
-    local path="$XORG_MODULEPATH/xorg/modules/drivers/nvidia_drv.so"
-    if [ -f "$path" ]; then
-        # is valid
-        return 0
+    local nvidiapresent=false
+    for driver in "${DRIVERS[@]}"; do
+        if [ "$driver" = "nvidia" ]; then
+            nvidiapresent=true
+        fi
+    done
+    if [ "$nvidiapresent" = "true" ]; then
+        local path="$XORG_MODULEPATH/xorg/modules/drivers/nvidia_drv.so"
+        if [ -f "$path" ]; then
+            # is valid
+            return 0
+        else
+            echo "$path does not exist."
+            echo "Error: wrong path to the nvidia Xorg module"
+            return 1
+        fi
     else
-        echo "$path does not exist."
-        echo "Error: wrong path to the nvidia Xorg module"
-        return 1
+        return 0
     fi
 }
 
@@ -43,26 +55,29 @@ sanity_check() {
 
     # Check for NVIDIABUSID to be set, otherwhise warn about it, not fatal.
     if [ -z "$NVIDIABUSID" ]; then
+        echo
         echo "Could not determine the PCI Bus ID of your Nvidia card."
         echo "You will need to set it manually in the configuration file"
     fi
 
     # Check for XORG_MODULEPATH to be set valid if the nvidia driver is set
-    local nvidiapresent=false
-    for driver in "${DRIVERS[@]}"; do
-        if [ "$driver" = "nvidia" ]; then
-            nvidiapresent=true
-        fi
-    done
-    if [ "$nvidiapresent" ]; then
-        if ! validate_module_path ; then
-            echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
-            echo "--xorg-module-path option to a valid value or disable nvidia driver"
-            exit 1
-        fi
+    if ! validate_module_path ; then
+        echo
+        echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
+        echo "--xorg-module-path option to a valid value or disable nvidia driver"
+        exit 1
     fi
     echo "Sanity check is a stub, exiting"
     return 1
+
+    # Check for INITDIR to be valid
+    if [ -z "$INITD" ]; then
+        echo
+        echo "Error: INITDIR can't be empty. Please set it to the directory where"
+        echo "daemons are stored in your system (e.g. '/etc/init.d')"
+        exit 1
+    fi
+
 }
 
 # Create configuration file with current variables. Is a simple bash file with
