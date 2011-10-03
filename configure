@@ -23,6 +23,7 @@ echo_variables() {
     echo "LIBDIR=$LIBDIR"
     echo "INITDIR=$INITDIR"
     echo "NVIDIABUSID=$NVIDIABUSID"
+    echo "BUILDDIR=$BUILDDIR"
 }
 
 # Checks for the nvidia Xorg module to be present if nvidia driver is set,
