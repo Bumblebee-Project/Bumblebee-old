@@ -4,15 +4,18 @@
 dependencies=('VirtualGL')
 conflictingpackages=()
 case "$DRIVER" in
-  nvidia)
-    dependencies[ ${#dependencies[@]} ]=x11-video-bumblebee-nvidiaG02
-    dependencies[ ${#dependencies[@]} ]=nvidia-gfxG02-kmp
-    conflictingpackages=('x11-video-nvidiaG02')
-    ;;
-  nouveau)
-    dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
-    conflictingpackages=('nvidia-gfxG02-kmp')
-    ;;
+    nvidia)
+        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel
+        if $IS_64 ; then
+            dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel-32bit
+        fi
+        dependencies[ ${#dependencies[@]} ]=nvidia-kmp
+        conflictingpackages=('nvidia-gfxG02-kmp' 'x11-video-nvidiaG02' 'x11-video-bumblebee-nvidiaG02')
+        ;;
+    nouveau)
+        dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
+        conflictingpackages=('nvidia-gfxG02-kmp' 'nvidia-kmp')
+        ;;
 esac
 
 conflictingfiles=('/usr/bin/nvidia-uninstall')
@@ -88,6 +91,7 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
     for conflict in "${conflicts[@]}" ; do
         if [[ "$conflict" == "nvidia-gfxG02-kmp" ]] || [[ "$conflict" == "x11-video-nvidiaG02" ]] ; then
             echo "    sudo rpm -e x11-video-nvidiaG02"
+            echo "    sudo rpm -e x11-video-bumblebee-nvidiaG02"
             echo "    sudo rpm -e nvidia-computeG02"
             echo "    sudo rpm -e nvidia-gfxG02-kmp-desktop"
             echo
@@ -152,8 +156,8 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
 
     reboot=""
     for dependency in "${missing_dependencies[@]}" ; do
-        if [[ "$dependency" == "nvidia-gfxG02-kmp" ]] ; then
-            echo "    sudo zypper install nvidia-gfxG02-kmp-$kernel_type"
+        if [[ "$dependency" == "nvidia-kmp" ]] ; then
+            echo "    sudo zypper install nvidia-kmp-$kernel_type"
             reboot="yes"
         else
             echo "    sudo zypper install $dependency"
