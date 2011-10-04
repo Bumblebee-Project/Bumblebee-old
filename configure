@@ -178,15 +178,15 @@ EOF
 BUILDDIR=.build
 
 # Prefix of the installation. All directories should be relative tho this one
-PREFIX="/"
-USRDIR="usr/local"
+PREFIX=
+USRDIR="/usr/local"
 
 # Local install locations, to make this system-wide they should be overriden by
 # prefix command line arguments.
-BIND="bin"
-SBIND="sbin"
-LIBD="lib"
-CONFD="etc"
+BIND="/bin"
+SBIND="/sbin"
+LIBD="/lib"
+CONFD="/etc"
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
@@ -370,15 +370,11 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-DESTDIR="$PREFIX/"
-
 BINDIR="$USRDIR/$BIND"
 SBINDIR="$USRDIR/$SBIND"
 LIBDIR="$USRDIR/$LIBD/bumblebee"
 CONFDIR="$CONFD/bumblebee"
 INITDIR="$INITD"
-
-
 
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
