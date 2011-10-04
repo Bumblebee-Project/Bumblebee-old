@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
+# XXX: protect against injection of shell meta characters
 echo_variables() {
     echo "BINDIR='$BINDIR'"
     echo "SBINDIR='$SBINDIR'"
@@ -24,7 +25,6 @@ echo_variables() {
     echo "INITDIR='$INITDIR'"
     echo "NVIDIABUSID='$NVIDIABUSID'"
     echo "BUILDDIR='$BUILDDIR'"
-    echo "PREFIX='$PREFIX'"
 }
 
 # Checks for the nvidia Xorg module to be present if nvidia driver is set,
@@ -71,7 +71,7 @@ sanity_check() {
     fi
 
     # Check for INITDIR to be valid
-    if [ -z "$INITD" ]; then
+    if [ -z "$INITDIR" ]; then
         echo
         echo "Error: INITDIR can't be empty. Please set it to the directory where"
         echo "daemons are stored in your system (e.g. '/etc/init.d')"
@@ -176,20 +176,19 @@ EOF
 # this directory is used for outputting installer files
 BUILDDIR=.build
 
-# Prefix of the installation. All directories should be relative tho this one
-PREFIX=
-USRDIR="/usr/local"
+# Prefix of the installation. If SBINDIR, BINDIR, LIBDIR or CONFDIR are unset,
+# a directory relative to this one will be used
+PREFIX='/usr/local'
 
-# Local install locations, to make this system-wide they should be overriden by
-# prefix command line arguments.
-BIND="/bin"
-SBIND="/sbin"
-LIBD="/lib"
-CONFD="/etc"
+# Local install locations. If empty, use the defaults
+BINDIR=
+SBINDIR=
+LIBDIR=
+CONFDIR=
 
 # Unset this variable, should be checked, if not found in a list of known ones,
 # then warn about it and set it in the command line.
-INITD=
+INITDIR=
 
 # Unset this variable, if 'nvidia' is set, this should throw an error
 XORG_MODULEPATH=
@@ -292,52 +291,44 @@ while [ $# -gt 0 ]; do
             PREFIX="${1#--prefix=}"
         fi
         ;;
-      --usrdir=*|--usrdir)
-        if [[ $1 == --usrdir ]]; then
-            shift
-            USRDIR="$1"
-        else
-            USRDIR="${1#--usrdir=}"
-        fi
-        ;;
       --bindir=*|--bindir)
         if [[ $1 == --bindir ]]; then
             shift
-            BIND="$1"
+            BINDIR="$1"
         else
-            BIND="${1#--bindir=}"
+            BINDIR="${1#--bindir=}"
         fi
         ;;
       --sbindir=*|--sbindir)
         if [[ $1 == --sbindir ]]; then
             shift
-            SBIND="$1"
+            SBINDIR="$1"
         else
-            SBIND="${1#--sbindir=}"
+            SBINDIR="${1#--sbindir=}"
         fi
         ;;
       --libdir=*|--libdir)
         if [[ $1 == --libdir ]]; then
             shift
-            LIBD="$1"
+            LIBDIR="$1"
         else
-            LIBD="${1#--libdir=}"
+            LIBDIR="${1#--libdir=}"
         fi
         ;;
       --confdir=*|--confdir)
         if [[ $1 == --confdir ]]; then
             shift
-            CONFD="$1"
+            CONFDIR="$1"
         else
-            CONFD="${1#--confdir=}"
+            CONFDIR="${1#--confdir=}"
         fi
         ;;
       --initdir=*|--initdir)
         if [[ $1 == --initdir ]]; then
             shift
-            INITD="$1"
+            INITDIR="$1"
         else
-            INITD="${1#--initdir=}"
+            INITDIR="${1#--initdir=}"
         fi
         ;;
       --build-dir=*|--build-dir)
@@ -369,11 +360,11 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-BINDIR="$USRDIR/$BIND"
-SBINDIR="$USRDIR/$SBIND"
-LIBDIR="$USRDIR/$LIBD/bumblebee"
-CONFDIR="$CONFD/bumblebee"
-INITDIR="$INITD"
+# if no directories have been set, use defaults
+: "${BINDIR:=$PREFIX/bin}"
+: "${SBINDIR:=$PREFIX/sbin}"
+LIBDIR="${LIBDIR-$PREFIX/lib}/bumblebee"
+CONFDIR="${CONFDIR-$PREFIX/etc}/bumblebee"
 
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
