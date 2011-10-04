@@ -103,45 +103,71 @@ show_help_msg() {
         cat <<EOF
 Usage: $0 [options]
 
-  --unattended
-    Do not pause with informational messages, proceed with the installation
-    without confirming
+The options listed below control the vaiables to set to the installer. All paths
+has the form of: PREFIX/USRDIR/*DIR* for installation paths. INITDIR and CONFDIR
+are relative to PREFIX directly. INITDIR is where the daemon handler is to be
+installed. The CONFDIR is where bumblebee's system configuration is to be
+installed. Please note: both CONFDIR and LIBDIR add the prefix '/bumblebee', you
+don't need to add it yourself, this means that '--libdir=lib' will result in
+'lib/bumblebee' and '--confdir=etc' will result on 'etc/bumblebee'. Both paths
+relative to PREFIX.
+
+OPTIONS
 
   --driver=DRIVERS
   --driver DRIVERS
     DRIVERS is a comma-separated list of drivers to be installed. The last
     specified driver will be the default driver. Valid values are nvidia and
-    nouveau; if not specified, nvidia is assumed, for now.
+    nouveau; if not specified, nvidia and nouveau will be installed. NOTE you
+    will need to set the '--xorg-module-path' variable for nvidia to work.
 
-  --bindir=DIR
-  --bindir DIR
-    Install binary files to this directory. Defaults to /usr/local/bin
+  --usrdir=USRDIR
+  --usrdir USRDIR
+    Set the user directory to install bumblebee. This is relative to the PREFIX
+    variable. Defaults to 'usr/local'.
 
-  --sbindir=DIR
-  --sbindir DIR
-    Install system binary files to this directory. Defaults to /usr/local/sbin
+  --bindir=BINDIR
+  --bindir BINDIR
+    Install binary files to this directory. This variable is relative to USRDIR
+    variable. Defaults to 'bin'.
+
+  --sbindir=SBINDIR
+  --sbindir SBINDIR
+    Install system binary files to this directory. This variable is relative to
+    USRDIR variable. Defaults to 'sbin'
 
   --libdir=DIR
   --libdir DIR
-    Install library files to this directory. Defaults to
-    /usr/local/lib/bumblebee
+    Install library files to this directory. This variable is relative to USRDIR
+    variable and it adds '/bumblebee' suffix. Defaults to 'lib'.
+
+  --confdir=DIR
+  --confdir DIR
+    Install configuration files to this directory. This variable is relative to
+    PREFIX variable and it adds '/bumblebee' suffix. Defaults to 'etc'.
 
   --initdir=DIR
   --initdir DIR
-    Install handler file to this directory. Defaults to
-    /etc/init.d
+    Install handler file to this directory. This variable should be set,
+    otherwhise, the script will fail.
 
-  --dest-dir=DESTDIR
-  --dest-dir DESTDIR
-    Use DESTDIR as root folder instead. Useful for chroot installations. Set it
-    to an empty value if you do not want to use a different root directory. The
-    contents of this directory are not cleared before use.
+  --prefix=PREFIX
+  --prefix PREFIX
+    Use PREFIX as root folder instead. Useful for chroot installations. Set it
+    to "/" if you do not want to use a different root directory. The contents of
+    this directory are not cleared before use. Defaults to "/". Should not be
+    empty.
 
   --build-dir=PATH
   --build-dir PATH
     Use PATH instead of '.build' for storing files built by the installer. PATH
     must exist to avoid accidentally overwritting directories. The entries
     PATH/stages and PATH/install-files are removed.
+
+  --xorg-module-path=XORG_MODULEPATH
+  --xorg-module-path XORG_MODULEPATH
+    This variable tells the installer where to find the nvidia Xorg driver. Is
+    needed only if nvidia driver is set.
 
   --help
     Show this help message
