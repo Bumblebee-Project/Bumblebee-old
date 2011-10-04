@@ -64,9 +64,6 @@ while [ $# -gt 0 ]; do
       --unattended)
         UNATTENDED=true
         ;;
-      --32)
-        IS_64=false
-        ;;
       --driver=*|--driver)
         if [[ $1 == --driver ]]; then
             shift
@@ -234,9 +231,6 @@ Usage: $0 [options]
   --unattended
     Do not pause with informational messages, proceed with the installation
     without confirming
-
-  --32
-    Force 32-bit architecture.
 
   --driver=DRIVERS
   --driver DRIVERS
