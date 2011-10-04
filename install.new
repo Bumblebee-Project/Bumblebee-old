@@ -33,7 +33,7 @@ INSTALLED_DIRS=()
 install_dir() {
     local mode=$1
     local target="$2"
-    install -d -m$mode "$DESTDIR$target"
+    install -d -m$mode "$PREFIX$target"
     INSTALLED_DIRS[${#INSTALLED_DIRS[@]}]="$target"
 }
 
@@ -46,7 +46,7 @@ install_file() {
     local prefix="$BUILDDIR/install-files"
     [ ! -f "$prefix/$source" ] && prefix=install-files
     if [ -f "$prefix/$source" ]; then
-        install -D -m$mode "$prefix/$source" "$DESTDIR$target"
+        install -D -m$mode "$prefix/$source" "$PREFIX$target"
         INSTALLED_FILES[${#INSTALLED_FILES[@]}]="$target"
     else
         echo "'$source' did not exist, ignoring"

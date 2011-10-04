@@ -98,17 +98,17 @@ rm -rf "$BUILDDIR/install-files"
 mkdir -p "$BUILDDIR/install-files"
 
 set_file install-files/bumblebee.handler
-def_var BIN "$SBINDIR/bumblebee"
+def_var BIN "/$SBINDIR/bumblebee"
 
 set_file install-files/optirun
-def_var BUMBLEBEE_LIBDIR "$LIBDIR"
+def_var BUMBLEBEE_LIBDIR "/$LIBDIR"
 
 set_file install-files/bumblebee
-def_var BUMBLEBEE_LIBDIR "$LIBDIR"
+def_var BUMBLEBEE_LIBDIR "/$LIBDIR"
 
 set_file install-files/common-paths
-def_var BUMBLEBEE_CONFDIR "$CONFDIR"
-def_var 'OPTIRUNS[0]' "$BINDIR/optirun"
+def_var BUMBLEBEE_CONFDIR "/$CONFDIR"
+def_var 'OPTIRUNS[0]' "/$BINDIR/optirun"
 
 set_file install-files/common-functions
 def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
@@ -123,9 +123,9 @@ for driver in "${DRIVERS[@]}"; do
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
     fi
     re_busid='^( *BusID +")[^"]*'
-    if [ -f "${CONFDIR}/xorg.conf.$driver" ]; then
+    if [ -f "/${CONFDIR}/xorg.conf.$driver" ]; then
         echo "Setting Bus ID in xorg.conf.$driver..."
-        sed -E -i "${CONFDIR}/xorg.conf.$driver" \
+        sed -E -i "/${CONFDIR}/xorg.conf.$driver" \
         -e "s,${re_busid},\1$NVIDIABUSID,"
     fi
 done

@@ -24,6 +24,7 @@ echo_variables() {
     echo "INITDIR='$INITDIR'"
     echo "NVIDIABUSID='$NVIDIABUSID'"
     echo "BUILDDIR='$BUILDDIR'"
+    echo "PREFIX="$PREFIX""
 }
 
 # Checks for the nvidia Xorg module to be present if nvidia driver is set,
@@ -151,7 +152,7 @@ EOF
 BUILDDIR=.build
 
 # Prefix of the installation. All directories should be relative tho this one
-PREFIX=
+PREFIX="/"
 USRDIR="usr/local"
 
 # Local install locations, to make this system-wide they should be overriden by
@@ -345,11 +346,11 @@ done
 
 DESTDIR="$PREFIX/"
 
-BINDIR="$DESTDIR$USRDIR/$BIND"
-SBINDIR="$DESTDIR$USRDIR/$SBIND"
-LIBDIR="$DESTDIR$USRDIR/$LIBD/bumblebee"
-CONFDIR="$DESTDIR$CONFD/bumblebee"
-INITDIR="$DESTDIR$INITD"
+BINDIR="$USRDIR/$BIND"
+SBINDIR="$USRDIR/$SBIND"
+LIBDIR="$USRDIR/$LIBD/bumblebee"
+CONFDIR="$CONFD/bumblebee"
+INITDIR="$INITD"
 
 
 
