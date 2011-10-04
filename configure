@@ -155,8 +155,7 @@ OPTIONS
   --prefix PREFIX
     Use PREFIX as root folder instead. Useful for chroot installations. Set it
     to "/" if you do not want to use a different root directory. The contents of
-    this directory are not cleared before use. Defaults to "/". Should not be
-    empty.
+    this directory are not cleared before use. If empty, will default to "/".
 
   --build-dir=PATH
   --build-dir PATH
