@@ -67,90 +67,19 @@ sudo apt-get install bumblebee
 
   - **nVidia drivers**: installing the nVidia drivers (optional but highly recommended):
 
-            Select the nVidia repository for your openSuSE version:
-
-            Version:    11.3
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.3 "Bumblebee nVidia"
-            ```
-
-            Version:    11.4
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
-            ```
-
-            Version:    Tumbleweed
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Tumbleweed "Bumblebee nVidia"
-            ```
-
-            Version:    Factory
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Factory "Bumblebee nVidia"
-            ```
-
-            Install the nVidia driver packages:
-
-            ```shell
-            sudo zypper refresh
-            sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d '-')
-            sudo zypper install x11-video-nvidia
-            ```
-
-            For 64bit systems add:
-
-            ```shell
-            sudo zypper install x11-video-nvidia-32bit
-            ```
 
   - **Bumblebee**: installing Bumblebee:
 
-            Select the Bumblebee repository for your openSuSE version:
-
-            Version:    11.3
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.3 "Bumblebee"
-            ```
-
-            Version:    11.4
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
-            ```
-
-            Version:    Tumbleweed
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Tumbleweed "Bumblebee"
-            ```
-
-            Version:    Factory
-
-            ```shell
-            sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Factory "Bumblebee"
-            ```
-
-            Install bumblebee package:
-
-            ```shell
-            sudo zypper refresh
-            sudo zypper install bumblebee
-            ```
 
 Or you can use Yast to add the repositories and packages.
 
 
-Ther are also some alternative repsoitories:
+There are also some alternative repsoitories:
 
-    **Bumblebee-unstable**: [Bumblebee-unstable][opensuse-bumblebee-unstable]
+  - **Bumblebee-unstable**: [Bumblebee-unstable][opensuse-bumblebee-unstable]
         Uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL.
 
-    **Bumblebee-develop**: [Bumblebee-develop][opensuse-bumblebee-develop]
+  - **Bumblebee-develop**: [Bumblebee-develop][opensuse-bumblebee-develop]
         Uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL and
         the opensuse-dev branch.
 
