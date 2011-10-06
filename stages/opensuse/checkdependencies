@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 #
-dependencies=('VirtualGL')
 conflictingpackages=()
+
+dependencies=('VirtualGL')
+if $IS_64 ; then
+    dependencies[ ${#dependencies[@]} ]=VirtualGL-32bit
+fi
+
 case "$DRIVER" in
   nvidia)
     dependencies[ ${#dependencies[@]} ]=nvidia-kmp
