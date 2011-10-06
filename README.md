@@ -148,10 +148,10 @@ Or you can use Yast to add the repositories and packages.
 There are also some alternative repositories:
 
   - **Bumblebee-unstable**: [Bumblebee-unstable][opensuse-bumblebee-unstable]
-        Uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL.
+        uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL.
 
   - **Bumblebee-develop**: [Bumblebee-develop][opensuse-bumblebee-develop]
-        Uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL and
+        uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL and
         the opensuse-dev branch.
 
   [opensuse-bumblebee-unstable]:    http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable
