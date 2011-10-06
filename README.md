@@ -69,7 +69,7 @@ Valid openSuSE versions are: 11.3, 11.4, Tumbleweed, Factory.
 Install the nVidia drivers. They are optional but highly recommended:
 
 ```shell
-sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4> "Bumblebee nVidia"
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
 sudo zypper refresh
 sudo zypper install nvidia-kmp-<kernel_type>
 sudo zypper install x11-video-nvidia
@@ -78,7 +78,7 @@ sudo zypper install x11-video-nvidia
 Install Bumblebee:
 
 ```shell
-sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4> "Bumblebee"
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
 sudo zypper refresh
 sudo zypper install bumblebee
 ```
@@ -86,7 +86,7 @@ sudo zypper install bumblebee
 If you want to use Bumblebee with the latest VirtualGL cvs version, please use the "unstable" repository:
 
 ```shell
-sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_11.4> "Bumblebee"
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_11.4 "Bumblebee"
 ```
 
 
