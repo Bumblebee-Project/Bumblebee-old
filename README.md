@@ -62,6 +62,33 @@ sudo apt-get install bumblebee
   [arch-aur]:  http://aur.archlinux.org/packages.php?ID=49469
   [arch-wiki]: https://wiki.archlinux.org/index.php/Bumblebee
 
+#### OpenSuSE
+
+Valid openSuSE versions are: 11.3, 11.4, Tumbleweed, Factrory.
+
+Install the nVidia drivers. They are optional but highly recommended:
+```shell
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4> "Bumblebee nVidia"
+sudo zypper refresh
+sudo zypper install nvidia-kmp-<kernel_type>
+sudo zypper install x11-video-nvidia-devel
+```
+
+Install Bumblebee:
+
+```shell
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4> "Bumblebee"
+sudo zypper refresh
+sudo zypper install bumblebee
+```
+
+If you want to use Bumblebee with the latest VirtualGL cvs version, please use the "unstable" repository:
+
+```shell
+sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_11.4> "Bumblebee"
+```
+
+
 ### Using the Installation Script
 
 You need to install [VirtualGL][virtgl] `>2.2.1` (`2.2.90` is advised) and
@@ -107,13 +134,24 @@ Usage
 After the initial Bumblebee installation, you need to add yourself to the
 `bumblebee` group:
 
+#### Ubuntu, Arch Linux
+
 ```shell
 sudo usermod -a -G bumblebee YOUR_USERNAME
-```
 
+```
 Replace `YOUR_USERNAME` accordingly and **please double check the command**.
 If you accidentally forget the `-a` option, you remove yourself from any
 other groups.  
+
+#### openSuSE
+
+```shell
+sudo -s usermod -G bumblebee YOUR_USERNAME
+```
+
+Replace `YOUR_USERNAME` accordingly.
+
 After adding yourself to the `bumblebee` group, you need to re-login for the
 changes to apply.
 
@@ -141,6 +179,7 @@ what it all means and wish to proceed, here is how to enable it:
         ```
 
   - **Arch Linux**: [AUR package][arch-acpi-aur]
+
 
 2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.
    You should also set `STOP_SERVICE_ON_EXIT` to `Y`:
