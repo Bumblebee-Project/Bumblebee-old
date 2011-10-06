@@ -126,6 +126,14 @@ sudo ./cleanup
 sudo ./install
 ```
 
+Please use:
+
+```shell
+sudo -s ./install
+```
+
+to install on openSuSE.
+
   [virtgl]:   http://www.virtualgl.org/
   [tarballs]: https://github.com/Bumblebee-Project/Bumblebee/downloads
 
