@@ -67,6 +67,14 @@ sudo apt-get install bumblebee
 
   - **nVidia drivers**: installing the nVidia drivers (optional but highly recommended):
 
+        Select the nVidia repository for your openSuSE version:
+
+        Version:    11.3
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.3 "Bumblebee nVidia"
+        ```
+
 
   - **Bumblebee**: installing Bumblebee:
 
@@ -74,7 +82,7 @@ sudo apt-get install bumblebee
 Or you can use Yast to add the repositories and packages.
 
 
-There are also some alternative repsoitories:
+There are also some alternative repositories:
 
   - **Bumblebee-unstable**: [Bumblebee-unstable][opensuse-bumblebee-unstable]
         Uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL.
