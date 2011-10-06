@@ -194,7 +194,7 @@ sudo ./cleanup
 sudo ./install
 ```
 
-Please use:
+**openSuSE** users please use:
 
 ```shell
 sudo -s ./install
