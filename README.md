@@ -197,10 +197,8 @@ sudo ./install
 **openSuSE** users please use:
 
 ```shell
-sudo -s ./install
+sudo -s <command>
 ```
-
-to install on openSuSE.
 
   [virtgl]:   http://www.virtualgl.org/
   [tarballs]: https://github.com/Bumblebee-Project/Bumblebee/downloads
