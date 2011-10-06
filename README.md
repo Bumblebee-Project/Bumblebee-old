@@ -70,21 +70,25 @@ sudo apt-get install bumblebee
             Select the nVidia repository for your openSuSE version:
 
             Version:    11.3
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.3 "Bumblebee nVidia"
             ```
 
             Version:    11.4
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
             ```
 
             Version:    Tumbleweed
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Tumbleweed "Bumblebee nVidia"
             ```
 
             Version:    Factory
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Factory "Bumblebee nVidia"
             ```
