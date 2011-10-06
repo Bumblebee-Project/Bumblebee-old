@@ -71,7 +71,7 @@ Install the nVidia drivers. They are optional but highly recommended:
 ```shell
 sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
 sudo zypper refresh
-sudo zypper install nvidia-kmp-<kernel_type>
+sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d '-')
 sudo zypper install x11-video-nvidia
 ```
 
@@ -189,6 +189,11 @@ what it all means and wish to proceed, here is how to enable it:
 
   - **Arch Linux**: [AUR package][arch-acpi-aur]
 
+  - **openSuSE**: available in the Bumblebee repository:
+
+        ```shell
+        sudo zypper install acpi_call-kmp-$(uname -r | cut -f3 -d '-')
+        ```
 
 2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.
    You should also set `STOP_SERVICE_ON_EXIT` to `Y`:
