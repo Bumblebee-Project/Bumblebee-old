@@ -64,7 +64,8 @@ sudo apt-get install bumblebee
 
 #### OpenSuSE
 
-Valid openSuSE versions are: 11.3, 11.4, Tumbleweed, Factory.
+Valid openSuSE versions are: 11.3, 11.4, Tumbleweed and Factory. We will
+take openSuSE 11.4 as default for the install examples.
 
 Install the nVidia drivers. They are optional but highly recommended:
 
@@ -83,7 +84,8 @@ sudo zypper refresh
 sudo zypper install bumblebee
 ```
 
-If you want to use Bumblebee with the latest VirtualGL cvs version, please use the "unstable" repository:
+If you want to use Bumblebee with the latest VirtualGL cvs version, please
+use the "unstable" repository:
 
 ```shell
 sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_11.4 "Bumblebee"
