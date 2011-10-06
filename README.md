@@ -80,9 +80,67 @@ sudo apt-get install bumblebee
         sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
         ```
 
+    - **openSuSE Tumbleweed**:
 
-  - **Bumblebee**: installing Bumblebee:
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Tumbleweed "Bumblebee nVidia"
+        ```
 
+    - **openSuSE Factory**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Factory "Bumblebee nVidia"
+          ```
+
+    Install the nVidia driver packages:
+
+    ```shell
+    sudo zypper refresh
+    sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d '-')
+    sudo zypper install x11-video-nvidia
+    ```
+
+    For 64bit systems add:
+
+    ```shell
+    sudo zypper install x11-video-nvidia-32bit
+    ```
+
+
+2. Installing Bumblebee:
+
+    Select the Bumblebee repository for your openSuSE version:
+
+    - **openSuSE 11.3**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.3 "Bumblebee"
+        ```
+
+    - **openSuSE 11.4**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
+        ```
+
+    - **openSuSE Tumbleweed**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Tumbleweed "Bumblebee"
+        ```
+
+    - **openSuSE Factory**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Factory "Bumblebee"
+        ```
+
+    Install bumblebee package:
+
+    ```shell
+    sudo zypper refresh
+    sudo zypper install bumblebee
+    ```
 
 Or you can use Yast to add the repositories and packages.
 
