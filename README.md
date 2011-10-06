@@ -139,8 +139,8 @@ After the initial Bumblebee installation, you need to add yourself to the
 
 ```shell
 sudo usermod -a -G bumblebee YOUR_USERNAME
-
 ```
+
 Replace `YOUR_USERNAME` accordingly and **please double check the command**.
 If you accidentally forget the `-a` option, you remove yourself from any
 other groups.  
