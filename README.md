@@ -72,7 +72,7 @@ Install the nVidia drivers. They are optional but highly recommended:
 sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4> "Bumblebee nVidia"
 sudo zypper refresh
 sudo zypper install nvidia-kmp-<kernel_type>
-sudo zypper install x11-video-nvidia-devel
+sudo zypper install x11-video-nvidia
 ```
 
 Install Bumblebee:
