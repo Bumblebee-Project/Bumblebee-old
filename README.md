@@ -108,21 +108,25 @@ sudo apt-get install bumblebee
             Select the Bumblebee repository for your openSuSE version:
 
             Version:    11.3
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.3 "Bumblebee"
             ```
 
             Version:    11.4
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
             ```
 
             Version:    Tumbleweed
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Tumbleweed "Bumblebee"
             ```
 
             Version:    Factory
+
             ```shell
             sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Factory "Bumblebee"
             ```
