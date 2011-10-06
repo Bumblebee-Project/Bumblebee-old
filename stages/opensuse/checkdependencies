@@ -5,8 +5,8 @@ dependencies=('VirtualGL')
 conflictingpackages=()
 case "$DRIVER" in
   nvidia)
-    dependencies[ ${#dependencies[@]} ]=x11-video-nvidia
     dependencies[ ${#dependencies[@]} ]=nvidia-kmp
+    dependencies[ ${#dependencies[@]} ]=x11-video-nvidia
     conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
     ;;
   nouveau)
