@@ -113,7 +113,7 @@ acpi_call() {
 #  1: card is disabled.
 card_status() {
     # No card was found, someone messed hard with wrong ACPI calls...
-    [ -s "$NVIDIA_BUSID" ] || return 1
+    [ -n "$NVIDIA_BUSID" ] || return 1
 
     lspci -s "$NVIDIA_BUSID" -v | grep -q ! && return 1
     return 0
@@ -163,7 +163,7 @@ disable_card() {
 #  1: no driver is loaded
 get_loaded_driver() {
     # No card was found, someone messed hard with wrong ACPI calls...
-    [ -s "$NVIDIA_BUSID" ] || return 1
+    [ -n "$NVIDIA_BUSID" ] || return 1
 
     # display the driver for the nvidia card if any. Explicitly set the return
     # value as it may be values higher than 1
