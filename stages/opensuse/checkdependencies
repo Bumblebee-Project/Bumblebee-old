@@ -1,21 +1,26 @@
 #!/bin/bash
 #
 #
-dependencies=('VirtualGL')
 conflictingpackages=()
+
+dependencies=('VirtualGL')
+if $IS_64 ; then
+    dependencies[ ${#dependencies[@]} ]=VirtualGL-32bit
+fi
+
 case "$DRIVER" in
-    nvidia)
-        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel
-        if $IS_64 ; then
-            dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel-32bit
-        fi
-        dependencies[ ${#dependencies[@]} ]=nvidia-kmp
-        conflictingpackages=('nvidia-gfxG02-kmp' 'x11-video-nvidiaG02' 'x11-video-bumblebee-nvidiaG02')
-        ;;
-    nouveau)
-        dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
-        conflictingpackages=('nvidia-gfxG02-kmp' 'nvidia-kmp')
-        ;;
+  nvidia)
+    dependencies[ ${#dependencies[@]} ]=nvidia-kmp
+    dependencies[ ${#dependencies[@]} ]=x11-video-nvidia
+	if $IS_64 ; then
+		dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
+	fi
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    ;;
+  nouveau)
+    dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    ;;
 esac
 
 conflictingfiles=('/usr/bin/nvidia-uninstall')
@@ -89,11 +94,8 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
     echo "Please remove them by running:"
 
     for conflict in "${conflicts[@]}" ; do
-        if [[ "$conflict" == "nvidia-gfxG02-kmp" ]] || [[ "$conflict" == "x11-video-nvidiaG02" ]] ; then
-            echo "    sudo rpm -e x11-video-nvidiaG02"
-            echo "    sudo rpm -e x11-video-bumblebee-nvidiaG02"
-            echo "    sudo rpm -e nvidia-computeG02"
-            echo "    sudo rpm -e nvidia-gfxG02-kmp-desktop"
+        if [[ "$conflict" == "nvidia-gfxG02-kmp" ]] ; then
+            echo "    sudo rpm -e nvidia-gfxG02-kmp-$kernel_type"
             echo
             echo "    sudo zypper rr \"nVidia Graphics Drivers\""
             echo
@@ -136,9 +138,28 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
                 fi
             fi
         fi
+        if [[ "$dependency" == "nvidia-kmp" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
 
-        if [[ "$dependency" == "nvidia-gfxG02-kmp" ]] ; then
-            if [[ "$(zypper --no-refresh info nvidia-gfxG02-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+        if [[ "$dependency" == "x11-video-nvidia" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "x11-video-nvidia-32bit" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia-32bit | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
                 if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
                     echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
                     echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""

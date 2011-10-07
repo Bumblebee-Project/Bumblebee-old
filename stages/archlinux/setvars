@@ -1,4 +1,5 @@
 #!/bin/bash
+
 BINDIR=/usr/bin
 SBINDIR=/usr/sbin
 LIBDIR=/usr/lib/bumblebee

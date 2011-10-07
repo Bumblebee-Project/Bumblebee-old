@@ -62,6 +62,102 @@ sudo apt-get install bumblebee
   [arch-aur]:  http://aur.archlinux.org/packages.php?ID=49469
   [arch-wiki]: https://wiki.archlinux.org/index.php/Bumblebee
 
+#### OpenSuSE
+
+1. Installing the nVidia drivers:
+    
+    Select the nVidia repository for your openSuSE version:
+
+    - **openSuSE 11.3**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.3 "Bumblebee nVidia"
+        ```
+
+    - **openSuSE 11.4**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
+        ```
+
+    - **openSuSE Tumbleweed**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Tumbleweed "Bumblebee nVidia"
+        ```
+
+    - **openSuSE Factory**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.Factory "Bumblebee nVidia"
+          ```
+
+    Install the nVidia driver packages:
+
+    ```shell
+    sudo zypper refresh
+    sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d '-')
+    sudo zypper install x11-video-nvidia
+    ```
+
+    For 64bit systems add:
+
+    ```shell
+    sudo zypper install x11-video-nvidia-32bit
+    ```
+
+
+2. Installing Bumblebee:
+
+    Select the Bumblebee repository for your openSuSE version:
+
+    - **openSuSE 11.3**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.3 "Bumblebee"
+        ```
+
+    - **openSuSE 11.4**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
+        ```
+
+    - **openSuSE Tumbleweed**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Tumbleweed "Bumblebee"
+        ```
+
+    - **openSuSE Factory**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_Factory "Bumblebee"
+        ```
+
+    Install bumblebee package:
+
+    ```shell
+    sudo zypper refresh
+    sudo zypper install bumblebee
+    ```
+
+Or you can use Yast to add the repositories and packages.
+
+
+There are also some alternative repositories:
+
+  - **Bumblebee-unstable**: [Bumblebee-unstable][opensuse-bumblebee-unstable]
+        uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL.
+
+  - **Bumblebee-develop**: [Bumblebee-develop][opensuse-bumblebee-develop]
+        uses the latest cvs/svn/git packages of libturbojpeg and VirtualGL and
+        the opensuse-dev branch.
+
+  [opensuse-bumblebee-unstable]:    http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable
+  [opensuse-bumblebee-develop]:     http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-develop
+
+
 ### Using the Installation Script
 
 You need to install [VirtualGL][virtgl] `>2.2.1` (`2.2.90` is advised) and
@@ -98,6 +194,12 @@ sudo ./cleanup
 sudo ./install
 ```
 
+**openSuSE** users please use:
+
+```shell
+sudo -s <command>
+```
+
   [virtgl]:   http://www.virtualgl.org/
   [tarballs]: https://github.com/Bumblebee-Project/Bumblebee/downloads
 
@@ -107,6 +209,8 @@ Usage
 After the initial Bumblebee installation, you need to add yourself to the
 `bumblebee` group:
 
+#### Ubuntu, Arch Linux
+
 ```shell
 sudo usermod -a -G bumblebee YOUR_USERNAME
 ```
@@ -114,6 +218,15 @@ sudo usermod -a -G bumblebee YOUR_USERNAME
 Replace `YOUR_USERNAME` accordingly and **please double check the command**.
 If you accidentally forget the `-a` option, you remove yourself from any
 other groups.  
+
+#### openSuSE
+
+```shell
+sudo -s usermod -G bumblebee YOUR_USERNAME
+```
+
+Replace `YOUR_USERNAME` accordingly.
+
 After adding yourself to the `bumblebee` group, you need to re-login for the
 changes to apply.
 
@@ -141,6 +254,12 @@ what it all means and wish to proceed, here is how to enable it:
         ```
 
   - **Arch Linux**: [AUR package][arch-acpi-aur]
+
+  - **openSuSE**: available in the Bumblebee repository:
+
+        ```shell
+        sudo zypper install acpi_call-kmp-$(uname -r | cut -f3 -d '-')
+        ```
 
 2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.
    You should also set `STOP_SERVICE_ON_EXIT` to `Y`:
