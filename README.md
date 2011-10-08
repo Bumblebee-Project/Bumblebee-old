@@ -96,7 +96,7 @@ sudo apt-get install bumblebee
 
     ```shell
     sudo zypper refresh
-    sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d '-')
+    sudo zypper install nvidia-kmp-$(uname -r | cut -f3 -d'-')
     sudo zypper install x11-video-nvidia
     ```
 
@@ -258,7 +258,7 @@ what it all means and wish to proceed, here is how to enable it:
   - **openSuSE**: available in the Bumblebee repository:
 
         ```shell
-        sudo zypper install acpi_call-kmp-$(uname -r | cut -f3 -d '-')
+        sudo zypper install acpi_call-kmp-$(uname -r | cut -f3 -d'-')
         ```
 
 2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.
