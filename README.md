@@ -64,7 +64,7 @@ sudo apt-get install bumblebee
 
 #### OpenSuSE
 
-1. Installing the nVidia drivers:
+1. Installing the nVidia drivers (optional but highly recommended):
     
     Select the nVidia repository for your openSuSE version:
 
