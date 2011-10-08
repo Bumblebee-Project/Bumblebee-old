@@ -31,8 +31,8 @@ for driver in "${DRIVERS[@]}"; do
 done
 
 # add the bumblebee group
-if getent group bumblebee >/dev/null; then
-    echo "Group 'bumblebee' does already exist"
+if getent group $BUMBLEBEE_GROUP >/dev/null; then
+    echo "Group '$BUMBLEBEE_GROUP' does already exist"
 else
-    groupadd bumblebee && echo "Group 'bumblebee' has been added"
+    groupadd $BUMBLEBEE_GROUP && echo "Group '$BUMBLEBEE_GROUP' has been added"
 fi
