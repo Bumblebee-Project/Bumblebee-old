@@ -33,8 +33,8 @@ install-lib:
 	$(INSTALL_DATA) $(call locate,common-functions) \
 		$(DESTDIR)$(LIBDIR)/common-functions
 
-install-lib-drivers:
-	test -d $(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
+install-lib-drivers: install-lib
+	test -d $(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
 # XXX: this won't work, need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
 		$(INSTALL_DATA) $(call locate,drivers/$(driver).options.$(distro)) \
