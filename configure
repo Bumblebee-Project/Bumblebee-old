@@ -25,6 +25,8 @@ echo_variables() {
     echo "INITDIR='$INITDIR'"
     echo "BUILDDIR='$BUILDDIR'"
     echo "XORG_MODULEPATH='$XORG_MODULEPATH'"
+    echo "NV_LIBPATH='$NV_LIBPATH'"
+    echo "NV_LIB32PATH='$NV_LIB32PATH'"
     echo "DRIVERS='$DRIVERS'"
     echo "NVIDIABUSID='$NVIDIABUSID'"
 }
@@ -52,6 +54,8 @@ LIBDIR      := $(makefile_escape "$LIBDIR")
 INITDIR     := $(makefile_escape "$INITDIR")
 BUILDDIR    := $(makefile_escape "$BUILDDIR")
 XORG_MODULEPATH := $(makefile_escape "$XORG_MODULEPATH")
+NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
+NV_LIB32PATH    := $(makefile_escape "$NV_LIB32PATH")
 
 DRIVERS     := $(makefile_escape "$DRIVERS")
 NVIDIABUSID := $(makefile_escape "$NVIDIABUSID")
@@ -186,6 +190,16 @@ OPTIONS
     This variable tells the installer where to find the nvidia Xorg driver. Is
     needed only if nvidia driver is set.
 
+  --nv-lib-path=NV_LIBPATH
+  --nv-lib-path NV_LIBPATH
+    This variable tells the installer where to find the nvidia libraries. Is
+    needed only if nvidia driver is set.
+
+  --nv-lib32-path=NV_LIBPATH
+  --nv-lib32-path NV_LIBPATH
+    This variable tells the installer where to find the nvidia 32-bit libraries
+    in a 64-bit system. Is needed only if nvidia driver is set.
+
   --help
     Show this help message
 EOF
@@ -208,8 +222,11 @@ CONFDIR=
 # then warn about it and set it in the command line.
 INITDIR=
 
-# Unset this variable, if 'nvidia' is set, this should throw an error
+# Variables for the nvidia binaries.
+# Unset these variables, if 'nvidia' is set, should throw an error.
 XORG_MODULEPATH=
+NV_LIBPATH=
+NV_LIB32PATH=
 
 # If not set, the installation can continue but won't be funtional until the
 # PCI bus ID of the Nvidia card is set. Warn about that.
@@ -299,6 +316,22 @@ while [ $# -gt 0 ]; do
             XORG_MODULEPATH="$1"
         else
             XORG_MODULEPATH="${1#--xorg-module-path=}"
+        fi
+        ;;
+      --nv-lib-path=*|--nv-lib-path)
+        if [[ $1 == --nv-lib-path ]]; then
+            shift
+            NV_LIBPATH="$1"
+        else
+            NV_LIBPATH="${1#--nv-lib-path=}"
+        fi
+        ;;
+      --nv-lib32-path=*|--nv-lib32-path)
+        if [[ $1 == --nv-lib32-path ]]; then
+            shift
+            NV_LIB32PATH="$1"
+        else
+            NV_LIB32PATH="${1#--nv-lib32-path=}"
         fi
         ;;
       --prefix=*|--prefix)
