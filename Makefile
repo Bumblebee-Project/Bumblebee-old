@@ -33,8 +33,8 @@ install-lib:
 	$(INSTALL_DATA) $(call locate,common-functions) \
 		$(DESTDIR)$(LIBDIR)/common-functions
 
-install-lib-DRIVERS:
-	test -d $(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/DRIVERS
+install-lib-drivers:
+	test -d $(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
 # XXX: this won't work, need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
 		$(INSTALL_DATA) $(call locate,drivers/$(driver).options.$(distro)) \
@@ -59,7 +59,7 @@ install-data:
 	$(INSTALL_DATA) $(call locate,optirun.bash_completion) \
 		$(DESTDIR)$(datadir)/optirun.bash_completion
 
-install: install-conf install-lib install-lib-DRIVERS install-sbin install-bin
+install: install-conf install-lib install-lib-drivers install-sbin install-bin
 
-.PHONY: build install install-conf install-lib install-lib-DRIVERS \
+.PHONY: build install install-conf install-lib install-lib-drivers \
 	install-sbin install-bin install-data
