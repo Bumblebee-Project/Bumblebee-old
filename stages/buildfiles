@@ -117,6 +117,10 @@ for driver in "${DRIVERS[@]}"; do
     if [ "$driver" == "nvidia" ]; then
         set_file "install-files/xorg.conf.$driver"
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
+        # Add paths to nvidia.options
+        set_file "install-files/drivers/nvidia.options"
+        def_var X_LD_LIB32_PATH "$NV_LIBPATH"
+        def_var X_LD_LIB64_PATH "$NV_LIBPATH:$NV_LIB32PATH"
     fi
 done
 
