@@ -4,7 +4,7 @@ srcdir = install-files
 include config.mk
 
 export BUMBLEBEE_VERSION BINDIR SBINDIR CONFDIR LIBDIR BUILDDIR \
-	DRIVER XORG_MODULEPATH
+	DRIVER XORG_MODULEPATH NV_LIBPATH NV_LIB32PATH
 
 INSTALL = install
 INSTALL_DIR = $(INSTALL) -m 755 -d
@@ -35,9 +35,9 @@ install-lib:
 
 install-lib-drivers: install-lib
 	test -d $(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
-# XXX: this won't work, need to pass distro-dependent settings
+# FIX: eliminated need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
-		$(INSTALL_DATA) $(call locate,drivers/$(driver).options.$(distro)) \
+		$(INSTALL_DATA) $(call locate,drivers/$(driver).options) \
 			$(DESTDIR)$(LIBDIR)/drivers/$(driver).options \
 	)
 
