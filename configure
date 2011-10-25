@@ -72,7 +72,7 @@ validate_module_path() {
         fi
     done
     if [ "$nvidiapresent" = "true" ]; then
-        local path="$XORG_MODULEPATH/xorg/modules/drivers/nvidia_drv.so"
+        local path="$XORG_MODULEPATH/nvidia_drv.so"
         if [ -f "$path" ]; then
             # is valid
             return 0
