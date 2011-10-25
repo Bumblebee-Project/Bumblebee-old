@@ -22,7 +22,7 @@ install-conf:
 	$(INSTALL_DATA) $(call locate,bumblebee.conf) \
 		$(DESTDIR)$(CONFDIR)/bumblebee.conf
 	$(foreach driver,$(DRIVERS),\
-		$(INSTALL_DATA) $(srcdir)/xorg.conf.$(driver) \
+		$(INSTALL_DATA) $(call locate,xorg.conf.$(driver)) \
 			$(DESTDIR)$(CONFDIR)/xorg.conf.$(driver) \
 	)
 
