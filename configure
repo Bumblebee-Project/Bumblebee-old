@@ -105,13 +105,7 @@ sanity_check() {
         exit 1
     fi
 
-    # Check for INITDIR to be valid
-    if [ -z "$INITDIR" ]; then
-        echo
-        echo "Error: INITDIR can't be empty. Please set it to the directory where"
-        echo "daemons are stored in your system (e.g. '/etc/init.d')"
-        exit 1
-    fi
+    # XXX: Removed initdir check, passed along to post-installation steps
 
     #echo "Sanity check is a stub, exiting"
     #return 1
