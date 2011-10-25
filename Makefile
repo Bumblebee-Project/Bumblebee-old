@@ -18,7 +18,7 @@ build:
 	bash -c '. .configure && . stages/buildfiles'
 
 install-conf:
-	test -d $(CONFDIR) || $(INSTALL_DIR) $(DESTDIR)$(CONFDIR)
+	test -d $(DESTDIR)$(CONFDIR) || $(INSTALL_DIR) $(DESTDIR)$(CONFDIR)
 	$(INSTALL_DATA) $(call locate,bumblebee.conf) \
 		$(DESTDIR)$(CONFDIR)/bumblebee.conf
 	$(foreach driver,$(DRIVERS),\
@@ -27,14 +27,14 @@ install-conf:
 	)
 
 install-lib:
-	test -d $(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)
+	test -d $(DESTDIR)$(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)
 	$(INSTALL_DATA) $(call locate,common-paths) \
 		$(DESTDIR)$(LIBDIR)/common-paths
 	$(INSTALL_DATA) $(call locate,common-functions) \
 		$(DESTDIR)$(LIBDIR)/common-functions
 
 install-lib-drivers: install-lib
-	test -d $(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
+	test -d $(DESTDIR)$(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
 # FIX: eliminated need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
 		$(INSTALL_DATA) $(call locate,drivers/$(driver).options) \
@@ -42,18 +42,18 @@ install-lib-drivers: install-lib
 	)
 
 install-sbin:
-	test -d $(SBINDIR) || $(INSTALL_DIR) $(DESTDIR)$(SBINDIR)
+	test -d $(DESTDIR)$(SBINDIR) || $(INSTALL_DIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL_PROGRAM) $(call locate,bumblebee) $(DESTDIR)$(SBINDIR)/bumblebee
 
 install-bin:
-	test -d $(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(BINDIR)
+	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(call locate,optirun) $(DESTDIR)$(BINDIR)/optirun
 	$(INSTALL_PROGRAM) $(call locate,bumblebee-bugreport) \
 		$(DESTDIR)$(BINDIR)/bumblebee-bugreport
 
 # install bash completion, example handler, perhaps default conf?
 install-data:
-	test -d $(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(datadir)
+	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(datadir)
 	$(INSTALL_DATA) $(call locate,bumblebee.handler) \
 		$(DESTDIR)$(datadir)/bumblebee.handler
 	$(INSTALL_DATA) $(call locate,optirun.bash_completion) \
