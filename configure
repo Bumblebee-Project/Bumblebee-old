@@ -414,8 +414,9 @@ done
 # if no directories have been set, use defaults
 : "${BINDIR:=$PREFIX/bin}"
 : "${SBINDIR:=$PREFIX/sbin}"
-LIBDIR="${LIBDIR-$PREFIX/lib}/bumblebee"
-CONFDIR="${CONFDIR-$PREFIX/etc}/bumblebee"
+# always append /bumblebee to the paths and fill in a default if no path is set
+LIBDIR="${LIBDIR:-$PREFIX/lib}/bumblebee"
+CONFDIR="${CONFDIR:-$PREFIX/etc}/bumblebee"
 
 if ! sanity_check; then
     echo "Install can't be performed with current variables"
