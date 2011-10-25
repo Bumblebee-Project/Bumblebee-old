@@ -22,7 +22,6 @@ echo_variables() {
     echo "SBINDIR='$SBINDIR'"
     echo "CONFDIR='$CONFDIR'"
     echo "LIBDIR='$LIBDIR'"
-    echo "INITDIR='$INITDIR'"
     echo "BUILDDIR='$BUILDDIR'"
     echo "XORG_MODULEPATH='$XORG_MODULEPATH'"
     echo "NV_LIBPATH='$NV_LIBPATH'"
@@ -50,7 +49,6 @@ BINDIR      := $(makefile_escape "$BINDIR")
 SBINDIR     := $(makefile_escape "$SBINDIR")
 CONFDIR     := $(makefile_escape "$CONFDIR")
 LIBDIR      := $(makefile_escape "$LIBDIR")
-INITDIR     := $(makefile_escape "$INITDIR")
 BUILDDIR    := $(makefile_escape "$BUILDDIR")
 XORG_MODULEPATH := $(makefile_escape "$XORG_MODULEPATH")
 NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
@@ -149,11 +147,6 @@ OPTIONS
     Install configuration files to directory DIR. A subdirectory named
     'bumblebee' will be created. Defaults to 'PREFIX/etc'.
 
-  --initdir=DIR
-  --initdir DIR
-    Install the handler file (used for starting/stopping the daemon) to
-    directory DIR. This option is required.
-
   --build-dir=DIR
   --build-dir DIR
     Use DIR instead of '.build' for storing files built by the installer. DIR
@@ -192,10 +185,6 @@ BINDIR=
 SBINDIR=
 LIBDIR=
 CONFDIR=
-
-# Unset this variable, should be checked, if not found in a list of known ones,
-# then warn about it and set it in the command line.
-INITDIR=
 
 # Variables for the nvidia binaries.
 # Unset these variables, if 'nvidia' is set, should throw an error.
@@ -343,14 +332,6 @@ while [ $# -gt 0 ]; do
             CONFDIR="$1"
         else
             CONFDIR="${1#--confdir=}"
-        fi
-        ;;
-      --initdir=*|--initdir)
-        if [[ $1 == --initdir ]]; then
-            shift
-            INITDIR="$1"
-        else
-            INITDIR="${1#--initdir=}"
         fi
         ;;
       --build-dir=*|--build-dir)
