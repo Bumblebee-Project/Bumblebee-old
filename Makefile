@@ -37,7 +37,8 @@ install-lib-drivers: install-lib
 	test -d $(DESTDIR)$(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
 # FIX: eliminated need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
-		$(INSTALL_DATA) $(call locate,drivers/$(driver).options) \
+		test ! -f $(srcdir)/drivers/$(driver).options || \
+			$(INSTALL_DATA) $(call locate,drivers/$(driver).options) \
 			$(DESTDIR)$(LIBDIR)/drivers/$(driver).options \
 	)
 
