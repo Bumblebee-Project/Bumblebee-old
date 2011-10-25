@@ -28,7 +28,6 @@ echo_variables() {
     echo "NV_LIBPATH='$NV_LIBPATH'"
     echo "NV_LIB32PATH='$NV_LIB32PATH'"
     echo "DRIVERS='$DRIVERS'"
-    echo "NVIDIABUSID='$NVIDIABUSID'"
 }
 
 # warning: do not use $, #, *, ?, [, ] or whitespace in paths
@@ -58,7 +57,6 @@ NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
 NV_LIB32PATH    := $(makefile_escape "$NV_LIB32PATH")
 
 DRIVERS     := $(makefile_escape "$DRIVERS")
-NVIDIABUSID := $(makefile_escape "$NVIDIABUSID")
 CFG
 }
 
@@ -90,13 +88,6 @@ validate_module_path() {
 # an error message and exit.
 sanity_check() {
 
-    # Check for NVIDIABUSID to be set, otherwhise warn about it, not fatal.
-    if [ -z "$NVIDIABUSID" ]; then
-        echo
-        echo "Could not determine the PCI Bus ID of your Nvidia card."
-        echo "You will need to set it manually in the configuration file"
-    fi
-
     # Check for XORG_MODULEPATH to be set valid if the nvidia driver is set
     if ! validate_module_path ; then
         echo
@@ -118,16 +109,6 @@ sanity_check() {
 create_conf_file() {
     echo_variables > '.configure'
     create_makefile_cfg
-}
-
-# Detect PCI Bus ID of the nVidia card
-# -d 10de: shows devices from nvidia only
-# 03 is the Display controller class
-# 0300 is a VGA compatible controller
-# 0302 is a 3D controller
-# (information from /usr/share/misc/pci.ids and the manpage of lspci)
-detect_busid(){
-    NVIDIABUSID=$(lspci -d 10de: -n | grep '030[02]:' | cut -d' ' -f1 | tr . :)
 }
 
 # Help message with information on usage
@@ -221,10 +202,6 @@ INITDIR=
 XORG_MODULEPATH=
 NV_LIBPATH=
 NV_LIB32PATH=
-
-# If not set, the installation can continue but won't be funtional until the
-# PCI bus ID of the Nvidia card is set. Warn about that.
-NVIDIABUSID=
 
 # available drivers
 AVAILABLE_DRIVERS=('nvidia' 'nouveau')
