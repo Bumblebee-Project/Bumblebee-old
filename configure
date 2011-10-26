@@ -22,6 +22,7 @@ echo_variables() {
     echo "SBINDIR='$SBINDIR'"
     echo "CONFDIR='$CONFDIR'"
     echo "LIBDIR='$LIBDIR'"
+    echo "DATADIR='$DATADIR'"
     echo "BUILDDIR='$BUILDDIR'"
     echo "XORG_MODULEPATH='$XORG_MODULEPATH'"
     echo "NV_LIBPATH='$NV_LIBPATH'"
@@ -49,6 +50,7 @@ BINDIR      := $(makefile_escape "$BINDIR")
 SBINDIR     := $(makefile_escape "$SBINDIR")
 CONFDIR     := $(makefile_escape "$CONFDIR")
 LIBDIR      := $(makefile_escape "$LIBDIR")
+DATADIR      := $(makefile_escape "$DATADIR")
 BUILDDIR    := $(makefile_escape "$BUILDDIR")
 XORG_MODULEPATH := $(makefile_escape "$XORG_MODULEPATH")
 NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
@@ -142,6 +144,11 @@ OPTIONS
     Install library files to directory DIR. A subdirectory named 'bumblebee'
     will be created. Defaults to 'PREFIX/lib'.
 
+  --datadir=DIR
+  --datadir DIR
+    Install read-only architecture-independent data to directory DIR. A
+    subdirectory named 'bumblebee' will be created. Defaults to 'PREFIX/share'.
+
   --confdir=DIR
   --confdir DIR
     Install configuration files to directory DIR. A subdirectory named
@@ -184,6 +191,7 @@ PREFIX='/usr/local'
 BINDIR=
 SBINDIR=
 LIBDIR=
+DATADIR=
 CONFDIR=
 
 # Variables for the nvidia binaries.
@@ -321,6 +329,14 @@ while [ $# -gt 0 ]; do
             LIBDIR="${1#--libdir=}"
         fi
         ;;
+      --datadir=*|--datadir)
+        if [[ $1 == --datadir ]]; then
+            shift
+            DATADIR="$1"
+        else
+            DATADIR="${1#--datadir=}"
+        fi
+        ;;
       --confdir=*|--confdir)
         if [[ $1 == --confdir ]]; then
             shift
@@ -363,6 +379,7 @@ done
 : "${SBINDIR:=$PREFIX/sbin}"
 # always append /bumblebee to the paths and fill in a default if no path is set
 LIBDIR="${LIBDIR:-$PREFIX/lib}/bumblebee"
+DATADIR="${LIBDIR:-$PREFIX/share}/bumblebee"
 CONFDIR="${CONFDIR:-$PREFIX/etc}/bumblebee"
 
 if ! sanity_check; then
