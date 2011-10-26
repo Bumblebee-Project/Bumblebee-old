@@ -217,5 +217,7 @@ for junk_dirs in \
     [ -d "$junk_dirs" ] && rm -rvf "$junk_dirs"
 done
 
-rm -f /etc/bumblebee 2>/dev/nul
+# remove /etc/bumblebee only if it's a file containing the version
+[ -f /etc/bumblebee ] && rm -f /etc/bumblebee
+
 echo "Done"
