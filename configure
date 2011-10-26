@@ -214,11 +214,6 @@ if [ -z "$GIT_HASH" ]; then
 fi
 BUMBLEBEE_VERSION="$(cat VERSION)${GIT_HASH:+~git$GIT_HASH}"
 
-
-# Try to automatically check needed variables, then override them with command
-# line arguments.
-detect_busid
-
 # Big fat command line parser.
 while [ $# -gt 0 ]; do
     case "$1" in
