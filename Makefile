@@ -54,7 +54,7 @@ install-bin:
 
 # install bash completion, example handler, perhaps default conf?
 install-data:
-	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(DATADIR)
+	test -d $(DESTDIR)$(DATADIR) || $(INSTALL_DIR) $(DESTDIR)$(DATADIR)
 	$(INSTALL_DATA) $(call locate,bumblebee.handler) \
 		$(DESTDIR)$(DATADIR)/bumblebee.handler
 	$(INSTALL_DATA) $(call locate,optirun.bash_completion) \
