@@ -4,7 +4,7 @@ srcdir = install-files
 include config.mk
 
 export BUMBLEBEE_VERSION BINDIR SBINDIR CONFDIR LIBDIR BUILDDIR \
-	DRIVER XORG_MODULEPATH NV_LIBPATH NV_LIB32PATH
+	DRIVER XORG_MODULEPATH NV_LIBPATH NV_LIB32PATH DATADIR
 
 INSTALL = install
 INSTALL_DIR = $(INSTALL) -m 755 -d
@@ -54,13 +54,14 @@ install-bin:
 
 # install bash completion, example handler, perhaps default conf?
 install-data:
-	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(datadir)
+	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(DATADIR)
 	$(INSTALL_DATA) $(call locate,bumblebee.handler) \
-		$(DESTDIR)$(datadir)/bumblebee.handler
+		$(DESTDIR)$(DATADIR)/bumblebee.handler
 	$(INSTALL_DATA) $(call locate,optirun.bash_completion) \
-		$(DESTDIR)$(datadir)/optirun.bash_completion
+		$(DESTDIR)$(DATADIR)/optirun.bash_completion
 
-install: install-conf install-lib install-lib-drivers install-sbin install-bin
+install: install-conf install-lib install-lib-drivers install-sbin \
+	install-bin install-data
 
 .PHONY: build install install-conf install-lib install-lib-drivers \
 	install-sbin install-bin install-data
