@@ -379,7 +379,7 @@ done
 : "${SBINDIR:=$PREFIX/sbin}"
 # always append /bumblebee to the paths and fill in a default if no path is set
 LIBDIR="${LIBDIR:-$PREFIX/lib}/bumblebee"
-DATADIR="${LIBDIR:-$PREFIX/share}/bumblebee"
+DATADIR="${DATADIR:-$PREFIX/share}/bumblebee"
 CONFDIR="${CONFDIR:-$PREFIX/etc}/bumblebee"
 
 if ! sanity_check; then
