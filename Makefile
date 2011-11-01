@@ -1,4 +1,5 @@
 
+# name of the sources directory, *not* path
 srcdir = install-files
 
 include config.mk
@@ -12,7 +13,7 @@ INSTALL_DATA = $(INSTALL) -m 644
 INSTALL_PROGRAM = $(INSTALL) -m 755
 
 # XXX input with spaces won't work
-locate = $(firstword $(wildcard $(BUILDDIR)/$(1) $(srcdir)/$(1)))
+locate = $(firstword $(wildcard $(BUILDDIR)/$(srcdir)/$(1) $(srcdir)/$(1)))
 
 build:
 	bash -c '. .configure && . stages/buildfiles'
