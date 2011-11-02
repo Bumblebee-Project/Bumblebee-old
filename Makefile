@@ -75,7 +75,7 @@ clean:
 	rm -fvr $(BUILDDIR)
 
 distclean: clean
-	rm -vf config.mk
+	rm -vf config.mk .configure
 
 .PHONY: build install install-conf install-lib install-lib-drivers \
 	install-sbin install-bin install-data clean distclean configured

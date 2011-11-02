@@ -97,7 +97,7 @@ sanity_check() {
         echo
         echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
         echo "--xorg-module-path option to a valid value or disable nvidia driver"
-        exit 1
+        echo
     fi
 
     # XXX: Removed initdir check, passed along to post-installation steps
@@ -182,7 +182,8 @@ OPTIONS
   --user-group=GROUP
   --user-group GROUP
     The group that is allowed to use Bumblebee after installation, it sets the
-    BUMBLEBEE_GROUP variable in CONFDIR/bumblebee/bumblebee.conf
+    BUMBLEBEE_GROUP variable in CONFDIR/bumblebee/bumblebee.conf. Defaults to
+    'bumblebee'.
 
   --help
     Show this help message
