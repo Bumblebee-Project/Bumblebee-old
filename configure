@@ -27,7 +27,7 @@ echo_variables() {
     echo "XORG_MODULEPATH='$XORG_MODULEPATH'"
     echo "NV_LIBPATH='$NV_LIBPATH'"
     echo "NV_LIB32PATH='$NV_LIB32PATH'"
-    echo "DRIVERS='$DRIVERS'"
+    echo "DRIVERS='${DRIVERS[*]}'"
     echo "DRIVER='$DRIVER'"
     echo "BUMBLEBEE_GROUP='$BUMBLEBEE_GROUP'"
 }
@@ -58,7 +58,7 @@ XORG_MODULEPATH := $(makefile_escape "$XORG_MODULEPATH")
 NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
 NV_LIB32PATH    := $(makefile_escape "$NV_LIB32PATH")
 
-DRIVERS     := $(makefile_escape "$DRIVERS")
+DRIVERS     := $(makefile_escape "${DRIVERS[*]}")
 DRIVER      := $(makefile_escape "$DRIVER")
 BUMBLEBEE_GROUP := $(makefile_escape "$BUMBLEBEE_GROUP")
 CFG
