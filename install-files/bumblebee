@@ -322,15 +322,6 @@ start_daemon() {
         fi
         ;;
       *)
-        local loaded_driver
-        if loaded_driver="$(get_loaded_driver)"; then
-            log_daemon_msg "Unloading driver '$loaded_driver' on start..."
-            if log_daemon_msg "$(unload_graphics_driver 2>&1)"; then
-                loaded_driver=
-            else
-                log_daemon_msg "The driver could not be unloaded on start."
-            fi
-        fi
         log_daemon_msg "Power management is disabled, not disabling card on start."
         ;;
     esac
