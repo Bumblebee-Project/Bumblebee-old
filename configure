@@ -97,7 +97,7 @@ sanity_check() {
         echo
         echo "XORG_MODULEPATH is not set and nvidia driver is enabled. Please set"
         echo "--xorg-module-path option to a valid value or disable nvidia driver"
-        exit 1
+        echo
     fi
 
     # XXX: Removed initdir check, passed along to post-installation steps
