@@ -18,6 +18,7 @@ locate = $(firstword $(wildcard $(BUILDDIR)/$(srcdir)/$(1) $(srcdir)/$(1)))
 
 build:
 	bash -c '. .configure && . stages/buildfiles'
+	@echo "Configured files for installation"
 
 install-conf:
 	test -d $(DESTDIR)$(CONFDIR) || $(INSTALL_DIR) $(DESTDIR)$(CONFDIR)
