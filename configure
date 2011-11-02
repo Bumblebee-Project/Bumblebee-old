@@ -28,6 +28,7 @@ echo_variables() {
     echo "NV_LIBPATH='$NV_LIBPATH'"
     echo "NV_LIB32PATH='$NV_LIB32PATH'"
     echo "DRIVERS='$DRIVERS'"
+    echo "DRIVER='$DRIVER'"
 }
 
 # warning: do not use $, #, *, ?, [, ] or whitespace in paths
@@ -57,6 +58,7 @@ NV_LIBPATH  := $(makefile_escape "$NV_LIBPATH")
 NV_LIB32PATH    := $(makefile_escape "$NV_LIB32PATH")
 
 DRIVERS     := $(makefile_escape "$DRIVERS")
+DRIVER      := $(makefile_escape "$DRIVER")
 CFG
 }
 
