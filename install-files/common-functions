@@ -170,8 +170,12 @@ get_loaded_driver() {
 
     # display the driver for the nvidia card if any. Explicitly set the return
     # value as it may be values higher than 1
-    lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2 &&
-        return 0 || return 1
+    local driver="$(lspci -s "$NVIDIA_BUSID" -vmk | grep '^Driver:' | cut -d$'\t' -f2)"
+    if [ -n "$driver" ]; then
+        echo "$driver"
+        return 0
+    fi
+    return 1
 }
 
 # Load the requested driver.
