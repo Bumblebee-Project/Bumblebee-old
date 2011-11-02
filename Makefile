@@ -66,5 +66,11 @@ install-data:
 install: install-conf install-lib install-lib-drivers install-sbin \
 	install-bin install-data
 
+clean:
+	rm -fvr $(BUILDDIR)
+
+distclean: clean
+	rm -vf config.mk
+
 .PHONY: build install install-conf install-lib install-lib-drivers \
-	install-sbin install-bin install-data
+	install-sbin install-bin install-data clean distclean
