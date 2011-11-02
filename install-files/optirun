@@ -172,6 +172,26 @@ show_msg() {
     fi
 }
 
+# Sends a "I'm alive and want to use X" message to the daemon. Return values:
+# 0 - the message was succesfully sent
+# 1 - the message could not be sent because the FIFO was unavailable
+needs_x() {
+    # XXX: a better way to check if the daemon is running
+    if [ ! -e "$BUMBLEBEE_FIFO" ]; then
+        msg "The Bumblebee daemon has not been started. To start the daemon, run:"
+        # XXX: distro-dependant command
+        msg "    sudo /etc/init.d/bumblebee start"
+        return 1
+    fi
+    if [ ! -w "$BUMBLEBEE_FIFO" ]; then
+        msg "You have no permission to start the Bumblebee X server. Add"
+        msg "yourself to the '$BUMBLEBEE_GROUP' group."
+        return 1
+    fi
+
+    echo start > "$BUMBLEBEE_FIFO"
+}
+
 # Ensures that the X server can be used. Return values:
 # 0 - the X server is available
 # 1 - the X server is unavailable
@@ -196,25 +216,15 @@ optirun_ready() {
 
     xserver_available "$PIDFILE" "$X_DAEMON" "$X_DAEMON_ARGS" > /dev/null
     case $? in
-      0) # X is started and available
+      [05]) # started or started, but not ready
+        # always send the start command even if the X server is available, this
+        # makes the daemon aware that a client still wants to use a X server
+        # even if a shutdown process was initiated
+        needs_x || return 1
         return 0
         ;;
-      5) # started but not ready
-        ;;
       [12]) # Not started yet
-        # XXX: a better way to check if the daemon is running
-        if [ ! -e "$BUMBLEBEE_FIFO" ]; then
-            msg "The Bumblebee daemon has not been started. To start the daemon, run:"
-            # XXX: distro-dependant command
-            msg "    sudo /etc/init.d/bumblebee start"
-            return 1
-        fi
-        if [ ! -w "$BUMBLEBEE_FIFO" ]; then
-            msg "You have no permission to start the Bumblebee X server. Add"
-            msg "yourself to the '$BUMBLEBEE_GROUP' group."
-            return 1
-        fi
-        echo start > "$BUMBLEBEE_FIFO"
+        needs_x || return 1
         ;;
       3) # xserver / driver crash
         return 1
