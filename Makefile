@@ -20,7 +20,12 @@ build:
 	bash -c '. .configure && . stages/buildfiles'
 	@echo "Configured files for installation"
 
-install-conf:
+# this is not bullet-proof, but a hint for the user
+configured:
+	echo "Checking if files have been configured (whether make has been run)" \
+		&& [ -d $(BUILDDIR) ]
+
+install-conf: configured
 	test -d $(DESTDIR)$(CONFDIR) || $(INSTALL_DIR) $(DESTDIR)$(CONFDIR)
 	$(INSTALL_DATA) $(call locate,bumblebee.conf) \
 		$(DESTDIR)$(CONFDIR)/bumblebee.conf
@@ -29,14 +34,14 @@ install-conf:
 			$(DESTDIR)$(CONFDIR)/xorg.conf.$(driver) \
 	)
 
-install-lib:
+install-lib: configured
 	test -d $(DESTDIR)$(LIBDIR) || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)
 	$(INSTALL_DATA) $(call locate,common-paths) \
 		$(DESTDIR)$(LIBDIR)/common-paths
 	$(INSTALL_DATA) $(call locate,common-functions) \
 		$(DESTDIR)$(LIBDIR)/common-functions
 
-install-lib-drivers: install-lib
+install-lib-drivers: configured install-lib
 	test -d $(DESTDIR)$(LIBDIR)/drivers || $(INSTALL_DIR) $(DESTDIR)$(LIBDIR)/drivers
 # FIX: eliminated need to pass distro-dependent settings
 	$(foreach driver,$(DRIVERS),\
@@ -45,18 +50,18 @@ install-lib-drivers: install-lib
 			$(DESTDIR)$(LIBDIR)/drivers/$(driver).options \
 	)
 
-install-sbin:
+install-sbin: configured
 	test -d $(DESTDIR)$(SBINDIR) || $(INSTALL_DIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL_PROGRAM) $(call locate,bumblebee) $(DESTDIR)$(SBINDIR)/bumblebee
 
-install-bin:
+install-bin: configured
 	test -d $(DESTDIR)$(BINDIR) || $(INSTALL_DIR) $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(call locate,optirun) $(DESTDIR)$(BINDIR)/optirun
 	$(INSTALL_PROGRAM) $(call locate,bumblebee-bugreport) \
 		$(DESTDIR)$(BINDIR)/bumblebee-bugreport
 
 # install bash completion, example handler, perhaps default conf?
-install-data:
+install-data: configured
 	test -d $(DESTDIR)$(DATADIR) || $(INSTALL_DIR) $(DESTDIR)$(DATADIR)
 	$(INSTALL_DATA) $(call locate,bumblebee.handler) \
 		$(DESTDIR)$(DATADIR)/bumblebee.handler
@@ -66,5 +71,11 @@ install-data:
 install: install-conf install-lib install-lib-drivers install-sbin \
 	install-bin install-data
 
+clean:
+	rm -fvr $(BUILDDIR)
+
+distclean: clean
+	rm -vf config.mk
+
 .PHONY: build install install-conf install-lib install-lib-drivers \
-	install-sbin install-bin install-data
+	install-sbin install-bin install-data clean distclean configured
