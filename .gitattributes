@@ -1,1 +1,2 @@
 stages/setvars export-subst
+configure export-subst
