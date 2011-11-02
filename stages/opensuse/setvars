@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+#
+
+# usermod options
+SUDO_OPTS="-s"
+
+# usermod options
+USERMOD_OPTS="-G"
+
+# options for the INIT INFO block of the bumblebee.handler
+REQUIRED_START="\$remote_fs"
+REQUIRED_STOP="\$remote_fs"
+DEFAULT_START="3 5"
+DEFAULT_STOP="0 1 2 6"
+
+# set the module path (only used by xorg.conf.nvidia)
+if $IS_64 ; then
+    XORG_MODULEPATH=/usr/lib64/nvidia/xorg/modules/updates,/usr/lib64/xorg/modules/updates,/usr/lib64/xorg/modules
+else
+    XORG_MODULEPATH=/usr/lib/nvidia/xorg/modules/updates,/usr/lib/xorg/modules/updates,/usr/lib/xorg/modules
+fi
+
+# set the service remove command
+CMD_SVC_REMOVE='chkconfig bumblebee off'

@@ -1,7 +1,7 @@
 #!/bin/bash
+
 # Determine whether it is a 32-bit (i686) or 64-bit (x86_64) machine
 ARCH=$(uname -m)
-LSPCI=$(which lspci)
 
 IS_64=false
 [[ $ARCH == x86_64 ]] && IS_64=true
@@ -34,6 +34,15 @@ AVAILABLE_DRIVERS=('nvidia' 'nouveau')
 DRIVERS=(nvidia)
 # the graphics driver to be used, defaults to the last driver in $DRIVERS
 DRIVER=${DRIVERS[${#DRIVERS[@]}-1]}
+
+# the bumblebee group
+BUMBLEBEE_GROUP=bumblebee
+
+# sudo options (options for Ubuntu / Arch Linux as default)
+SUDO_OPTS=
+
+# usermod options (options for Ubuntu / Arch Linux as default)
+USERMOD_OPTS="-a -G"
 
 # The version to be installed
 # Try to determine the hash from the git repo

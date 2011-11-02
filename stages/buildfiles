@@ -94,6 +94,10 @@ subst_var CONFDIR
 
 set_file install-files/bumblebee.handler
 def_var BIN "$SBINDIR/bumblebee"
+[[ -n "$REQUIRED_START" ]] && sreplace '# Required-Start:.*' '# Required-Start:    %s' "$REQUIRED_START"
+[[ -n "$REQUIRED_STOP" ]]  && sreplace '# Required-Stop:.*'  '# Required-Stop:     %s' "$REQUIRED_STOP"
+[[ -n "$DEFAULT_START" ]]  && sreplace '# Default-Start:.*'  '# Default-Start:     %s' "$DEFAULT_START"
+[[ -n "$DEFAULT_STOP" ]]   && sreplace '# Default-Stop:.*'   '# Default-Stop:      %s' "$DEFAULT_STOP"
 
 set_file install-files/optirun
 def_var BUMBLEBEE_LIBDIR "$LIBDIR"
@@ -104,12 +108,15 @@ def_var BUMBLEBEE_LIBDIR "$LIBDIR"
 set_file install-files/common-paths
 def_var BUMBLEBEE_CONFDIR "$CONFDIR"
 def_var 'OPTIRUNS[0]' "$BINDIR/optirun"
+[[ -n "$USERMOD_OPTS" ]] && def_var USERMOD_OPTS "$USERMOD_OPTS"
+[[ -n "$SUDO_OPTS" ]] && def_var SUDO_OPTS "$SUDO_OPTS"
 
 set_file install-files/common-functions
 def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
 
 set_file install-files/bumblebee.conf
 def_var DRIVER "$DRIVER"
+def_var BUMBLEBEE_GROUP "$BUMBLEBEE_GROUP"
 
 for driver in "${DRIVERS[@]}"; do
     # This change is only meaningful to the nvidia driver

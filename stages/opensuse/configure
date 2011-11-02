@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+#
+if [[ ! -n "$DESTDIR" ]] ; then
+    #
+    # Start the bumblebee service on boot
+    #
+    [[ "$INITDIR" == "/etc/init.d" ]] && chkconfig bumblebee on
+
+    #
+    # Start the bumblebee daemon
+    #
+    "$INITDIR"/bumblebee start || true
+fi

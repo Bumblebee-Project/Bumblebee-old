@@ -1,9 +1,11 @@
 #!/bin/bash
 
+[[ -n "$SUDO_OPTS" ]] && SUDO_CMD="sudo $SUDO_OPTS" || SUDO_CMD="sudo" 
+
 echo
 echo "===== Installation finished ====="
 echo "You need to add users which are allowed to use Bumblebee to the group:"
-echo "    sudo usermod -a -G bumblebee username-here"
+echo "    $SUDO_CMD usermod $USERMOD_OPTS $BUMBLEBEE_GROUP username-here"
 #echo "After that, please re-login to apply group settings and library paths."
 echo "To ensure that drivers and are loaded correctly, you need to reboot."
 echo

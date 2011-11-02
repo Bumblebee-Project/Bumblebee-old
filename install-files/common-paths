@@ -3,6 +3,12 @@
 # Some common configuration files
 BUMBLEBEE_CONFDIR=/etc/bumblebee
 
+# sudo options
+SUDO_OPTS=
+
+# usermod options
+USERMOD_OPTS="-a -G"
+
 # Full paths to possible optirun binaries
 OPTIRUNS=()
 OPTIRUNS[0]=$(which optirun)

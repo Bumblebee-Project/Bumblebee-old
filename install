@@ -66,14 +66,14 @@ install_step() {
 # access the commandline options, therefore do not use install_step
 source stages/setvars
 
-install_step checkprivileges    ""  precheck
-
-install_step builddir           ""  build
-
 install_step determinedistro    "" "precheck build install postconfig"
 
 # optional distro-specific variables, like paths
 install_step "$DISTRO/setvars"  "" "precheck build install postconfig"
+
+install_step checkprivileges    ""  precheck
+
+install_step builddir           ""  build
 
 install_step detectoldversion   ""  precheck
 

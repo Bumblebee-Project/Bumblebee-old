@@ -50,6 +50,11 @@ dpkg_installed() {
     [[ $(dpkg-query -W -f '${Status}' "$1" 2>/dev/null) == install* ]]
 }
 
+# Test if a rpm package is installed
+rpm_installed() {
+    [[ -n $(rpm -qa $1) ]]
+}
+
 # Distro-specific cleanups
 if grep -iqE 'ubuntu|linux mint|backtrack linux 5' /etc/issue; then
     echo "Detected distributon: Ubuntu-based"
@@ -104,6 +109,71 @@ elif grep -iq fedora /etc/issue; then
     echo "Detected distribution: Fedora-based"
 elif grep -iq opensuse /etc/issue; then
     echo "Detected distribution: OpenSUSE-based"
+
+    # remove start up
+    chkconfig bumblebee off 
+
+    echo "Removing VirtualGL package"
+    echo
+    zypper --no-refresh --non-interactive remove VirtualGL
+
+    if [ -f /usr/bin/nvidia-uninstall ] ; then
+        echo "Uninstalling nVidia package."
+
+        if [ -d /usr/X11R6/nvidia ] ; then
+            #
+            # Cleanup 3D hack for the nVidia package part 1
+            #
+            ARCH=`uname -m`
+            if [ "$ARCH" == "x64_64" ] ; then
+                rm -f /usr/lib/libGL.so.*
+                rm -f /usr/lib64/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib64/libnvidia-wfb.* /usr/X11R6/nvidia/lib64/xorg/modules 
+                pushd /usr/X11R6/nvidia/lib64/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            else
+                rm -f /usr/lib/libGL.so.*
+                mv -f /usr/X11R6/nvidia/lib/libnvidia-wfb.* /usr/X11R6/nvidia/lib/xorg/modules
+                pushd /usr/X11R6/nvidia/lib/xorg/modules > /dev/null
+                ln -sf libnvidia-wfb.so.1 libwfb.so
+                popd > /dev/null
+            fi
+        fi
+
+        #
+        # Uninstall nVidia package
+        #
+        /usr/bin/nvidia-uninstall -s
+
+        if [ -d /usr/X11R6/nvidia ] ; then
+            #
+            # Cleanup 3D hack part 2
+            #
+            rm -rf /usr/X11R6/lib-nvidia
+            rm -rf /usr/X11R6/lib64-nvidia
+            rm -rf /usr/lib/xorg-nvidia
+            rm -rf /usr/lib64/xorg-nvidia
+
+            rm -rf /usr/X11R6/nvidia
+        fi
+    fi
+
+    if rpm_installed bumblebee; then
+        echo "Old Bumblebee package installation detected, removing..."
+        if ! rpm -e bumblebee; then
+            echo "The old Bumblebee package could not be removed."
+            echo "Installation aborted."
+            exit 1
+        fi
+    fi
+
+    echo "Removing junkfiles if any..."
+    for junk in \
+        /etc/bash_completion.d/optirun*
+    do
+        [ -L "$junk" -o -f "$junk" ] && rm -vf "$junk"
+    done
 elif grep -iq 'arch linux' /etc/issue; then
     echo "Detected distribution: Arch Linux-based"
 elif grep -iq debian /etc/issue; then
@@ -147,5 +217,7 @@ for junk_dirs in \
     [ -d "$junk_dirs" ] && rm -rvf "$junk_dirs"
 done
 
-rm -f /etc/bumblebee
+# remove /etc/bumblebee only if it's a file containing the version
+[ -f /etc/bumblebee ] && rm -f /etc/bumblebee
+
 echo "Done"
