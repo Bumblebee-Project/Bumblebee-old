@@ -5,7 +5,8 @@ srcdir = install-files
 include config.mk
 
 export BUMBLEBEE_VERSION BINDIR SBINDIR CONFDIR LIBDIR BUILDDIR \
-	DRIVER XORG_MODULEPATH NV_LIBPATH NV_LIB32PATH DATADIR
+	DRIVERS DRIVER XORG_MODULEPATH NV_LIBPATH NV_LIB32PATH DATADIR \
+	BUMBLEBEE_GROUP
 
 INSTALL = install
 INSTALL_DIR = $(INSTALL) -m 755 -d
@@ -17,6 +18,7 @@ locate = $(firstword $(wildcard $(BUILDDIR)/$(srcdir)/$(1) $(srcdir)/$(1)))
 
 build:
 	bash -c '. .configure && . stages/buildfiles'
+	@echo "Configured files for installation"
 
 install-conf:
 	test -d $(DESTDIR)$(CONFDIR) || $(INSTALL_DIR) $(DESTDIR)$(CONFDIR)
