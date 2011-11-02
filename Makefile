@@ -31,7 +31,7 @@ install-conf: configured
 		$(DESTDIR)$(CONFDIR)/bumblebee.conf
 	$(foreach driver,$(DRIVERS),\
 		$(INSTALL_DATA) $(call locate,xorg.conf.$(driver)) \
-			$(DESTDIR)$(CONFDIR)/xorg.conf.$(driver) \
+			$(DESTDIR)$(CONFDIR)/xorg.conf.$(driver); \
 	)
 
 install-lib: configured
@@ -47,7 +47,7 @@ install-lib-drivers: configured install-lib
 	$(foreach driver,$(DRIVERS),\
 		test ! -f $(srcdir)/drivers/$(driver).options || \
 			$(INSTALL_DATA) $(call locate,drivers/$(driver).options) \
-			$(DESTDIR)$(LIBDIR)/drivers/$(driver).options \
+			$(DESTDIR)$(LIBDIR)/drivers/$(driver).options; \
 	)
 
 install-sbin: configured
