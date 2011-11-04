@@ -1,0 +1,63 @@
+-----------------------------------------
+Release version 2.4.1 (stable) changelog
+-----------------------------------------
+
+    - Added new bugreport tool (was forgotten in the previous release).
+    - Fix an error in cleanup script.
+
+-----------------------------------------
+Release version 2.4.0 (stable) changelog
+-----------------------------------------
+
+    - Added nouveau support backend:
+        * Removed nouveau blacklist
+        * Install both drivers, with nvidia as default.
+    - Added ACPI framework (backend support for ACPI).
+
+-----------------------------------------
+Release version 2.3.2 (stable) changelog
+-----------------------------------------
+
+    - Bugfix: Do not fail on invalid alternative links in
+      "stages/ubuntu/configure"
+
+-----------------------------------------
+Release version 2.3.1 (stable) changelog
+-----------------------------------------
+
+    - Fixed bug preventing Ubuntu package to be installed (GH-#34)
+    - Workaround to DFP only laptops not starting bumblebee X server (GH-#24)
+
+-----------------------------------------
+Release version 2.3.0 (stable) changelog
+-----------------------------------------
+
+    - Complete rewrite of Bumblebee:
+        - Automatically detect the right settings without bumblebee-configuration
+        - Offline configuration is possible now which speeds up configuring
+        - Temporary removed power management as it may make the system unstable.
+          See https://github.com/Bumblebee-Project/Bumblebee/wiki/ACPI-Removed
+        - Drop sudo and make a daemon start the X server on request
+        - Automatically detect whether 32-bit or 64-bit libraries are needed,
+          dropping the need for the -32 option on optirun
+        - Add --help options to install, optirun (client) and bumblebee (daemon)
+        - Fully unattended installer available using the --unattended option
+        - Bumblebee can now be packaged more easily using installer options
+        - New uninstaller which just stops the bumblebee daemon and removes its
+          own files. Dependencies are not removed.
+        - Trimmed xorg.conf allowing the system to autodetect settings
+        - Separate cleanup script which takes care of fixing GL and removing
+          versions prior to 2.3
+        - Cleaned up the code, syntax errors do not occur anymore on exceptions
+        - Removed VGL_READBACK option as this setting should not be changed. It
+          can still be set as environment variable if needed
+        - Removed VGL_LOG as it is rarely needed to change. It's also more
+          flexible to change it using the --debug-log option of optirun
+        - Errors are logged to /var/log/bumblebee.log
+        - Better error handling if X fails to start or the driver(s) fail to
+          (un)load
+        - Fallback setting to configure starting
+        - Improved bugreport tool
+        - Improved X security by enabling host-based authentication
+        - Unified, distro-independent files for initscript (a.k.a. handler) and
+          optirun

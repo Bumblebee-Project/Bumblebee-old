@@ -337,7 +337,9 @@ start_daemon() {
         # space-separated list of optirun instances
         pids=$(pidof -x "${OPTIRUNS[@]}")
 
-        if [[ ${command:0:5} == start ]]; then
+        # check if the command contains 'start', this allows for the start
+        # notification to work even if a stop/ping command was received before
+        if [[ "${command/start/}" != "${command}" ]]; then
             # only start if there are actually clients running
             if [ -n "$pids" ]; then
                 log_daemon_msg "Optirun start request received."

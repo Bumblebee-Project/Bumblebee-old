@@ -1,5 +1,6 @@
 Section "ServerLayout"
     Identifier "Layout0"
+    Screen "Screen0"
     Option "AutoAddDevices" "false"
 EndSection
 
@@ -8,11 +9,16 @@ Section "Files"
 EndSection
 
 Section "Device"
-    Identifier "Device1"
+    Identifier "Device0"
     Driver "nvidia"
     VendorName "NVIDIA Corporation"
     BusID ""
     Option "NoLogo" "true"
     Option "UseEDID" "false"
     Option "ConnectedMonitor" "DFP"
+EndSection
+
+Section "Screen"
+    Identifier     "Screen0"
+    Device         "Device0"
 EndSection

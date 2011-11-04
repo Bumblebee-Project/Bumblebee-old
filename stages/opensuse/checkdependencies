@@ -1,0 +1,202 @@
+#!/bin/bash
+#
+#
+conflictingpackages=()
+
+dependencies=('VirtualGL')
+if $IS_64 ; then
+    dependencies[ ${#dependencies[@]} ]=VirtualGL-32bit
+fi
+
+case "$DRIVER" in
+  nvidia)
+    dependencies[ ${#dependencies[@]} ]=nvidia-kmp
+    dependencies[ ${#dependencies[@]} ]=x11-video-nvidia
+	if $IS_64 ; then
+		dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
+	fi
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    ;;
+  nouveau)
+    dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    ;;
+esac
+
+conflictingfiles=('/usr/bin/nvidia-uninstall')
+
+
+
+#
+# vars
+#
+failed=false
+suse_version=$(cat /etc/SuSE-release | grep VERSION | cut -f3 -d" ")
+kernel_type=$(uname -r | cut -f3 -d"-")
+
+#
+# funcs
+#
+pkg_is_installed() {
+    [[ -n $(rpm -qa $1*) ]]
+}
+
+#
+# main
+#
+
+#
+# Check for conflicting files
+#
+conflicts=()
+for filename in "${conflictingfiles[@]}" ; do
+    if [ -f "$filename" ] ; then
+        conflicts[${#conflicts[@]}]="$filename"
+    fi
+done
+
+if [ ${#conflicts[@]} -gt 0 ] ; then
+    #
+    # Bumblebee is unlikely to work with these conflicting files
+    #
+    echo "Conflicting files ${conflicts[*]}"
+
+    echo "These files need to be removed before installing this version."
+    echo "Please remove them by running:"
+
+    for conflict in "${conflicts[@]}" ; do
+        if [[ "$conflict" == "/usr/bin/nvidia-uninstall" ]] ; then
+            echo "    sudo /usr/bin/nvidia-uninstall -s"
+            echo "And reboot the computer."
+        fi
+    done
+
+    exit 4
+fi
+
+#
+# Check for conflicting packages
+#
+conflicts=()
+for package in "${conflictingpackages[@]}" ; do
+    if pkg_is_installed "$package" ; then
+        conflicts[${#conflicts[@]}]="$package"
+    fi
+done
+
+if [ ${#conflicts[@]} -gt 0 ] ; then
+    #
+    # Bumblebee is unlikely to work with these conflicting packages
+    #
+    echo "Conflicting packages: ${conflicts[*]}"
+
+    echo "These package need to be removed before installing this version."
+    echo "Please remove them by running:"
+
+    for conflict in "${conflicts[@]}" ; do
+        if [[ "$conflict" == "nvidia-gfxG02-kmp" ]] ; then
+            echo "    sudo rpm -e nvidia-gfxG02-kmp-$kernel_type"
+            echo
+            echo "    sudo zypper rr \"nVidia Graphics Drivers\""
+            echo
+            echo "And reboot the computer."
+        else
+            echo "    sudo rpm -e $conflict"
+        fi
+    done
+
+    exit 4
+fi
+
+#
+# Check the dependencies
+#
+missing_dependencies=()
+for package in "${dependencies[@]}" ; do
+    if ! pkg_is_installed "$package" ; then
+        missing_dependencies[${#missing_dependencies[@]}]="$package"
+    fi
+done
+
+if [ ${#missing_dependencies[@]} -gt 0 ] ; then
+    #
+    # Bumblebee is unlikely to work with these missing dependencies
+    #
+    echo "Missing dependencies: ${missing_dependencies[*]}"
+    echo
+
+    #
+    #   Tell the user about missing repos when needed
+    #
+   for dependency in "${missing_dependencies[@]}" ; do
+        if [[ "$dependency" == "VirtualGL" ]] ; then
+            if [[ "$(zypper --no-refresh info $dependency | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee Unstable" 2>/dev/null | grep Cache) ]] ; then
+                    echo "'$dependency' can be installed from the Bumblebee Unstable repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee-unstable/openSUSE_$suse_version \"Bumblebee Unstable\""
+                    echo
+                fi
+            fi
+        fi
+        if [[ "$dependency" == "nvidia-kmp" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "x11-video-nvidia" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "x11-video-nvidia-32bit" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia-32bit | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+    done
+
+    #
+    #   Tell the user what to do when a depency is missing. 
+    #
+    echo "Update your package lists and install the dependencies by running:"
+    echo "    sudo zypper refresh"
+
+    reboot=""
+    for dependency in "${missing_dependencies[@]}" ; do
+        if [[ "$dependency" == "nvidia-kmp" ]] ; then
+            echo "    sudo zypper install nvidia-kmp-$kernel_type"
+            reboot="yes"
+        else
+            echo "    sudo zypper install $dependency"
+        fi
+    done
+
+    if [[ -n "$reboot" ]] ; then
+        echo "And reboot the computer."
+    fi
+    failed=true
+fi
+
+if pkg_is_installed bumblebee ; then
+    echo "The 'bumblebee' package is already installed (from a repository?)."
+    echo "The package needs to be removed before installing this version."
+    echo "Please remove it by running:"
+    echo "    sudo rpm -e bumblebee"
+    failed=true
+fi
+
+$failed && exit 4
