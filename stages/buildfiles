@@ -118,12 +118,18 @@ set_file install-files/bumblebee.conf
 def_var DRIVER "$DRIVER"
 def_var BUMBLEBEE_GROUP "$BUMBLEBEE_GROUP"
 
-for driver in "${DRIVERS[@]}"; do
+# for backwards compatibility, keep the possibility open that DRIVERS may be an
+# array. This will be changed when install and stages/ is removed
+for driver in ${DRIVERS[@]}; do
     # This change is only meaningful to the nvidia driver
     # XXX: make XORG_MODULEPATH driver-independent
     if [ "$driver" == "nvidia" ]; then
         set_file "install-files/xorg.conf.$driver"
         sreplace 'ModulePath  *"[^"]*"' 'ModulePath "%s"' "$XORG_MODULEPATH"
+        # Add paths to nvidia.options
+        set_file "install-files/drivers/nvidia.options"
+        def_var X_LD_LIB32_PATH "$NV_LIBPATH"
+        def_var X_LD_LIB64_PATH "$NV_LIBPATH:$NV_LIB32PATH"
     fi
 done
 
