@@ -207,7 +207,9 @@ lsmod
 
 if [ -d /etc/alternatives ]; then
     header "Alternatives links"
-    ls -l /etc/alternatives/*gl_conf* /etc/alternatives/*xorg*
+    alt_links=(/etc/alternatives/*gl_conf* /etc/alternatives/*xorg*)
+    # only show links if there are any
+    [ "${#alt_links[@]}" -eq 0 ] || ls -ld "${alt_links[@]}"
 
     header "Alternatives info"
     for alt in /var/lib/dpkg/alternatives/*gl_conf* \
