@@ -230,6 +230,15 @@ for bin in $(which glxgears glxspheres xdriinfo 2>/dev/null); do
     fi
 done
 
+header "Locations of files"
+for file in $(which optirun bumblebee vglrun vglconnect ironhide 2>/dev/null); do
+    if [ -e "$file" ]; then
+        ls -la "$file"
+    else
+        echo "$file: not found"
+    fi
+done
+
 header "Driver information"
 ls -ld /usr/lib/libnvidia*
 ls -ld /usr/lib/libGL.so*
