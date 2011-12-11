@@ -135,3 +135,4 @@ done
 
 set_file "install-files/bumblebee-bugreport"
 def_var BUMBLEBEE_VERSION "$BUMBLEBEE_VERSION"
+def_var CONFDIR
