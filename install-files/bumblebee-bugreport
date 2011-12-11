@@ -231,7 +231,7 @@ for bin in $(which glxgears glxspheres xdriinfo 2>/dev/null); do
 done
 
 header "Locations of files"
-for file in $(which optirun bumblebee vglrun vglconnect ironhide 2>/dev/null); do
+for file in $(which optirun bumblebee vglrun vglconnect 2>/dev/null); do
     if [ -e "$file" ]; then
         ls -la "$file"
     else
