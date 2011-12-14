@@ -18,7 +18,7 @@ _optirun() {
             in_option=false
         else
             case "$prev" in
-              -c|-d|--failsafe|--debug-log)
+              -c|-d|--failsafe|--debug-log|--vgl-options)
                 in_option=true
                 ;;
               --)
@@ -48,8 +48,11 @@ _optirun() {
           --debug-log)
             _filedir
             ;;
+          --vgl-options)
+            ;;
           *)
-            COMPREPLY=( $(compgen -W "-f -c -d --failsafe --silent --debug-log --help --" -- "$cur") )
+            COMPREPLY=( $(compgen -W "-f -c -d --failsafe --silent \
+                --debug-log --vgl-options --help --" -- "$cur") )
             ;;
         esac
         return 0
