@@ -17,6 +17,7 @@
 # along with Bumblebee.  If not, see <http://www.gnu.org/licenses/>.
 
 BUMBLEBEE_VERSION=dev
+CONFDIR=/etc/bumblebee
 
 if (( EUID != 0 )); then
     echo "Certain system information can only be gathered as root. This"
@@ -143,7 +144,9 @@ copy_log() {
 shopt -s nullglob
 
 # Copy configuration, preserving times and permissions
-cp -pr /etc/bumblebee "$BUGREPORT_DIR"
+confdirs=("$CONFDIR")
+[[ "${confdirs[0]}" == "/etc/bumblebee" ]] || confdirs=("${confdirs[@]}" /etc/bumblebee)
+cp -pr "${confdirs[@]}" "$BUGREPORT_DIR"
 
 for log in /var/log/Xorg.*; do
     copy_log "$log"
@@ -204,7 +207,9 @@ lsmod
 
 if [ -d /etc/alternatives ]; then
     header "Alternatives links"
-    ls -l /etc/alternatives/*gl_conf* /etc/alternatives/*xorg*
+    alt_links=(/etc/alternatives/*gl_conf* /etc/alternatives/*xorg*)
+    # only show links if there are any
+    [ "${#alt_links[@]}" -eq 0 ] || ls -ld "${alt_links[@]}"
 
     header "Alternatives info"
     for alt in /var/lib/dpkg/alternatives/*gl_conf* \
@@ -222,6 +227,15 @@ for bin in $(which glxgears glxspheres xdriinfo 2>/dev/null); do
     if ldd "$bin" | grep -qF "libGL.so"; then
         ldd "$bin"
         break
+    fi
+done
+
+header "Locations of files"
+for file in $(which optirun bumblebee vglrun vglconnect 2>/dev/null); do
+    if [ -e "$file" ]; then
+        ls -la "$file"
+    else
+        echo "$file: not found"
     fi
 done
 

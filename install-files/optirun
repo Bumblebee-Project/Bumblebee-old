@@ -59,6 +59,11 @@ Start an application which may use the nVidia graphics card
     from VirtualGL to file LOG. If LOG is empty, messages will be printed to
     standard output
 
+  --vgl-options=OPTIONS
+  --vgl-options OPTIONS
+    These options are passed to vglrun. Use --debug-log=LOG --vgl-options +tr
+    to generate a verbose debug log (useful if programs are segfaulting)
+
   --help
     Prints this help message
 EOF
@@ -73,6 +78,8 @@ msg() {
 # only set VGL_LOG to empty if the variable was not defined, this allows the
 # user to set VGL_LOG= to get default behavior: write to stderr
 : "${VGL_LOG:=/dev/null}"
+
+vgl_options=
 
 while :; do
     case "$1" in
@@ -132,6 +139,14 @@ while :; do
             VGL_LOG="$1"
         else
             VGL_LOG="${1#--debug-log=}"
+        fi
+        ;;
+      --vgl-options=*|--vgl-options)
+        if [[ $1 == --vgl-options ]]; then
+            shift 1
+            vgl_options="$1"
+        else
+            vgl_options="${1#--vgl-options=}"
         fi
         ;;
       --)
@@ -270,7 +285,8 @@ optirun_launcher() {
     # export settings from configuration file
     export VGL_LOG
     export VGL_VERBOSE
-    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" -- "$@"
+    vglrun -c "$VGL_COMPRESS" -d "$VGL_DISPLAY" -ld "$VGL_DRIVER" \
+        $vgl_options -- "$@"
 
     # notify the daemon that we are done
     echo stop > "$BUMBLEBEE_FIFO"
