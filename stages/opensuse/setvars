@@ -6,7 +6,7 @@
 SUDO_OPTS="-s"
 
 # usermod options
-USERMOD_OPTS="-G"
+USERMOD_OPTS="-A"
 
 # options for the INIT INFO block of the bumblebee.handler
 REQUIRED_START="\$remote_fs"
