@@ -15,12 +15,12 @@ case "$DRIVER" in
     dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel
     dependencies[ ${#dependencies[@]} ]=nvidia-compute
     dependencies[ ${#dependencies[@]} ]=nvidia-compute-devel
-	if $IS_64 ; then
-		dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
-		dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel-32bit
-		dependencies[ ${#dependencies[@]} ]=nvidia-compute-32bit
-		dependencies[ ${#dependencies[@]} ]=nvidia-compute-devel-32bit
-	fi
+    if $IS_64 ; then
+        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
+        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel-32bit
+        dependencies[ ${#dependencies[@]} ]=nvidia-compute-32bit
+        dependencies[ ${#dependencies[@]} ]=nvidia-compute-devel-32bit
+    fi
     conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp' 'nvidia-kmp')
     ;;
   nouveau)
@@ -107,12 +107,13 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
             echo
             echo "And reboot the computer."
         else
-        if [[ "$conflict" == "nvidia-kmp" ]] ; then
-            echo "    sudo rpm -e nvidia-kmp-$kernel_type"
-            echo
-            echo "And reboot the computer."
-        else
-            echo "    sudo rpm -e $conflict"
+            if [[ "$conflict" == "nvidia-kmp" ]] ; then
+                echo "    sudo rpm -e nvidia-kmp-$kernel_type"
+                echo
+                echo "And reboot the computer."
+            else
+                echo "    sudo rpm -e $conflict"
+            fi
         fi
     done
 
