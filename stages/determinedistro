@@ -33,7 +33,7 @@ elif grep -iq "Gentoo" /etc/issue; then
     echo "https://github.com/iegor/rainyday/tree/master/x11-misc/bumblebee"
     echo
     $UNATTENDED || read
-    exit 31
+    exit 3
 elif grep -iq "Agilia" /etc/issue; then
     DISTRO=agilia
 else
