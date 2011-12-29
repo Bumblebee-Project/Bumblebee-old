@@ -1,0 +1,8 @@
+#!/bin/bash
+
+BINDIR=/usr/bin
+SBINDIR=/usr/sbin
+LIBDIR=/usr/lib64/bumblebee
+INITDIR=/etc/init.d
+XORG_MODULEPATH=/usr/lib64/nvidia-bumblebee,$XORG_MODULEPATH
+CMD_SVC_STOP='rc-service bumblebee stop'
