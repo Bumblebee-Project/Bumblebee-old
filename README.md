@@ -160,6 +160,12 @@ sudo apt-get install bumblebee
     sudo zypper install bumblebee
     ```
 
+    For 64bit systems add:
+
+    ```shell
+    sudo zypper install VirtualGL-32bit
+    ```
+
 Or you can use Yast to add the repositories and packages.
 
 
