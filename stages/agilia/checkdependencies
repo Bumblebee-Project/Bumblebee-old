@@ -13,7 +13,7 @@ done
 for driver in "${DRIVERS[@]}"; do
     case "$driver" in
       nvidia)
-        for i in nvidia-kernel nvidia-utils-bumblebee
+        for i in nvidia-kernel nvidia-driver-optimus libgl libglx mesa
         do
             dependencies[${#dependencies[@]}]="$i"
         done
@@ -35,7 +35,7 @@ done
 
 if [ ${#missing_dependencies[@]} -gt 0 ]; then
     echo "Missing dependencies: ${missing_dependencies[*]}"
-    echo "These packages are available from the AUR"
+    echo "These packages are available from the main repo..."
     failed=true
 fi
 
