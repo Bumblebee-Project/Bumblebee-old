@@ -64,7 +64,62 @@ sudo apt-get install bumblebee
 
 #### OpenSuSE
 
-1. Installing Bumblebee:
+1. Installing the nVidia drivers (optional but highly recommended):
+    
+    Select the nVidia repository for your openSuSE version:
+
+    - **openSuSE 11.3**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.3 "Bumblebee nVidia"
+        ```
+
+    - **openSuSE 11.4**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_11.4 "Bumblebee nVidia"
+        ```
+
+    - **openSuSE 12.1**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_12.1 "Bumblebee nVidia"
+        ```
+
+    - **openSuSE Tumbleweed**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_Tumbleweed "Bumblebee nVidia"
+        ```
+
+    - **openSuSE Factory**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_Factory "Bumblebee nVidia"
+          ```
+
+    Install the nVidia driver packages:
+
+    ```shell
+    sudo zypper refresh
+    sudo zypper install dkms-nvidia
+    sudo zypper install x11-video-nvidia
+    sudo zypper install x11-video-nvidia-devel
+    sudo zypper install nvidia-compute
+    sudo zypper install nvidia-compute-devel
+    ```
+
+    For 64bit systems add:
+
+    ```shell
+    sudo zypper install x11-video-nvidia-32bit
+    sudo zypper install x11-video-nvidia-devel-32bit
+    sudo zypper install nvidia-compute-32bit
+    sudo zypper install nvidia-compute-devel-32bit
+    ```
+
+
+2. Installing Bumblebee:
 
     Select the Bumblebee repository for your openSuSE version:
 
@@ -78,6 +133,12 @@ sudo apt-get install bumblebee
 
         ```shell
         sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_11.4 "Bumblebee"
+        ```
+
+    - **openSuSE 12.1**:
+
+        ```shell
+        sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/Bumblebee/openSUSE_12.1 "Bumblebee"
         ```
 
     - **openSuSE Tumbleweed**:
@@ -97,6 +158,12 @@ sudo apt-get install bumblebee
     ```shell
     sudo zypper refresh
     sudo zypper install bumblebee
+    ```
+
+    For 64bit systems add:
+
+    ```shell
+    sudo zypper install VirtualGL-32bit
     ```
 
 Or you can use Yast to add the repositories and packages.
@@ -179,7 +246,7 @@ other groups.
 #### openSuSE
 
 ```shell
-sudo -s usermod -G bumblebee YOUR_USERNAME
+sudo -s usermod -A bumblebee YOUR_USERNAME
 ```
 
 Replace `YOUR_USERNAME` accordingly.
@@ -215,7 +282,7 @@ what it all means and wish to proceed, here is how to enable it:
   - **openSuSE**: available in the Bumblebee repository:
 
         ```shell
-        sudo zypper install acpi_call-kmp-$(uname -r | cut -f3 -d'-')
+        sudo zypper install dkms-acpi_call
         ```
 
 2. Edit `/etc/bumblebee/bumblebee.conf` and set power management to `Y`.

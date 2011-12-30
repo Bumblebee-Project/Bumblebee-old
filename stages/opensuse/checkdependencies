@@ -10,16 +10,22 @@ fi
 
 case "$DRIVER" in
   nvidia)
-    dependencies[ ${#dependencies[@]} ]=nvidia-kmp
+    dependencies[ ${#dependencies[@]} ]=dkms-nvidia
     dependencies[ ${#dependencies[@]} ]=x11-video-nvidia
-	if $IS_64 ; then
-		dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
-	fi
-    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel
+    dependencies[ ${#dependencies[@]} ]=nvidia-compute
+    dependencies[ ${#dependencies[@]} ]=nvidia-compute-devel
+    if $IS_64 ; then
+        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-32bit
+        dependencies[ ${#dependencies[@]} ]=x11-video-nvidia-devel-32bit
+        dependencies[ ${#dependencies[@]} ]=nvidia-compute-32bit
+        dependencies[ ${#dependencies[@]} ]=nvidia-compute-devel-32bit
+    fi
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp' 'nvidia-kmp')
     ;;
   nouveau)
     dependencies[ ${#dependencies[@]} ]=xorg-x11-driver-video-nouveau
-    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp')
+    conflictingpackages=('x11-video-bumblebee-nvidiaG02' 'x11-video-nvidiaG02' 'nvidia-computeG02' 'nvidia-gfxG02-kmp' 'nvidia-kmp')
     ;;
 esac
 
@@ -101,7 +107,13 @@ if [ ${#conflicts[@]} -gt 0 ] ; then
             echo
             echo "And reboot the computer."
         else
-            echo "    sudo rpm -e $conflict"
+            if [[ "$conflict" == "nvidia-kmp" ]] ; then
+                echo "    sudo rpm -e nvidia-kmp-$kernel_type"
+                echo
+                echo "And reboot the computer."
+            else
+                echo "    sudo rpm -e $conflict"
+            fi
         fi
     done
 
@@ -138,8 +150,8 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
                 fi
             fi
         fi
-        if [[ "$dependency" == "nvidia-kmp" ]] ; then
-            if [[ "$(zypper --no-refresh info nvidia-kmp-$kernel_type  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+        if [[ "$dependency" == "dkms-nvidia" ]] ; then
+            if [[ "$(zypper --no-refresh info dkms-nvidia  | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
                 if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
                     echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
                     echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
@@ -167,6 +179,67 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
                 fi
             fi
         fi
+
+        if [[ "$dependency" == "x11-video-nvidia-devel" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia-devel | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "x11-video-nvidia-devel-32bit" ]] ; then
+            if [[ "$(zypper --no-refresh info x11-video-nvidia-devel-32bit | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "nvidia-compute" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-compute | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "nvidia-compute-32bit" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-compute-32bit | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "nvidia-compute-devel" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-compute-devel | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
+        if [[ "$dependency" == "nvidia-compute-devel-32bit" ]] ; then
+            if [[ "$(zypper --no-refresh info nvidia-compute-devel-32bit | grep Installed: | cut -f2 -d' ')" == "" ]] ; then
+                if [[ ! -n $(zypper lr "Bumblebee nVidia" 2>/dev/null | grep Cache) ]] ; then
+                    echo "nVidia drivers can be installed from the Bumblebee nVidia repository which can be added by running:"
+                    echo "    sudo zypper ar -f http://download.opensuse.org/repositories/home:/Bumblebee-Project:/nVidia:/latest/openSUSE_$suse_version \"Bumblebee nVidia\""
+                    echo
+                fi
+            fi
+        fi
+
     done
 
     #
@@ -177,8 +250,11 @@ if [ ${#missing_dependencies[@]} -gt 0 ] ; then
 
     reboot=""
     for dependency in "${missing_dependencies[@]}" ; do
-        if [[ "$dependency" == "nvidia-kmp" ]] ; then
-            echo "    sudo zypper install nvidia-kmp-$kernel_type"
+        if [[ "$dependency" == "dkms-nvidia" ]] ; then
+            echo "    sudo zypper install dkms-nvidia"
+            echo "Please be patient, this can take a long time. The package needs to download"
+            echo "the original nVidia package from the nVidia server and"
+            echo "it will be stored in /usr/src."
             reboot="yes"
         else
             echo "    sudo zypper install $dependency"
