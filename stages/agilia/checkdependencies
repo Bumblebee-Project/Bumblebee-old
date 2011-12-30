@@ -1,0 +1,42 @@
+#!/bin/bash
+dependencies=('virtualgl')
+missing_dependencies=()
+failed=false
+
+for i in "${conflictingpackages[@]}"; do
+    if [ "$(mpkg-search "$i" -i | wc -l)" != "2" ] ; then
+        echo "Please uninstall conflicting package: $i"
+        failed=true
+    fi
+done
+
+for driver in "${DRIVERS[@]}"; do
+    case "$driver" in
+      nvidia)
+        for i in nvidia-kernel nvidia-driver-optimus libgl libglx mesa
+        do
+            dependencies[${#dependencies[@]}]="$i"
+        done
+        ;;
+      nouveau)
+        for i in xf86-video-nouveau mesa libgl
+        do
+            dependencies[${#dependencies[@]}]="$i"
+        done
+        ;;
+    esac
+done
+
+for package in "${dependencies[@]}"; do
+    if [ "$(mpkg-search "$i" -i | wc -l)" == "2" ]; then
+        missing_dependencies[${#missing_dependencies[@]}]="$package"
+    fi
+done
+
+if [ ${#missing_dependencies[@]} -gt 0 ]; then
+    echo "Missing dependencies: ${missing_dependencies[*]}"
+    echo "These packages are available from the main repo..."
+    failed=true
+fi
+
+$failed && exit 4

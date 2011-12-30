@@ -34,6 +34,8 @@ elif grep -iq "Gentoo" /etc/issue; then
     echo
     $UNATTENDED || read
     exit 3
+elif grep -iq "Agilia" /etc/issue; then
+    DISTRO=agilia
 else
     echo
     echo "Your Distribution could not be determined or is not supported."
